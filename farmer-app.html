@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>PoultryOS Farmer App</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Instrument+Sans:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body data-page="farmer-app">
+    <div class="shell">
+      <aside class="sidebar">
+        <div class="brand"><div class="brand-mark">PO</div><div><p class="eyebrow">Integration Platform</p><h1>PoultryOS</h1></div></div>
+        <div class="nav-group">
+          <p class="nav-heading">Admin</p>
+          <a class="nav-link" data-page="overview" href="./index.html">Overview</a>
+          <a class="nav-link" data-page="farmers" href="./farmers.html">Farmers & Sheds</a>
+          <a class="nav-link" data-page="batches" href="./batches.html">Batch Control</a>
+          <a class="nav-link" data-page="operations" href="./operations.html">Operations</a>
+          <a class="nav-link" data-page="settlements" href="./settlements.html">Settlement</a>
+          <a class="nav-link" data-page="reports" href="./reports.html">Reports</a>
+        </div>
+        <div class="nav-group">
+          <p class="nav-heading">Mobile Roles</p>
+          <a class="nav-link" data-page="field" href="./field-app.html">Field Officer App</a>
+          <a class="nav-link" data-page="farmer-app" href="./farmer-app.html">Farmer App</a>
+        </div>
+      </aside>
+
+      <main class="content">
+        <div class="topbar">
+          <button class="mobile-nav-toggle">Menu</button>
+          <div class="role-tabs">
+            <a href="./field-app.html">Field Officer</a>
+            <a class="is-active" href="./farmer-app.html">Farmer</a>
+          </div>
+        </div>
+
+        <header class="hero">
+          <div>
+            <p class="eyebrow">Mobile Role</p>
+            <h2>Let farmers see the cycle clearly and trust the payout.</h2>
+            <p class="hero-copy">
+              The farmer app keeps growers informed about active batches, feed receipts, vaccine
+              schedules, field remarks, and payment ledgers without needing to call the office for
+              every update.
+            </p>
+          </div>
+        </header>
+
+        <section class="dual-grid">
+          <article class="panel app-preview">
+            <div class="panel-heading"><div><p class="section-label">App Preview</p><h3>Farmer home</h3></div></div>
+            <div class="phone-frame">
+              <div class="phone-notch"></div>
+              <div class="phone-screen">
+                <p class="eyebrow">Welcome back</p>
+                <h4>Kamal Poultry Shed 3</h4>
+                <div class="phone-metrics">
+                  <div><span>Bird age</span><strong>24 days</strong></div>
+                  <div><span>Mortality</span><strong>0.58%</strong></div>
+                </div>
+                <div class="phone-list">
+                  <div><span>Feed received</span><strong>2,400 kg</strong></div>
+                  <div><span>Next vaccine</span><strong>Tomorrow</strong></div>
+                  <div><span>Last payment</span><strong>INR 3.1L</strong></div>
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <article class="panel">
+            <div class="panel-heading"><div><p class="section-label">Farmer Features</p><h3>Core user needs</h3></div></div>
+            <div class="list-grid">
+              <div class="journey-step" data-step="1"><strong>Batch visibility</strong><p>See current age, bird count, and status for each active shed.</p></div>
+              <div class="journey-step" data-step="2"><strong>Feed and medicine history</strong><p>Track what was supplied and when it was acknowledged.</p></div>
+              <div class="journey-step" data-step="3"><strong>Visit remarks</strong><p>View field officer notes, advisories, and due actions.</p></div>
+              <div class="journey-step" data-step="4"><strong>Ledger and payouts</strong><p>Understand how final payment was calculated after lift.</p></div>
+            </div>
+          </article>
+        </section>
+
+        <section class="split-panel" style="margin-top: 1rem">
+          <article class="panel">
+            <div class="panel-heading"><div><p class="section-label">Ledger</p><h3>Payment history snapshot</h3></div></div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Batch</th>
+                    <th>Lift date</th>
+                    <th>Net payout</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr><td>BT-24002</td><td>2026-04-04</td><td>INR 3,10,840</td><td><span class="tag good">Paid</span></td></tr>
+                  <tr><td>BT-23988</td><td>2026-03-01</td><td>INR 2,96,220</td><td><span class="tag good">Paid</span></td></tr>
+                  <tr><td>BT-24018</td><td>2026-04-28</td><td>INR 3,84,220</td><td><span class="tag warn">Processing</span></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </article>
+
+          <article class="panel">
+            <div class="panel-heading"><div><p class="section-label">Support</p><h3>Help and reminders</h3></div></div>
+            <ul class="simple-list">
+              <li>Vaccine reminders for upcoming due dates.</li>
+              <li>Direct contact to assigned field officer.</li>
+              <li>Settlement explanation sheet after every lifted batch.</li>
+              <li>Simple multilingual UI for broad farmer adoption.</li>
+            </ul>
+          </article>
+        </section>
+      </main>
+    </div>
+
+    <script type="module" src="./app.js"></script>
+  </body>
+</html>

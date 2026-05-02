@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>PoultryOS Reports</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Instrument+Sans:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body data-page="reports">
+    <div class="shell">
+      <aside class="sidebar">
+        <div class="brand"><div class="brand-mark">PO</div><div><p class="eyebrow">Integration Platform</p><h1>PoultryOS</h1></div></div>
+        <div class="nav-group">
+          <p class="nav-heading">Admin</p>
+          <a class="nav-link" data-page="overview" href="./index.html">Overview</a>
+          <a class="nav-link" data-page="farmers" href="./farmers.html">Farmers & Sheds</a>
+          <a class="nav-link" data-page="batches" href="./batches.html">Batch Control</a>
+          <a class="nav-link" data-page="operations" href="./operations.html">Operations</a>
+          <a class="nav-link" data-page="settlements" href="./settlements.html">Settlement</a>
+          <a class="nav-link" data-page="reports" href="./reports.html">Reports</a>
+        </div>
+        <div class="nav-group">
+          <p class="nav-heading">Mobile Roles</p>
+          <a class="nav-link" data-page="field" href="./field-app.html">Field Officer App</a>
+          <a class="nav-link" data-page="farmer-app" href="./farmer-app.html">Farmer App</a>
+        </div>
+      </aside>
+
+      <main class="content">
+        <div class="topbar">
+          <button class="mobile-nav-toggle">Menu</button>
+          <div class="hero-actions">
+            <button class="ghost-btn">Schedule Email</button>
+            <button class="solid-btn">Generate Report</button>
+          </div>
+        </div>
+
+        <header class="hero">
+          <div>
+            <p class="eyebrow">Reports & Analytics</p>
+            <h2>Surface performance before it becomes a problem.</h2>
+            <p class="hero-copy">
+              The reporting module combines production, operations, and finance into decision-ready
+              dashboards for management reviews, farm ranking, profitability analysis, and risk
+              detection across clusters.
+            </p>
+          </div>
+        </header>
+
+        <section class="triple-grid">
+          <article class="module-card"><p class="section-label">Production</p><h4>Batch analytics</h4><p>FCR, mortality, body weight, and lift readiness by zone, officer, and breed.</p></article>
+          <article class="module-card"><p class="section-label">Operations</p><h4>Execution quality</h4><p>Feed fill rate, vaccine completion, visit SLA, and incident resolution tracking.</p></article>
+          <article class="module-card"><p class="section-label">Finance</p><h4>Payout visibility</h4><p>Settlement turnaround, farmer profitability, deduction trends, and exception analysis.</p></article>
+        </section>
+
+        <section class="dual-grid" style="margin-top: 1rem">
+          <article class="panel">
+            <div class="panel-heading"><div><p class="section-label">Management Pack</p><h3>Top dashboard views</h3></div></div>
+            <div class="list-grid">
+              <div class="summary-card"><p class="metric-label">Zone profitability</p><strong>+8.4%</strong><p>South cluster leading by weight efficiency and lower mortality.</p></div>
+              <div class="summary-card"><p class="metric-label">Farmer ranking</p><strong>124 elite farms</strong><p>Consistently above target on FCR and compliance.</p></div>
+              <div class="summary-card"><p class="metric-label">Risk watchlist</p><strong>19 farms</strong><p>Repeat mortality or compliance drift in the last 3 cycles.</p></div>
+            </div>
+          </article>
+
+          <article class="panel">
+            <div class="panel-heading"><div><p class="section-label">Exports</p><h3>Scheduled report library</h3></div></div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Report</th>
+                    <th>Audience</th>
+                    <th>Frequency</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr><td>Daily batch health</td><td>Operations heads</td><td>Every morning</td></tr>
+                  <tr><td>Weekly cluster profitability</td><td>Management</td><td>Monday</td></tr>
+                  <tr><td>Settlement exceptions</td><td>Finance</td><td>Daily</td></tr>
+                  <tr><td>Farmer compliance audit</td><td>Field teams</td><td>Friday</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </article>
+        </section>
+
+        <section class="panel" style="margin-top: 1rem">
+          <div class="panel-heading"><div><p class="section-label">Builder</p><h3>Custom report configuration</h3></div></div>
+          <div class="form-grid">
+            <div class="field"><label>Dataset</label><select><option>Batch performance</option></select></div>
+            <div class="field"><label>Region</label><select><option>All clusters</option></select></div>
+            <div class="field"><label>Date range</label><input value="Last 30 days" /></div>
+            <div class="field"><label>Format</label><select><option>Excel + PDF</option></select></div>
+            <div class="field full"><label>Included metrics</label><textarea>FCR, mortality, average weight, feed dispatched, final live weight, settlement amount, officer name.</textarea></div>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <script type="module" src="./app.js"></script>
+  </body>
+</html>

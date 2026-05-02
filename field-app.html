@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>PoultryOS Field Officer App</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Instrument+Sans:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body data-page="field">
+    <div class="shell">
+      <aside class="sidebar">
+        <div class="brand"><div class="brand-mark">PO</div><div><p class="eyebrow">Integration Platform</p><h1>PoultryOS</h1></div></div>
+        <div class="nav-group">
+          <p class="nav-heading">Admin</p>
+          <a class="nav-link" data-page="overview" href="./index.html">Overview</a>
+          <a class="nav-link" data-page="farmers" href="./farmers.html">Farmers & Sheds</a>
+          <a class="nav-link" data-page="batches" href="./batches.html">Batch Control</a>
+          <a class="nav-link" data-page="operations" href="./operations.html">Operations</a>
+          <a class="nav-link" data-page="settlements" href="./settlements.html">Settlement</a>
+          <a class="nav-link" data-page="reports" href="./reports.html">Reports</a>
+        </div>
+        <div class="nav-group">
+          <p class="nav-heading">Mobile Roles</p>
+          <a class="nav-link" data-page="field" href="./field-app.html">Field Officer App</a>
+          <a class="nav-link" data-page="farmer-app" href="./farmer-app.html">Farmer App</a>
+        </div>
+      </aside>
+
+      <main class="content">
+        <div class="topbar">
+          <button class="mobile-nav-toggle">Menu</button>
+          <div class="role-tabs">
+            <a class="is-active" href="./field-app.html">Field Officer</a>
+            <a href="./farmer-app.html">Farmer</a>
+          </div>
+        </div>
+
+        <header class="hero">
+          <div>
+            <p class="eyebrow">Mobile Role</p>
+            <h2>Give field teams one app for every visit.</h2>
+            <p class="hero-copy">
+              The field app supports routing, batch inspections, mortality and weight entry,
+              vaccine closure, photo evidence, and incident escalation even in low-connectivity
+              environments.
+            </p>
+          </div>
+        </header>
+
+        <section class="dual-grid">
+          <article class="panel">
+            <div class="panel-heading"><div><p class="section-label">Core Workflows</p><h3>Field officer responsibilities</h3></div></div>
+            <div class="list-grid">
+              <div class="journey-step" data-step="1"><strong>Assigned farm route</strong><p>Daily visit plan prioritized by alerts, age, and due tasks.</p></div>
+              <div class="journey-step" data-step="2"><strong>Visit checklist</strong><p>Ventilation, litter, feed, water, health, and compliance checks.</p></div>
+              <div class="journey-step" data-step="3"><strong>Batch data capture</strong><p>Mortality, culls, weight sample, comments, and farmer acknowledgement.</p></div>
+              <div class="journey-step" data-step="4"><strong>Escalation</strong><p>Raise incidents with photos, severity, and action request.</p></div>
+            </div>
+          </article>
+
+          <article class="panel app-preview">
+            <div class="panel-heading"><div><p class="section-label">App Preview</p><h3>Visit dashboard</h3></div></div>
+            <div class="phone-frame">
+              <div class="phone-notch"></div>
+              <div class="phone-screen">
+                <p class="eyebrow">Today</p>
+                <h4>Zone West Route</h4>
+                <div class="phone-metrics">
+                  <div><span>Visits</span><strong>06</strong></div>
+                  <div><span>Alerts</span><strong>02</strong></div>
+                </div>
+                <div class="phone-list">
+                  <div><span>BT-24058</span><strong>Mortality</strong></div>
+                  <div><span>Kamal Farm</span><strong>Weight Due</strong></div>
+                  <div><span>Ali Shed 2</span><strong>Vaccine</strong></div>
+                </div>
+              </div>
+            </div>
+          </article>
+        </section>
+
+        <section class="split-panel" style="margin-top: 1rem">
+          <article class="panel">
+            <div class="panel-heading"><div><p class="section-label">Visit Form</p><h3>Entry screen preview</h3></div></div>
+            <div class="form-grid">
+              <div class="field"><label>Farm</label><select><option>Shabana Farm</option></select></div>
+              <div class="field"><label>Batch</label><select><option>BT-24058</option></select></div>
+              <div class="field"><label>Mortality</label><input value="112" /></div>
+              <div class="field"><label>Sample weight</label><input value="1.44 kg" /></div>
+              <div class="field full"><label>Observation</label><textarea>Wet litter pockets near water line. Recommended immediate cleaning and electrolyte support.</textarea></div>
+            </div>
+          </article>
+          <article class="panel">
+            <div class="panel-heading"><div><p class="section-label">Offline Support</p><h3>Field realities</h3></div></div>
+            <ul class="simple-list">
+              <li>Store pending visits locally until sync is available.</li>
+              <li>Queue photo uploads in low network conditions.</li>
+              <li>Preload assigned routes and farm records every morning.</li>
+              <li>Surface overdue tasks first when the app opens.</li>
+            </ul>
+          </article>
+        </section>
+      </main>
+    </div>
+
+    <script type="module" src="./app.js"></script>
+  </body>
+</html>

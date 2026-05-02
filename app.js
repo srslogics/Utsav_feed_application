@@ -1,15 +1,16 @@
-const navItems = document.querySelectorAll(".nav-item");
-const views = document.querySelectorAll(".view");
+const page = document.body.dataset.page;
+const navLinks = document.querySelectorAll(".nav-link");
+const mobileToggle = document.querySelector(".mobile-nav-toggle");
+const sidebar = document.querySelector(".sidebar");
 
-navItems.forEach((item) => {
-  item.addEventListener("click", () => {
-    const selectedView = item.dataset.view;
-
-    navItems.forEach((navItem) => navItem.classList.remove("is-active"));
-    item.classList.add("is-active");
-
-    views.forEach((view) => {
-      view.classList.toggle("is-visible", view.dataset.panel === selectedView);
-    });
-  });
+navLinks.forEach((link) => {
+  if (link.dataset.page === page) {
+    link.classList.add("is-active");
+  }
 });
+
+if (mobileToggle && sidebar) {
+  mobileToggle.addEventListener("click", () => {
+    sidebar.classList.toggle("is-open");
+  });
+}

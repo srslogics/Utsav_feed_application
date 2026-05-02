@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>PoultryOS Farmers & Sheds</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Instrument+Sans:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body data-page="farmers">
+    <div class="shell">
+      <aside class="sidebar">
+        <div class="brand">
+          <div class="brand-mark">PO</div>
+          <div><p class="eyebrow">Integration Platform</p><h1>PoultryOS</h1></div>
+        </div>
+        <div class="nav-group">
+          <p class="nav-heading">Admin</p>
+          <a class="nav-link" data-page="overview" href="./index.html">Overview</a>
+          <a class="nav-link" data-page="farmers" href="./farmers.html">Farmers & Sheds</a>
+          <a class="nav-link" data-page="batches" href="./batches.html">Batch Control</a>
+          <a class="nav-link" data-page="operations" href="./operations.html">Operations</a>
+          <a class="nav-link" data-page="settlements" href="./settlements.html">Settlement</a>
+          <a class="nav-link" data-page="reports" href="./reports.html">Reports</a>
+        </div>
+        <div class="nav-group">
+          <p class="nav-heading">Mobile Roles</p>
+          <a class="nav-link" data-page="field" href="./field-app.html">Field Officer App</a>
+          <a class="nav-link" data-page="farmer-app" href="./farmer-app.html">Farmer App</a>
+        </div>
+      </aside>
+
+      <main class="content">
+        <div class="topbar">
+          <button class="mobile-nav-toggle">Menu</button>
+          <div class="hero-actions">
+            <button class="ghost-btn">Import Farmers</button>
+            <button class="solid-btn">Add New Farmer</button>
+          </div>
+        </div>
+
+        <header class="hero">
+          <div>
+            <p class="eyebrow">Farmer Network</p>
+            <h2>Onboard farms with contract and shed context.</h2>
+            <p class="hero-copy">
+              This section handles farmer KYC, bank details, farm location, shed readiness,
+              utilities, compliance, and field officer mapping. It is the foundation for all
+              future batch allocations.
+            </p>
+          </div>
+        </header>
+
+        <section class="stats-grid">
+          <article class="stat-card accent-coral"><p>Approved farmers</p><strong>2,548</strong><span>84 added this month</span></article>
+          <article class="stat-card accent-gold"><p>Total sheds</p><strong>3,912</strong><span>312 under maintenance</span></article>
+          <article class="stat-card accent-teal"><p>Compliance score</p><strong>94%</strong><span>Average biosecurity rating</span></article>
+          <article class="stat-card accent-slate"><p>Officer coverage</p><strong>98%</strong><span>Farms mapped to field teams</span></article>
+        </section>
+
+        <section class="dual-grid">
+          <article class="panel">
+            <div class="panel-heading">
+              <div><p class="section-label">Cluster Map</p><h3>Farm density and readiness</h3></div>
+              <span class="chip good">3 priority zones</span>
+            </div>
+            <div class="map-card">
+              <p class="muted">Geo-cluster view for onboarding, visit routing, and placement planning.</p>
+              <div class="map-dots">
+                <span class="map-dot" style="top: 32px; left: 28px"></span>
+                <span class="map-dot teal" style="top: 88px; left: 168px"></span>
+                <span class="map-dot gold" style="top: 126px; left: 88px"></span>
+                <span class="map-dot teal" style="top: 48px; left: 258px"></span>
+                <span class="map-dot" style="top: 132px; left: 230px"></span>
+              </div>
+            </div>
+          </article>
+
+          <article class="panel">
+            <div class="panel-heading">
+              <div><p class="section-label">Onboarding Flow</p><h3>Farmer approval journey</h3></div>
+            </div>
+            <div class="list-grid">
+              <div class="journey-step" data-step="1">
+                <strong>KYC and contract intake</strong>
+                <p>Aadhaar/PAN, bank account, agreement term, and payment preferences.</p>
+              </div>
+              <div class="journey-step" data-step="2">
+                <strong>Farm and shed inspection</strong>
+                <p>Geo-tagging, capacity, ventilation, power, water source, equipment readiness.</p>
+              </div>
+              <div class="journey-step" data-step="3">
+                <strong>Officer mapping and approval</strong>
+                <p>Assign field officer, operational zone, and mark farms eligible for placement.</p>
+              </div>
+            </div>
+          </article>
+        </section>
+
+        <section class="panel" style="margin-top: 1rem">
+          <div class="control-row">
+            <div>
+              <p class="section-label">Directory</p>
+              <h3>Active farmers and sheds</h3>
+            </div>
+            <div class="filter-pills">
+              <span>All regions</span>
+              <span>Compliant only</span>
+              <span>Placement ready</span>
+              <span>Needs revisit</span>
+            </div>
+          </div>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Farmer</th>
+                  <th>Cluster</th>
+                  <th>Sheds</th>
+                  <th>Capacity</th>
+                  <th>Officer</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><td>Rakesh Verma</td><td>Central CG</td><td>3</td><td>54,000</td><td>Arun Sahu</td><td><span class="tag good">Placement Ready</span></td></tr>
+                <tr><td>Shabana Farms</td><td>Maharashtra Belt</td><td>2</td><td>36,000</td><td>Farha Khan</td><td><span class="tag warn">Audit Pending</span></td></tr>
+                <tr><td>Kamal Poultry</td><td>Parivartan A</td><td>4</td><td>72,000</td><td>Deepak Rao</td><td><span class="tag good">Approved</span></td></tr>
+                <tr><td>Mahaveer Shed Unit</td><td>North Zone</td><td>1</td><td>18,000</td><td>Nitesh Jain</td><td><span class="tag risk">Repair Hold</span></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="split-panel" style="margin-top: 1rem">
+          <article class="panel">
+            <div class="panel-heading"><div><p class="section-label">Add Farmer</p><h3>Onboarding form preview</h3></div></div>
+            <div class="form-grid">
+              <div class="field"><label>Farmer name</label><input value="Kamal Poultry Enterprise" /></div>
+              <div class="field"><label>Primary phone</label><input value="+91 98XXXXXX84" /></div>
+              <div class="field"><label>District</label><select><option>Rajnandgaon</option></select></div>
+              <div class="field"><label>Assigned officer</label><select><option>Deepak Rao</option></select></div>
+              <div class="field"><label>Total sheds</label><input value="4" /></div>
+              <div class="field"><label>Combined capacity</label><input value="72000" /></div>
+              <div class="field full"><label>Readiness notes</label><textarea>Diesel backup available, nipple line serviced, biosecurity gate complete.</textarea></div>
+            </div>
+          </article>
+
+          <article class="panel">
+            <div class="panel-heading"><div><p class="section-label">Profile Snapshot</p><h3>Farm scorecard</h3></div></div>
+            <div class="profile-card">
+              <h4>Kamal Poultry Enterprise</h4>
+              <p>Parivartan Cluster A · 4 sheds · 72,000 birds capacity</p>
+              <ul>
+                <li>Biosecurity: 96/100</li>
+                <li>Water source: Borewell with filtration</li>
+                <li>Power: Grid + DG backup</li>
+                <li>Last cycle FCR: 1.59</li>
+                <li>Settlement status: Cleared</li>
+              </ul>
+            </div>
+          </article>
+        </section>
+      </main>
+    </div>
+
+    <script type="module" src="./app.js"></script>
+  </body>
+</html>
