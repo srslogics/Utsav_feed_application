@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>PoultryOS Integration Suite</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Instrument+Sans:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="shell">
+      <aside class="sidebar">
+        <div class="brand">
+          <div class="brand-mark">PO</div>
+          <div>
+            <p class="eyebrow">Integration Platform</p>
+            <h1>PoultryOS</h1>
+          </div>
+        </div>
+
+        <nav class="sidebar-nav">
+          <button class="nav-item is-active" data-view="overview">Overview</button>
+          <button class="nav-item" data-view="batches">Batch Control</button>
+          <button class="nav-item" data-view="farmers">Farm Network</button>
+          <button class="nav-item" data-view="operations">Operations</button>
+          <button class="nav-item" data-view="finance">Settlement</button>
+        </nav>
+
+        <section class="sidebar-panel">
+          <p class="panel-label">Today</p>
+          <div class="mini-stat">
+            <span>Live batches</span>
+            <strong>184</strong>
+          </div>
+          <div class="mini-stat">
+            <span>Farms visited</span>
+            <strong>61 / 78</strong>
+          </div>
+          <div class="mini-stat">
+            <span>Alerts open</span>
+            <strong>09</strong>
+          </div>
+        </section>
+      </aside>
+
+      <main class="content">
+        <header class="hero">
+          <div>
+            <p class="eyebrow">Admin Command Center</p>
+            <h2>Integrated poultry operations, from chick placement to farmer payout.</h2>
+            <p class="hero-copy">
+              A client-ready frontend concept for a broiler integration company managing farmers,
+              sheds, batches, feed logistics, health alerts, lifting, and settlements.
+            </p>
+          </div>
+          <div class="hero-actions">
+            <button class="ghost-btn">Export Reports</button>
+            <button class="solid-btn">Create New Batch</button>
+          </div>
+        </header>
+
+        <section class="stats-grid">
+          <article class="stat-card accent-coral">
+            <p>Birds in cycle</p>
+            <strong>2.84M</strong>
+            <span>Across 184 active batches</span>
+          </article>
+          <article class="stat-card accent-gold">
+            <p>Average FCR</p>
+            <strong>1.61</strong>
+            <span>Target beating by 0.03</span>
+          </article>
+          <article class="stat-card accent-teal">
+            <p>Mortality today</p>
+            <strong>0.72%</strong>
+            <span>Within control threshold</span>
+          </article>
+          <article class="stat-card accent-slate">
+            <p>Pending settlements</p>
+            <strong>27</strong>
+            <span>INR 48.6L awaiting release</span>
+          </article>
+        </section>
+
+        <section class="workspace">
+          <div class="workspace-main">
+            <div class="panel panel-large view is-visible" data-panel="overview">
+              <div class="panel-heading">
+                <div>
+                  <p class="panel-label">Performance Snapshot</p>
+                  <h3>Regional batch momentum</h3>
+                </div>
+                <span class="chip positive">92% healthy zones</span>
+              </div>
+
+              <div class="trend-chart">
+                <div class="chart-line chart-live"></div>
+                <div class="chart-line chart-target"></div>
+                <div class="chart-bars">
+                  <span style="--value: 62%"></span>
+                  <span style="--value: 79%"></span>
+                  <span style="--value: 70%"></span>
+                  <span style="--value: 84%"></span>
+                  <span style="--value: 76%"></span>
+                  <span style="--value: 91%"></span>
+                  <span style="--value: 88%"></span>
+                </div>
+                <div class="chart-labels">
+                  <span>Mon</span>
+                  <span>Tue</span>
+                  <span>Wed</span>
+                  <span>Thu</span>
+                  <span>Fri</span>
+                  <span>Sat</span>
+                  <span>Sun</span>
+                </div>
+              </div>
+
+              <div class="insight-row">
+                <article class="insight-card">
+                  <p class="panel-label">Placement forecast</p>
+                  <strong>14 sheds</strong>
+                  <span>Ready for chick placement in the next 48 hours</span>
+                </article>
+                <article class="insight-card">
+                  <p class="panel-label">Feed movement</p>
+                  <strong>126.4 MT</strong>
+                  <span>Dispatches planned from 3 godowns today</span>
+                </article>
+                <article class="insight-card">
+                  <p class="panel-label">Field productivity</p>
+                  <strong>78%</strong>
+                  <span>Visit completion rate by 2:00 PM</span>
+                </article>
+              </div>
+            </div>
+
+            <div class="panel view" data-panel="batches">
+              <div class="panel-heading">
+                <div>
+                  <p class="panel-label">Batch Control</p>
+                  <h3>Active production cycles</h3>
+                </div>
+                <span class="chip warning">5 attention needed</span>
+              </div>
+
+              <div class="table-wrap">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Batch</th>
+                      <th>Farmer</th>
+                      <th>Age</th>
+                      <th>Birds</th>
+                      <th>FCR</th>
+                      <th>Status</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>BT-24051</td>
+                      <td>Rakesh Verma</td>
+                      <td>31 days</td>
+                      <td>18,400</td>
+                      <td>1.58</td>
+                      <td><span class="tag good">On Track</span></td>
+                    </tr>
+                    <tr>
+                      <td>BT-24058</td>
+                      <td>Shabana Farm</td>
+                      <td>27 days</td>
+                      <td>22,000</td>
+                      <td>1.69</td>
+                      <td><span class="tag risk">Feed Drift</span></td>
+                    </tr>
+                    <tr>
+                      <td>BT-24063</td>
+                      <td>Govind Poultry</td>
+                      <td>35 days</td>
+                      <td>16,920</td>
+                      <td>1.60</td>
+                      <td><span class="tag good">Lift Ready</span></td>
+                    </tr>
+                    <tr>
+                      <td>BT-24072</td>
+                      <td>Mahaveer Shed 2</td>
+                      <td>19 days</td>
+                      <td>20,150</td>
+                      <td>1.63</td>
+                      <td><span class="tag neutral">Watch</span></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <div class="panel view" data-panel="farmers">
+              <div class="panel-heading">
+                <div>
+                  <p class="panel-label">Farm Network</p>
+                  <h3>Farmer and shed map</h3>
+                </div>
+                <span class="chip positive">2,548 approved farmers</span>
+              </div>
+
+              <div class="farm-grid">
+                <article class="farm-card">
+                  <h4>Parivartan Cluster A</h4>
+                  <p>412 farms · 688 sheds · 96% compliance</p>
+                </article>
+                <article class="farm-card">
+                  <h4>Central Chhattisgarh</h4>
+                  <p>286 farms · 431 sheds · 4 high-risk locations</p>
+                </article>
+                <article class="farm-card">
+                  <h4>Maharashtra Belt</h4>
+                  <p>183 farms · 301 sheds · 12 placements this week</p>
+                </article>
+              </div>
+            </div>
+
+            <div class="panel view" data-panel="operations">
+              <div class="panel-heading">
+                <div>
+                  <p class="panel-label">Operations</p>
+                  <h3>Logistics and health command</h3>
+                </div>
+                <span class="chip warning">9 unresolved alerts</span>
+              </div>
+
+              <div class="ops-grid">
+                <article class="ops-card">
+                  <h4>Feed dispatches</h4>
+                  <p>38 trucks scheduled today</p>
+                </article>
+                <article class="ops-card">
+                  <h4>Vaccination due</h4>
+                  <p>11 batches need completion by evening</p>
+                </article>
+                <article class="ops-card">
+                  <h4>Field visits</h4>
+                  <p>17 visits still pending in Zone West</p>
+                </article>
+              </div>
+            </div>
+
+            <div class="panel view" data-panel="finance">
+              <div class="panel-heading">
+                <div>
+                  <p class="panel-label">Settlement</p>
+                  <h3>Farmer payouts and approvals</h3>
+                </div>
+                <span class="chip positive">INR 3.2Cr released this week</span>
+              </div>
+
+              <div class="settlement-list">
+                <article class="settlement-card">
+                  <div>
+                    <h4>BT-24018 · Nirmal Farms</h4>
+                    <p>Net payout after incentives and deductions</p>
+                  </div>
+                  <strong>INR 3,84,220</strong>
+                </article>
+                <article class="settlement-card">
+                  <div>
+                    <h4>BT-24021 · Ali Broilers</h4>
+                    <p>Awaiting finance approval</p>
+                  </div>
+                  <strong>INR 2,91,640</strong>
+                </article>
+                <article class="settlement-card">
+                  <div>
+                    <h4>BT-24011 · Sahu Poultry</h4>
+                    <p>Payment queued via bank transfer</p>
+                  </div>
+                  <strong>INR 4,12,970</strong>
+                </article>
+              </div>
+            </div>
+          </div>
+
+          <div class="workspace-side">
+            <section class="panel">
+              <div class="panel-heading">
+                <div>
+                  <p class="panel-label">Alerts</p>
+                  <h3>Needs attention</h3>
+                </div>
+              </div>
+
+              <div class="alert-stack">
+                <article class="alert-card">
+                  <span class="alert-tone danger"></span>
+                  <div>
+                    <h4>Mortality spike in Batch BT-24058</h4>
+                    <p>2.1% over benchmark in last 24 hours</p>
+                  </div>
+                </article>
+                <article class="alert-card">
+                  <span class="alert-tone warning"></span>
+                  <div>
+                    <h4>Vaccine missed in 2 farms</h4>
+                    <p>Escalated to field supervisor</p>
+                  </div>
+                </article>
+                <article class="alert-card">
+                  <span class="alert-tone info"></span>
+                  <div>
+                    <h4>Settlement queue building up</h4>
+                    <p>27 batches pending approval</p>
+                  </div>
+                </article>
+              </div>
+            </section>
+
+            <section class="panel app-preview">
+              <div class="panel-heading">
+                <div>
+                  <p class="panel-label">Farmer App</p>
+                  <h3>Mobile companion</h3>
+                </div>
+              </div>
+
+              <div class="phone-frame">
+                <div class="phone-notch"></div>
+                <div class="phone-screen">
+                  <p class="eyebrow">Welcome back</p>
+                  <h4>Kamal Poultry Shed 3</h4>
+                  <div class="phone-metrics">
+                    <div>
+                      <span>Bird age</span>
+                      <strong>24 days</strong>
+                    </div>
+                    <div>
+                      <span>Mortality</span>
+                      <strong>0.58%</strong>
+                    </div>
+                  </div>
+                  <div class="phone-list">
+                    <div><span>Feed received</span><strong>2,400 kg</strong></div>
+                    <div><span>Next vaccine</span><strong>Tomorrow</strong></div>
+                    <div><span>Last payment</span><strong>INR 3.1L</strong></div>
+                  </div>
+                </div>
+              </div>
+            </section>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <script type="module" src="./app.js"></script>
+  </body>
+</html>
