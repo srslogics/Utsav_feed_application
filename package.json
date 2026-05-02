@@ -1,0 +1,12 @@
+{
+  "name": "poultryos-integration-suite",
+  "version": "1.0.0",
+  "description": "Frontend prototype and starter Node service for a poultry integration platform.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
