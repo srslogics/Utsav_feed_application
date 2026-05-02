@@ -734,6 +734,13 @@ th {
   background: linear-gradient(180deg, #2c3343, #171d29);
 }
 
+.phone-gallery {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+  align-items: start;
+}
+
 .phone-notch {
   width: 42%;
   height: 18px;
@@ -746,6 +753,24 @@ th {
   padding: 1rem;
   border-radius: 25px;
   background: linear-gradient(180deg, #faf2e7, #fffdf8);
+}
+
+.phone-screen strong {
+  font-family: "Space Grotesk", sans-serif;
+}
+
+.phone-balance {
+  margin: 0.9rem 0;
+  padding: 1rem;
+  border-radius: 20px;
+  color: #fff;
+  background: linear-gradient(135deg, var(--teal), #1d5f57);
+}
+
+.phone-balance p,
+.phone-balance span,
+.phone-balance strong {
+  color: inherit;
 }
 
 .phone-metrics {
@@ -770,6 +795,46 @@ th {
   display: flex;
   justify-content: space-between;
   align-items: center;
+}
+
+.phone-timeline {
+  display: grid;
+  gap: 0.6rem;
+  margin-top: 0.8rem;
+}
+
+.phone-timeline div {
+  padding: 0.8rem;
+  border-radius: 18px;
+  background: rgba(216, 163, 43, 0.1);
+}
+
+.phone-timeline p,
+.phone-timeline span,
+.phone-timeline strong,
+.phone-list p,
+.phone-list span,
+.phone-list strong {
+  margin: 0;
+}
+
+.phone-tabs {
+  display: flex;
+  gap: 0.5rem;
+  margin: 0.9rem 0;
+}
+
+.phone-tabs span {
+  padding: 0.45rem 0.7rem;
+  border-radius: 999px;
+  font-size: 0.82rem;
+  border: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.72);
+}
+
+.phone-tabs span.is-active {
+  color: #fff;
+  background: var(--surface-dark);
 }
 
 .role-tabs {
@@ -841,6 +906,10 @@ th {
   }
 
   .form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .phone-gallery {
     grid-template-columns: 1fr;
   }
 }

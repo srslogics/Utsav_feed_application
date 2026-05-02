@@ -47,42 +47,346 @@
             <h2>Let farmers see the cycle clearly and trust the payout.</h2>
             <p class="hero-copy">
               The farmer app keeps growers informed about active batches, feed receipts, vaccine
-              schedules, field remarks, and payment ledgers without needing to call the office for
-              every update.
+              schedules, field remarks, and payment ledgers while also letting them enter the
+              operational data that matters every day at farm level.
             </p>
           </div>
         </header>
 
-        <section class="dual-grid">
-          <article class="panel app-preview">
-            <div class="panel-heading"><div><p class="section-label">App Preview</p><h3>Farmer home</h3></div></div>
+        <section class="stats-grid">
+          <article class="stat-card accent-coral">
+            <p>Daily mortality entry</p>
+            <strong>3 sheds</strong>
+            <span>Record dead birds shed-wise with remarks</span>
+          </article>
+          <article class="stat-card accent-gold">
+            <p>Feed stock visibility</p>
+            <strong>126 bags</strong>
+            <span>Total bags on farm across all sheds</span>
+          </article>
+          <article class="stat-card accent-teal">
+            <p>Medicine register</p>
+            <strong>14 items</strong>
+            <span>Available, required, and recently used</span>
+          </article>
+          <article class="stat-card accent-slate">
+            <p>Pending actions</p>
+            <strong>6</strong>
+            <span>Vaccines, feed inward, and officer notes</span>
+          </article>
+        </section>
+
+        <section class="panel">
+          <div class="panel-heading">
+            <div>
+              <p class="section-label">App Preview</p>
+              <h3>How the farmer app could look</h3>
+            </div>
+            <span class="chip good">Client preview gallery</span>
+          </div>
+          <div class="phone-gallery">
             <div class="phone-frame">
               <div class="phone-notch"></div>
               <div class="phone-screen">
-                <p class="eyebrow">Welcome back</p>
+                <p class="eyebrow">Dashboard</p>
                 <h4>Kamal Poultry Shed 3</h4>
+                <div class="phone-balance">
+                  <p class="eyebrow">Active batch</p>
+                  <strong>BT-24081</strong>
+                  <span>24 days into cycle</span>
+                </div>
                 <div class="phone-metrics">
                   <div><span>Bird age</span><strong>24 days</strong></div>
                   <div><span>Mortality</span><strong>0.58%</strong></div>
                 </div>
                 <div class="phone-list">
-                  <div><span>Feed received</span><strong>2,400 kg</strong></div>
+                  <div><span>Bird count</span><strong>17,842</strong></div>
                   <div><span>Next vaccine</span><strong>Tomorrow</strong></div>
-                  <div><span>Last payment</span><strong>INR 3.1L</strong></div>
+                  <div><span>Officer visit</span><strong>4:30 PM</strong></div>
                 </div>
               </div>
+            </div>
+
+            <div class="phone-frame">
+              <div class="phone-notch"></div>
+              <div class="phone-screen">
+                <p class="eyebrow">Feed History</p>
+                <h4>Supply and receipts</h4>
+                <div class="phone-tabs">
+                  <span class="is-active">Feed</span>
+                  <span>Medicine</span>
+                  <span>Visits</span>
+                </div>
+                <div class="phone-timeline">
+                  <div>
+                    <strong>Grower Phase 2</strong>
+                    <p>2,400 kg received</p>
+                    <span>02 May 2026 · 9:15 AM</span>
+                  </div>
+                  <div>
+                    <strong>Starter Phase 1</strong>
+                    <p>3,100 kg received</p>
+                    <span>28 Apr 2026 · 5:40 PM</span>
+                  </div>
+                  <div>
+                    <strong>Field note</strong>
+                    <p>Keep bin 2 dry and sealed after unloading.</p>
+                    <span>By Deepak Rao</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="phone-frame">
+              <div class="phone-notch"></div>
+              <div class="phone-screen">
+                <p class="eyebrow">Settlement</p>
+                <h4>Ledger and payout</h4>
+                <div class="phone-balance">
+                  <p class="eyebrow">Last released payment</p>
+                  <strong>INR 3,10,840</strong>
+                  <span>Paid on 04 Apr 2026</span>
+                </div>
+                <div class="phone-list">
+                  <div><span>Base charge</span><strong>INR 2.88L</strong></div>
+                  <div><span>Incentive</span><strong>INR 32K</strong></div>
+                  <div><span>Deductions</span><strong>INR 9K</strong></div>
+                  <div><span>Status</span><strong>Paid</strong></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="dual-grid" style="margin-top: 1rem">
+          <article class="panel">
+            <div class="panel-heading"><div><p class="section-label">Farmer Features</p><h3>Core user needs</h3></div></div>
+            <div class="list-grid">
+              <div class="journey-step" data-step="1"><strong>Daily mortality entry</strong><p>Enter mortality shed-wise, culls, cause notes, and photo proof when needed.</p></div>
+              <div class="journey-step" data-step="2"><strong>Feed stock by shed</strong><p>Track how many bags are in each shed and total balance available on the farm.</p></div>
+              <div class="journey-step" data-step="3"><strong>Feed inward register</strong><p>Log on which day feed came, how many bags arrived, and whether it was pre-starter, starter, grower, or finisher.</p></div>
+              <div class="journey-step" data-step="4"><strong>Medicine inventory and usage</strong><p>See available medicines, required medicines, and when each medicine was given to birds.</p></div>
             </div>
           </article>
 
           <article class="panel">
-            <div class="panel-heading"><div><p class="section-label">Farmer Features</p><h3>Core user needs</h3></div></div>
+            <div class="panel-heading"><div><p class="section-label">Preview Notes</p><h3>What the client is seeing</h3></div></div>
             <div class="list-grid">
-              <div class="journey-step" data-step="1"><strong>Batch visibility</strong><p>See current age, bird count, and status for each active shed.</p></div>
-              <div class="journey-step" data-step="2"><strong>Feed and medicine history</strong><p>Track what was supplied and when it was acknowledged.</p></div>
-              <div class="journey-step" data-step="3"><strong>Visit remarks</strong><p>View field officer notes, advisories, and due actions.</p></div>
-              <div class="journey-step" data-step="4"><strong>Ledger and payouts</strong><p>Understand how final payment was calculated after lift.</p></div>
+              <div class="summary-card">
+                <p class="metric-label">Screen 1</p>
+                <strong>Home dashboard</strong>
+                <p>Farmer sees current batch status, age, mortality, and upcoming field support.</p>
+              </div>
+              <div class="summary-card">
+                <p class="metric-label">Screen 2</p>
+                <strong>Supply history</strong>
+                <p>Feed and medicine receipts are clearly visible with timestamps and remarks.</p>
+              </div>
+              <div class="summary-card">
+                <p class="metric-label">Screen 3</p>
+                <strong>Payment clarity</strong>
+                <p>Settlement breakdown helps the farmer trust the payout and reduce disputes.</p>
+              </div>
+              <div class="summary-card">
+                <p class="metric-label">Operational value</p>
+                <strong>Farm-side data entry</strong>
+                <p>The app is no longer only for viewing. It also captures mortality, feed bags, medicines, and farm activities.</p>
+              </div>
             </div>
           </article>
+        </section>
+
+        <section class="panel" style="margin-top: 1rem">
+          <div class="panel-heading">
+            <div>
+              <p class="section-label">Farm Entries</p>
+              <h3>What the farmer can put into the app</h3>
+            </div>
+          </div>
+          <div class="triple-grid">
+            <article class="module-card">
+              <p class="section-label">Bird Data</p>
+              <h4>Daily flock updates</h4>
+              <ul>
+                <li>Mortality by shed</li>
+                <li>Cull birds and reason</li>
+                <li>Current bird balance</li>
+                <li>Body-weight sample entry</li>
+                <li>Water intake or unusual drop alerts</li>
+              </ul>
+            </article>
+            <article class="module-card">
+              <p class="section-label">Feed Data</p>
+              <h4>Inventory and inward</h4>
+              <ul>
+                <li>Bags available in each shed</li>
+                <li>Total bags left on farm</li>
+                <li>Feed received date-wise</li>
+                <li>Feed type: pre-starter, starter, grower, finisher</li>
+                <li>Damaged or wet bag reporting</li>
+              </ul>
+            </article>
+            <article class="module-card">
+              <p class="section-label">Medicine Data</p>
+              <h4>Stock and dosing</h4>
+              <ul>
+                <li>Medicines currently in stock</li>
+                <li>Medicines required urgently</li>
+                <li>Date/time medicine was given</li>
+                <li>Medicine used for which shed or batch</li>
+                <li>Pending medicine request to company</li>
+              </ul>
+            </article>
+          </div>
+        </section>
+
+        <section class="split-panel" style="margin-top: 1rem">
+          <article class="panel">
+            <div class="panel-heading"><div><p class="section-label">Daily Mortality</p><h3>Shed-wise entry form</h3></div></div>
+            <div class="form-grid">
+              <div class="field"><label>Batch</label><select><option>BT-24081</option></select></div>
+              <div class="field"><label>Date</label><input value="2026-05-02" /></div>
+              <div class="field"><label>Shed 1 mortality</label><input value="12" /></div>
+              <div class="field"><label>Shed 2 mortality</label><input value="8" /></div>
+              <div class="field"><label>Shed 3 mortality</label><input value="15" /></div>
+              <div class="field"><label>Total culls</label><input value="4" /></div>
+              <div class="field full"><label>Remarks / possible cause</label><textarea>Higher mortality in shed 3 after noon. Check water line pressure and litter moisture.</textarea></div>
+            </div>
+          </article>
+
+          <article class="panel">
+            <div class="panel-heading"><div><p class="section-label">Feed Stock</p><h3>Bags by shed</h3></div></div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Shed</th>
+                    <th>Feed type</th>
+                    <th>Bags in shed</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr><td>Shed 1</td><td>Starter</td><td>24 bags</td><td><span class="tag good">Sufficient</span></td></tr>
+                  <tr><td>Shed 2</td><td>Starter</td><td>18 bags</td><td><span class="tag warn">Refill Soon</span></td></tr>
+                  <tr><td>Shed 3</td><td>Grower</td><td>31 bags</td><td><span class="tag good">Healthy Stock</span></td></tr>
+                  <tr><td>Total Farm</td><td>All feed</td><td>126 bags</td><td><span class="tag good">Visible</span></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </article>
+        </section>
+
+        <section class="split-panel" style="margin-top: 1rem">
+          <article class="panel">
+            <div class="panel-heading"><div><p class="section-label">Feed Inward</p><h3>Track when feed came to farm</h3></div></div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Date</th>
+                    <th>Feed type</th>
+                    <th>Bags received</th>
+                    <th>Allocated to</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr><td>02 May 2026</td><td>Grower</td><td>40 bags</td><td>Shed 3 + central store</td></tr>
+                  <tr><td>30 Apr 2026</td><td>Starter</td><td>55 bags</td><td>Shed 1 and Shed 2</td></tr>
+                  <tr><td>26 Apr 2026</td><td>Pre-starter</td><td>32 bags</td><td>Brooding shed</td></tr>
+                  <tr><td>18 Apr 2026</td><td>Finisher</td><td>20 bags</td><td>Ready batch block</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </article>
+
+          <article class="panel">
+            <div class="panel-heading"><div><p class="section-label">New Feed Entry</p><h3>Inward form preview</h3></div></div>
+            <div class="form-grid">
+              <div class="field"><label>Received date</label><input value="2026-05-02" /></div>
+              <div class="field"><label>Feed type</label><select><option>Grower</option></select></div>
+              <div class="field"><label>Number of bags</label><input value="40" /></div>
+              <div class="field"><label>Allocated shed</label><select><option>Shed 3</option></select></div>
+              <div class="field full"><label>Delivery remarks</label><textarea>Two bags kept in common store. One bag slightly torn, marked for inspection.</textarea></div>
+            </div>
+          </article>
+        </section>
+
+        <section class="split-panel" style="margin-top: 1rem">
+          <article class="panel">
+            <div class="panel-heading"><div><p class="section-label">Medicine Register</p><h3>Available and required medicines</h3></div></div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Medicine</th>
+                    <th>In stock</th>
+                    <th>Required</th>
+                    <th>Last used</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr><td>Electrolyte Pack</td><td>18 packs</td><td>4 more</td><td>01 May 2026</td></tr>
+                  <tr><td>Vitamin Tonic</td><td>7 bottles</td><td>0</td><td>29 Apr 2026</td></tr>
+                  <tr><td>Respiratory Support</td><td>2 boxes</td><td>3 more</td><td>Not used this cycle</td></tr>
+                  <tr><td>Disinfectant</td><td>12 liters</td><td>0</td><td>02 May 2026</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </article>
+
+          <article class="panel">
+            <div class="panel-heading"><div><p class="section-label">Medicine Usage</p><h3>When medicine was given</h3></div></div>
+            <div class="timeline">
+              <div class="timeline-item"><strong>01 May 2026 · Electrolyte Pack</strong><p>Given to Shed 3 after heat stress observation. 6 packs used.</p></div>
+              <div class="timeline-item"><strong>29 Apr 2026 · Vitamin Tonic</strong><p>Given to all sheds after officer recommendation. 2 bottles used.</p></div>
+              <div class="timeline-item"><strong>25 Apr 2026 · Disinfectant</strong><p>Sprayed in entry corridor and equipment wash area.</p></div>
+            </div>
+          </article>
+        </section>
+
+        <section class="panel" style="margin-top: 1rem">
+          <div class="panel-heading">
+            <div>
+              <p class="section-label">More Useful Farm Options</p>
+              <h3>Additional things the farmer app should capture</h3>
+            </div>
+          </div>
+          <div class="triple-grid">
+            <article class="module-card">
+              <p class="section-label">Operations</p>
+              <h4>Day-to-day shed controls</h4>
+              <ul>
+                <li>Temperature and humidity entry</li>
+                <li>Water tank level and water issue reporting</li>
+                <li>Litter condition notes</li>
+                <li>Power cut / DG run hours</li>
+                <li>Bird picking or abnormal behavior report</li>
+              </ul>
+            </article>
+            <article class="module-card">
+              <p class="section-label">Coordination</p>
+              <h4>Communication with company</h4>
+              <ul>
+                <li>Raise feed shortage request</li>
+                <li>Raise medicine requirement request</li>
+                <li>Acknowledge officer visit remarks</li>
+                <li>Ask for catch/lift planning updates</li>
+                <li>Upload photos of issues in shed</li>
+              </ul>
+            </article>
+            <article class="module-card">
+              <p class="section-label">Records</p>
+              <h4>Farmer-side traceability</h4>
+              <ul>
+                <li>Batch-wise document vault</li>
+                <li>Past cycle comparison</li>
+                <li>Payment advice and statement download</li>
+                <li>Medicine and feed consumption history</li>
+                <li>Notification center for due actions</li>
+              </ul>
+            </article>
+          </div>
         </section>
 
         <section class="split-panel" style="margin-top: 1rem">
@@ -113,6 +417,8 @@
               <li>Vaccine reminders for upcoming due dates.</li>
               <li>Direct contact to assigned field officer.</li>
               <li>Settlement explanation sheet after every lifted batch.</li>
+              <li>Low feed stock and medicine shortage alerts.</li>
+              <li>Mortality spike warning with escalation option.</li>
               <li>Simple multilingual UI for broad farmer adoption.</li>
             </ul>
           </article>
