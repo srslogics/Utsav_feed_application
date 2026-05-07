@@ -17,9 +17,16 @@
       <aside class="sidebar">
         <div class="brand"><div class="brand-mark">PO</div><div><p class="eyebrow">Integration Platform</p><h1>PoultryOS</h1></div></div>
         <div class="nav-group">
-          <p class="nav-heading">Admin</p>
+          <p class="nav-heading">Presentation</p>
           <a class="nav-link" data-page="overview" href="./index.html">Overview</a>
           <a class="nav-link" data-page="catalogue" href="./catalogue.html">Client Catalogue</a>
+          <a class="nav-link" data-page="login" href="./login.html">Login Experience</a>
+          <a class="nav-link" data-page="alerts" href="./alerts.html">Alerts Center</a>
+          <a class="nav-link" data-page="farmer-profile" href="./farmer-profile.html">Farmer Profile</a>
+          <a class="nav-link" data-page="batch-detail" href="./batch-detail.html">Batch Detail</a>
+        </div>
+        <div class="nav-group">
+          <p class="nav-heading">Admin</p>
           <a class="nav-link" data-page="farmers" href="./farmers.html">Farmers & Sheds</a>
           <a class="nav-link" data-page="batches" href="./batches.html">Batch Control</a>
           <a class="nav-link" data-page="operations" href="./operations.html">Operations</a>
@@ -54,7 +61,64 @@
           </div>
         </header>
 
-        <section class="dual-grid">
+        <section class="panel">
+          <div class="panel-heading"><div><p class="section-label">App Preview</p><h3>Field app screen gallery</h3></div><span class="chip good">Meeting-ready mobile demo</span></div>
+          <div class="phone-gallery">
+            <div class="phone-frame">
+              <div class="phone-notch"></div>
+              <div class="phone-screen">
+                <p class="eyebrow">Today</p>
+                <h4>Zone West Route</h4>
+                <div class="phone-balance">
+                  <p class="eyebrow">Pending work</p>
+                  <strong>06 visits</strong>
+                  <span>2 high-priority alerts</span>
+                </div>
+                <div class="phone-list">
+                  <div><span>BT-24058</span><strong>Mortality</strong></div>
+                  <div><span>Kamal Farm</span><strong>Weight Due</strong></div>
+                  <div><span>Ali Shed 2</span><strong>Vaccine</strong></div>
+                </div>
+              </div>
+            </div>
+            <div class="phone-frame">
+              <div class="phone-notch"></div>
+              <div class="phone-screen">
+                <p class="eyebrow">Visit Form</p>
+                <h4>Capture on site</h4>
+                <div class="phone-tabs">
+                  <span class="is-active">Visit</span>
+                  <span>Photos</span>
+                  <span>Issue</span>
+                </div>
+                <div class="phone-timeline">
+                  <div><strong>Mortality</strong><p>112 birds entered</p><span>Shed 3 affected most</span></div>
+                  <div><strong>Weight sample</strong><p>1.44 kg average</p><span>Below target by 4%</span></div>
+                  <div><strong>Observation</strong><p>Wet litter near water line</p><span>Immediate cleaning advised</span></div>
+                </div>
+              </div>
+            </div>
+            <div class="phone-frame">
+              <div class="phone-notch"></div>
+              <div class="phone-screen">
+                <p class="eyebrow">Escalation</p>
+                <h4>Raise issue fast</h4>
+                <div class="phone-balance">
+                  <p class="eyebrow">Incident</p>
+                  <strong>High severity</strong>
+                  <span>Vet review requested</span>
+                </div>
+                <div class="phone-list">
+                  <div><span>Issue type</span><strong>Mortality spike</strong></div>
+                  <div><span>Photo proof</span><strong>3 attached</strong></div>
+                  <div><span>Assigned to</span><strong>Area Vet</strong></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="dual-grid" style="margin-top: 1rem">
           <article class="panel">
             <div class="panel-heading"><div><p class="section-label">Core Workflows</p><h3>Field officer responsibilities</h3></div></div>
             <div class="list-grid">
@@ -64,24 +128,12 @@
               <div class="journey-step" data-step="4"><strong>Escalation</strong><p>Raise incidents with photos, severity, and action request.</p></div>
             </div>
           </article>
-
-          <article class="panel app-preview">
-            <div class="panel-heading"><div><p class="section-label">App Preview</p><h3>Visit dashboard</h3></div></div>
-            <div class="phone-frame">
-              <div class="phone-notch"></div>
-              <div class="phone-screen">
-                <p class="eyebrow">Today</p>
-                <h4>Zone West Route</h4>
-                <div class="phone-metrics">
-                  <div><span>Visits</span><strong>06</strong></div>
-                  <div><span>Alerts</span><strong>02</strong></div>
-                </div>
-                <div class="phone-list">
-                  <div><span>BT-24058</span><strong>Mortality</strong></div>
-                  <div><span>Kamal Farm</span><strong>Weight Due</strong></div>
-                  <div><span>Ali Shed 2</span><strong>Vaccine</strong></div>
-                </div>
-              </div>
+          <article class="panel">
+            <div class="panel-heading"><div><p class="section-label">Preview Notes</p><h3>What the client is seeing</h3></div></div>
+            <div class="list-grid">
+              <div class="summary-card"><p class="metric-label">Screen 1</p><strong>Route dashboard</strong><p>Shows assigned work, priority farms, and visit load for the day.</p></div>
+              <div class="summary-card"><p class="metric-label">Screen 2</p><strong>Field entry</strong><p>Lets officers capture weights, mortality, observations, and acknowledgements in one place.</p></div>
+              <div class="summary-card"><p class="metric-label">Screen 3</p><strong>Issue escalation</strong><p>Makes farm problems visible to operations and veterinarians immediately.</p></div>
             </div>
           </article>
         </section>

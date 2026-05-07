@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>PoultryOS Login Experience</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Instrument+Sans:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body data-page="login">
+    <div class="shell">
+      <aside class="sidebar">
+        <div class="brand"><div class="brand-mark">PO</div><div><p class="eyebrow">Integration Platform</p><h1>PoultryOS</h1></div></div>
+        <div class="nav-group">
+          <p class="nav-heading">Presentation</p>
+          <a class="nav-link" data-page="overview" href="./index.html">Overview</a>
+          <a class="nav-link" data-page="catalogue" href="./catalogue.html">Client Catalogue</a>
+          <a class="nav-link" data-page="login" href="./login.html">Login Experience</a>
+          <a class="nav-link" data-page="alerts" href="./alerts.html">Alerts Center</a>
+          <a class="nav-link" data-page="farmer-profile" href="./farmer-profile.html">Farmer Profile</a>
+          <a class="nav-link" data-page="batch-detail" href="./batch-detail.html">Batch Detail</a>
+        </div>
+        <div class="nav-group">
+          <p class="nav-heading">Admin</p>
+          <a class="nav-link" data-page="farmers" href="./farmers.html">Farmers & Sheds</a>
+          <a class="nav-link" data-page="batches" href="./batches.html">Batch Control</a>
+          <a class="nav-link" data-page="operations" href="./operations.html">Operations</a>
+          <a class="nav-link" data-page="settlements" href="./settlements.html">Settlement</a>
+          <a class="nav-link" data-page="reports" href="./reports.html">Reports</a>
+        </div>
+      </aside>
+
+      <main class="content">
+        <div class="topbar">
+          <button class="mobile-nav-toggle">Menu</button>
+          <div class="hero-actions">
+            <button class="ghost-btn">Role Overview</button>
+            <button class="solid-btn">Start Demo</button>
+          </div>
+        </div>
+        <header class="hero">
+          <div>
+            <p class="eyebrow">Entry Experience</p>
+            <h2>Show the client how different users enter the software.</h2>
+            <p class="hero-copy">
+              This page makes the product feel complete in the meeting. It shows how admins,
+              field teams, and farmers each get a simple and appropriate login flow.
+            </p>
+          </div>
+        </header>
+
+        <section class="triple-grid">
+          <article class="panel">
+            <div class="panel-heading"><div><p class="section-label">Admin Login</p><h3>Web portal access</h3></div></div>
+            <div class="form-grid">
+              <div class="field full"><label>Company email</label><input value="ops.manager@poultryos.in" /></div>
+              <div class="field full"><label>Password</label><input value="••••••••••••" /></div>
+              <div class="field full"><label>Role</label><select><option>Operations Manager</option></select></div>
+            </div>
+          </article>
+          <article class="panel">
+            <div class="panel-heading"><div><p class="section-label">Field Officer Login</p><h3>Mobile route access</h3></div></div>
+            <div class="form-grid">
+              <div class="field full"><label>Mobile number</label><input value="+91 98XXXXXX21" /></div>
+              <div class="field full"><label>OTP</label><input value="548236" /></div>
+              <div class="field full"><label>Assigned zone</label><select><option>Zone West</option></select></div>
+            </div>
+          </article>
+          <article class="panel">
+            <div class="panel-heading"><div><p class="section-label">Farmer Login</p><h3>Simple farm access</h3></div></div>
+            <div class="form-grid">
+              <div class="field full"><label>Registered phone</label><input value="+91 97XXXXXX84" /></div>
+              <div class="field full"><label>OTP / PIN</label><input value="224466" /></div>
+              <div class="field full"><label>Language</label><select><option>Hindi</option></select></div>
+            </div>
+          </article>
+        </section>
+
+        <section class="dual-grid" style="margin-top: 1rem">
+          <article class="panel">
+            <div class="panel-heading"><div><p class="section-label">Design Goal</p><h3>Why this matters in the meeting</h3></div></div>
+            <div class="list-grid">
+              <div class="summary-card"><p class="metric-label">Admin</p><strong>Secure and structured</strong><p>Admins see a more detailed system with role-based access and approvals.</p></div>
+              <div class="summary-card"><p class="metric-label">Field</p><strong>Fast and mobile-first</strong><p>Field teams need quick login and quick access to their assigned farms.</p></div>
+              <div class="summary-card"><p class="metric-label">Farmer</p><strong>Simple and low-friction</strong><p>Farmers should get OTP-based access with very little complexity.</p></div>
+            </div>
+          </article>
+          <article class="panel">
+            <div class="panel-heading"><div><p class="section-label">Optional Enhancements</p><h3>Production-ready controls</h3></div></div>
+            <ul class="simple-list">
+              <li>Role-based dashboard after login</li>
+              <li>Multi-language onboarding</li>
+              <li>Forgot PIN and device reset flow</li>
+              <li>Session timeout and security logs</li>
+              <li>Location validation for field staff visits</li>
+            </ul>
+          </article>
+        </section>
+      </main>
+    </div>
+    <script type="module" src="./app.js"></script>
+  </body>
+</html>

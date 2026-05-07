@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>PoultryOS Farmer Profile</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Instrument+Sans:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body data-page="farmer-profile">
+    <div class="shell">
+      <aside class="sidebar">
+        <div class="brand"><div class="brand-mark">PO</div><div><p class="eyebrow">Integration Platform</p><h1>PoultryOS</h1></div></div>
+        <div class="nav-group">
+          <p class="nav-heading">Presentation</p>
+          <a class="nav-link" data-page="overview" href="./index.html">Overview</a>
+          <a class="nav-link" data-page="catalogue" href="./catalogue.html">Client Catalogue</a>
+          <a class="nav-link" data-page="login" href="./login.html">Login Experience</a>
+          <a class="nav-link" data-page="alerts" href="./alerts.html">Alerts Center</a>
+          <a class="nav-link" data-page="farmer-profile" href="./farmer-profile.html">Farmer Profile</a>
+          <a class="nav-link" data-page="batch-detail" href="./batch-detail.html">Batch Detail</a>
+        </div>
+        <div class="nav-group">
+          <p class="nav-heading">Admin</p>
+          <a class="nav-link" data-page="farmers" href="./farmers.html">Farmers & Sheds</a>
+          <a class="nav-link" data-page="settlements" href="./settlements.html">Settlement</a>
+        </div>
+      </aside>
+      <main class="content">
+        <div class="topbar">
+          <button class="mobile-nav-toggle">Menu</button>
+          <div class="hero-actions">
+            <button class="ghost-btn">Download Profile</button>
+            <button class="solid-btn">Assign Batch</button>
+          </div>
+        </div>
+        <header class="hero">
+          <div>
+            <p class="eyebrow">Farmer Drill-Down</p>
+            <h2>Give the client a deeper view than just list screens.</h2>
+            <p class="hero-copy">
+              This page helps during the meeting when the client asks, “Can we click into one farmer
+              and see everything together?” The answer becomes yes.
+            </p>
+          </div>
+        </header>
+        <section class="dual-grid">
+          <article class="panel">
+            <div class="panel-heading"><div><p class="section-label">Profile</p><h3>Kamal Poultry Enterprise</h3></div><span class="chip good">Approved</span></div>
+            <div class="list-grid">
+              <div class="summary-card"><p class="metric-label">Location</p><strong>Rajnandgaon</strong><p>Parivartan Cluster A</p></div>
+              <div class="summary-card"><p class="metric-label">Sheds</p><strong>4 sheds</strong><p>Total capacity of 72,000 birds</p></div>
+              <div class="summary-card"><p class="metric-label">Field officer</p><strong>Deepak Rao</strong><p>Assigned with weekly visit plan</p></div>
+              <div class="summary-card"><p class="metric-label">Settlement record</p><strong>On-time</strong><p>No pending payment dispute in last 3 cycles</p></div>
+            </div>
+          </article>
+          <article class="panel">
+            <div class="panel-heading"><div><p class="section-label">Current Farm State</p><h3>Operational snapshot</h3></div></div>
+            <ul class="simple-list">
+              <li>Active batch: BT-24081</li>
+              <li>Bird age: 24 days</li>
+              <li>Mortality today: 35 birds across 3 sheds</li>
+              <li>Feed on farm: 126 bags</li>
+              <li>Urgent medicine required: respiratory support, 3 boxes</li>
+            </ul>
+          </article>
+        </section>
+      </main>
+    </div>
+    <script type="module" src="./app.js"></script>
+  </body>
+</html>
