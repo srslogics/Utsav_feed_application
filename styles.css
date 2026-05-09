@@ -1,20 +1,20 @@
 :root {
-  --bg: #f5ecdf;
-  --surface: rgba(255, 251, 245, 0.82);
-  --surface-strong: #fff9ef;
-  --surface-dark: #27364c;
-  --line: rgba(84, 63, 29, 0.12);
-  --line-strong: rgba(84, 63, 29, 0.22);
-  --text: #2f2414;
-  --muted: #6d604b;
-  --coral: #df6f4c;
-  --gold: #d8a32b;
-  --teal: #25897d;
-  --slate: #2c3a50;
-  --blue: #4e7bd6;
-  --danger: #c84f4f;
-  --success: #1f7555;
-  --shadow: 0 18px 55px rgba(74, 55, 28, 0.12);
+  --bg: #e9edf1;
+  --surface: rgba(250, 252, 253, 0.86);
+  --surface-strong: #fdfefe;
+  --surface-dark: #182533;
+  --line: rgba(24, 37, 51, 0.11);
+  --line-strong: rgba(24, 37, 51, 0.2);
+  --text: #14212d;
+  --muted: #5f6d7a;
+  --coral: #a8613b;
+  --gold: #b08a3c;
+  --teal: #1e6e72;
+  --slate: #223142;
+  --blue: #446b97;
+  --danger: #b14f4a;
+  --success: #1b6a50;
+  --shadow: 0 22px 60px rgba(20, 33, 45, 0.12);
   --radius-xl: 28px;
   --radius-lg: 22px;
   --radius-md: 16px;
@@ -34,9 +34,9 @@ body {
   font-family: "Instrument Sans", sans-serif;
   color: var(--text);
   background:
-    radial-gradient(circle at top left, rgba(223, 111, 76, 0.22), transparent 24%),
-    radial-gradient(circle at top right, rgba(37, 137, 125, 0.16), transparent 28%),
-    linear-gradient(180deg, #faf3e6 0%, #f4ebdc 100%);
+    radial-gradient(circle at top left, rgba(68, 107, 151, 0.18), transparent 24%),
+    radial-gradient(circle at top right, rgba(30, 110, 114, 0.14), transparent 28%),
+    linear-gradient(180deg, #f3f6f8 0%, #e6ebf0 100%);
 }
 
 a {
@@ -68,7 +68,7 @@ button {
   padding: 1.4rem;
   overflow: auto;
   border-right: 1px solid var(--line);
-  background: rgba(255, 247, 236, 0.72);
+  background: rgba(244, 248, 250, 0.76);
   backdrop-filter: blur(18px);
 }
 
@@ -103,7 +103,7 @@ button {
   color: #fff;
   font-weight: 700;
   letter-spacing: 0.06em;
-  background: linear-gradient(135deg, var(--coral), #8d3e31);
+  background: linear-gradient(135deg, #223142, #4b6784);
   box-shadow: var(--shadow);
 }
 
@@ -945,7 +945,7 @@ th {
   padding: 1rem 1.2rem;
   border: 1px solid var(--line);
   border-radius: var(--radius-xl);
-  background: rgba(255, 249, 239, 0.82);
+  background: rgba(246, 249, 251, 0.88);
   box-shadow: var(--shadow);
 }
 
@@ -973,8 +973,8 @@ th {
   border: 1px solid var(--line);
   border-radius: 34px;
   background:
-    radial-gradient(circle at top right, rgba(37, 137, 125, 0.16), transparent 24%),
-    linear-gradient(180deg, rgba(255, 251, 245, 0.95), rgba(255, 247, 236, 0.88));
+    radial-gradient(circle at top right, rgba(68, 107, 151, 0.16), transparent 24%),
+    linear-gradient(180deg, rgba(252, 253, 254, 0.96), rgba(241, 246, 249, 0.9));
   box-shadow: var(--shadow);
 }
 
@@ -1001,7 +1001,7 @@ th {
   padding: 1.1rem;
   border: 1px solid var(--line);
   border-radius: 28px;
-  background: rgba(255, 251, 245, 0.86);
+  background: rgba(248, 251, 253, 0.88);
   box-shadow: var(--shadow);
 }
 
@@ -1017,7 +1017,7 @@ th {
   padding: 1.2rem;
   border: 1px solid var(--line);
   border-radius: 30px;
-  background: rgba(255, 251, 245, 0.84);
+  background: rgba(248, 251, 253, 0.88);
   box-shadow: var(--shadow);
 }
 
@@ -1045,7 +1045,7 @@ th {
   padding: 1rem;
   border: 1px solid var(--line);
   border-radius: 24px;
-  background: rgba(255, 255, 255, 0.7);
+  background: rgba(255, 255, 255, 0.8);
 }
 
 .feature-card h3 {
@@ -1075,7 +1075,7 @@ th {
   padding: 1rem;
   border: 1px solid var(--line);
   border-radius: 24px;
-  background: rgba(255, 255, 255, 0.72);
+  background: rgba(255, 255, 255, 0.82);
 }
 
 .website-stat strong {
@@ -1092,7 +1092,7 @@ th {
   gap: 1rem;
   padding: 1.2rem;
   border-radius: 28px;
-  background: linear-gradient(135deg, var(--surface-dark), #314862);
+  background: linear-gradient(135deg, #172433, #3d5773);
   color: #fff;
 }
 
@@ -1164,7 +1164,7 @@ th {
   padding: 1.1rem;
   border: 1px solid var(--line);
   border-radius: 24px;
-  background: linear-gradient(160deg, rgba(37, 137, 125, 0.1), rgba(255, 255, 255, 0.82));
+  background: linear-gradient(160deg, rgba(68, 107, 151, 0.12), rgba(255, 255, 255, 0.86));
 }
 
 .quote-card blockquote {
@@ -1191,7 +1191,7 @@ th {
   padding: 1rem;
   border: 1px solid var(--line);
   border-radius: 24px;
-  background: rgba(255, 255, 255, 0.72);
+  background: rgba(255, 255, 255, 0.82);
 }
 
 .process-step strong {
@@ -1218,7 +1218,7 @@ th {
   padding: 1.2rem;
   border: 1px solid var(--line);
   border-radius: 30px;
-  background: rgba(255, 251, 245, 0.84);
+  background: rgba(248, 251, 253, 0.88);
   box-shadow: var(--shadow);
 }
 
