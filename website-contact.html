@@ -23,6 +23,7 @@
           <nav class="site-nav">
             <a href="./website.html">Home</a>
             <a href="./website-about.html">About</a>
+            <a href="./website-platform.html">Digital Operations</a>
             <a href="./website-farmers.html">Farmer Program</a>
             <a class="is-active" href="./website-contact.html">Contact</a>
           </nav>
@@ -64,13 +65,108 @@
             <p class="eyebrow">Enquiry Form</p>
             <h2>Send us your requirement.</h2>
           </div>
+          <p>
+            Share your requirement here and the company team can review the enquiry for product
+            supply, integration support, or business discussion.
+          </p>
         </div>
-        <div class="site-form">
-          <div class="field"><label>Full name</label><input value="Rakesh Verma" /></div>
-          <div class="field"><label>Phone number</label><input value="+91 98XXXXXX10" /></div>
-          <div class="field"><label>Email</label><input value="rakesh@example.com" /></div>
-          <div class="field"><label>Enquiry type</label><select><option>Feed / Farm Support</option></select></div>
-          <div class="field full"><label>Message</label><textarea>I want to understand feed, medicine, and integration support for my poultry farm in the Bilaspur region.</textarea></div>
+        <div class="contact-grid">
+          <form class="contact-form-shell" data-contact-form>
+            <div class="site-form">
+              <div class="field">
+                <label for="full-name">Full name</label>
+                <input id="full-name" name="full_name" type="text" placeholder="Enter your full name" required />
+              </div>
+              <div class="field">
+                <label for="phone-number">Phone number</label>
+                <input id="phone-number" name="phone" type="tel" placeholder="+91 98XXXXXXXX" required />
+              </div>
+              <div class="field">
+                <label for="email-address">Email address</label>
+                <input id="email-address" name="email" type="email" placeholder="you@example.com" />
+              </div>
+              <div class="field">
+                <label for="enquiry-type">Enquiry type</label>
+                <select id="enquiry-type" name="enquiry_type" required>
+                  <option value="">Select enquiry type</option>
+                  <option>Chick Supply</option>
+                  <option>Feed Supply</option>
+                  <option>Medicine Support</option>
+                  <option>Broiler Support</option>
+                  <option>Equipment / Integration</option>
+                  <option>Business Partnership</option>
+                </select>
+              </div>
+              <div class="field">
+                <label for="district">Operating district</label>
+                <select id="district" name="district">
+                  <option value="">Select district</option>
+                  <option>Korba</option>
+                  <option>Champa</option>
+                  <option>Jaijaipur</option>
+                  <option>Bilaspur</option>
+                  <option>Other</option>
+                </select>
+              </div>
+              <div class="field">
+                <label for="farm-scale">Farm scale</label>
+                <select id="farm-scale" name="farm_scale">
+                  <option value="">Select scale</option>
+                  <option>New Farm Setup</option>
+                  <option>Small Farm</option>
+                  <option>Mid-Size Farm</option>
+                  <option>Large Farm / Integrator</option>
+                </select>
+              </div>
+              <div class="field full">
+                <label for="message">Requirement details</label>
+                <textarea
+                  id="message"
+                  name="message"
+                  placeholder="Tell us what products or support you are looking for."
+                  required
+                ></textarea>
+              </div>
+            </div>
+
+            <div class="contact-form-footer">
+              <div class="contact-note">
+                <strong>Share your requirement</strong>
+                <p>
+                  Tell us what support you need and our team can get back to you for the next
+                  discussion.
+                </p>
+              </div>
+              <button class="solid-btn" type="submit">Submit Enquiry</button>
+            </div>
+
+            <div class="form-success" data-contact-success hidden>
+              <strong>Thank you for your enquiry.</strong>
+              <p>
+                Your requirement has been received. Our team can review it and connect with you for
+                the next discussion.
+              </p>
+            </div>
+          </form>
+
+          <aside class="contact-sidebar-card">
+            <p class="eyebrow">Business Enquiries</p>
+            <h3>Structured communication for supply, integration, and partnership discussions.</h3>
+            <div class="contact-points">
+              <div>
+                <strong>1. Requirement Review</strong>
+                <p>Product category, region, and business requirement are reviewed first.</p>
+              </div>
+              <div>
+                <strong>2. Team Response</strong>
+                <p>Relevant teams can connect for supply support, integration, or commercial follow-up.</p>
+              </div>
+              <div>
+                <strong>3. Commercial Discussion</strong>
+                <p>Suitable enquiries can move into the next stage of business discussion and alignment.</p>
+              </div>
+            </div>
+          </aside>
         </div>
       </section>
 
@@ -97,5 +193,6 @@
         </div>
       </section>
     </div>
+    <script src="./app.js"></script>
   </body>
 </html>

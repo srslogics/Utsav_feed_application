@@ -14,3 +14,15 @@ if (mobileToggle && sidebar) {
     sidebar.classList.toggle("is-open");
   });
 }
+
+const contactForm = document.querySelector("[data-contact-form]");
+const contactSuccess = document.querySelector("[data-contact-success]");
+
+if (contactForm && contactSuccess) {
+  contactForm.addEventListener("submit", (event) => {
+    event.preventDefault();
+    contactSuccess.hidden = false;
+    contactForm.reset();
+    contactSuccess.scrollIntoView({ behavior: "smooth", block: "nearest" });
+  });
+}
