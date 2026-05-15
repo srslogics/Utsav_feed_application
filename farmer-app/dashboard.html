@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Utsav Farmer Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Instrument+Sans:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body class="fa-body" data-fa-page="dashboard">
+    <div class="fa-app-shell">
+      <aside class="fa-sidebar">
+        <div class="fa-brand">
+          <div class="fa-brand-mark">UF</div>
+          <div>
+            <p class="fa-eyebrow">Farmer App</p>
+            <h1>Utsav Farmer</h1>
+          </div>
+        </div>
+        <nav class="fa-nav">
+          <a class="is-active" href="./dashboard.html">Dashboard</a>
+          <a href="./feed.html">Feed</a>
+          <a href="./health.html">Health</a>
+          <a href="./requests.html">Requests</a>
+        </nav>
+        <div class="fa-sidebar-card">
+          <p class="fa-eyebrow">Farmer</p>
+          <strong>Rakesh Verma</strong>
+          <span>Korba Cluster</span>
+        </div>
+      </aside>
+
+      <main class="fa-content">
+        <header class="fa-page-head">
+          <div>
+            <p class="fa-eyebrow">Dashboard</p>
+            <h2>Today’s farm summary</h2>
+          </div>
+          <a class="fa-secondary-btn" href="./requests.html">Raise Request</a>
+        </header>
+
+        <section class="fa-kpi-grid" id="dashboard-kpis"></section>
+
+        <section class="fa-section">
+          <div class="fa-section-head">
+            <div>
+              <p class="fa-eyebrow">Active Batch</p>
+              <h3>Batch and shed overview</h3>
+            </div>
+          </div>
+          <div class="fa-detail-grid" id="dashboard-batch"></div>
+        </section>
+
+        <section class="fa-section">
+          <div class="fa-section-head">
+            <div>
+              <p class="fa-eyebrow">Daily Mortality</p>
+              <h3>Submit today’s shed entry</h3>
+            </div>
+          </div>
+          <form class="fa-form fa-inline-form" data-mortality-form>
+            <label>
+              Shed
+              <select name="shed" required>
+                <option value="">Select shed</option>
+                <option>Shed A</option>
+                <option>Shed B</option>
+                <option>Shed C</option>
+              </select>
+            </label>
+            <label>
+              Birds
+              <input name="birds" type="number" min="1" placeholder="Enter count" required />
+            </label>
+            <label class="full">
+              Notes
+              <input name="notes" type="text" placeholder="Optional note for operations team" />
+            </label>
+            <button class="fa-primary-btn" type="submit">Save mortality entry</button>
+          </form>
+          <p class="fa-status-message" data-mortality-status></p>
+        </section>
+
+        <section class="fa-section">
+          <div class="fa-section-head">
+            <div>
+              <p class="fa-eyebrow">Today’s Tasks</p>
+              <h3>Pending updates</h3>
+            </div>
+          </div>
+          <div class="fa-list-card" id="dashboard-tasks"></div>
+        </section>
+
+        <section class="fa-section">
+          <div class="fa-section-head">
+            <div>
+              <p class="fa-eyebrow">Recent Mortality Log</p>
+              <h3>Latest entries by shed</h3>
+            </div>
+          </div>
+          <div class="fa-list-card" id="dashboard-mortality-log"></div>
+        </section>
+      </main>
+    </div>
+    <script src="./app.js"></script>
+  </body>
+</html>

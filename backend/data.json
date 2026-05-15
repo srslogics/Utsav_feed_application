@@ -1,0 +1,140 @@
+{
+  "profile": {
+    "farmer_name": "Rakesh Verma",
+    "cluster": "Korba Cluster",
+    "farm_name": "Utsav Partner Farm 12",
+    "farmer_code": "UF-042",
+    "phone": "+91 9876543210",
+    "active_batch": "B-2405",
+    "bird_age_days": 24,
+    "field_officer": "Anil Sahu"
+  },
+  "feed_stock": [
+    {
+      "shed": "Shed A",
+      "feed_type": "Pre-starter",
+      "bags": 8
+    },
+    {
+      "shed": "Shed A",
+      "feed_type": "Starter",
+      "bags": 22
+    },
+    {
+      "shed": "Shed B",
+      "feed_type": "Starter",
+      "bags": 14
+    },
+    {
+      "shed": "Shed B",
+      "feed_type": "Finisher",
+      "bags": 30
+    }
+  ],
+  "feed_inward": [
+    {
+      "date": "2026-05-14",
+      "feed_type": "Starter",
+      "bags": 18,
+      "shed": "Shed A"
+    },
+    {
+      "date": "2026-05-12",
+      "feed_type": "Finisher",
+      "bags": 24,
+      "shed": "Shed B"
+    },
+    {
+      "date": "2026-05-09",
+      "feed_type": "Starter",
+      "bags": 20,
+      "shed": "Shed B"
+    }
+  ],
+  "mortality_log": [
+    {
+      "date": "2026-05-15",
+      "shed": "Shed A",
+      "birds": 18,
+      "notes": "Morning entry"
+    },
+    {
+      "date": "2026-05-14",
+      "shed": "Shed B",
+      "birds": 12,
+      "notes": "Heat stress watch"
+    },
+    {
+      "date": "2026-05-13",
+      "shed": "Shed A",
+      "birds": 10,
+      "notes": "Normal range"
+    }
+  ],
+  "medicine_stock": [
+    {
+      "name": "Electrolyte",
+      "status": "Available",
+      "quantity": "4 packs",
+      "notes": "Current farm stock"
+    },
+    {
+      "name": "Respiratory support",
+      "status": "Required",
+      "quantity": "2 bottles",
+      "notes": "Requested today"
+    },
+    {
+      "name": "Vitamin mix",
+      "status": "Available",
+      "quantity": "3 bottles",
+      "notes": "Used in morning line"
+    }
+  ],
+  "medicine_log": [
+    {
+      "date": "2026-05-15",
+      "name": "Vitamin mix",
+      "status": "Given",
+      "quantity": "1 bottle",
+      "notes": "6:30 AM administration"
+    },
+    {
+      "date": "2026-05-14",
+      "name": "Liver tonic",
+      "status": "Given",
+      "quantity": "500 ml",
+      "notes": "Routine support"
+    },
+    {
+      "date": "2026-05-13",
+      "name": "Electrolyte",
+      "status": "Available",
+      "quantity": "1 pack",
+      "notes": "Held in reserve"
+    }
+  ],
+  "requests": [
+    {
+      "date": "2026-05-15",
+      "type": "Medicine required",
+      "priority": "High",
+      "details": "Respiratory support needed for Shed B.",
+      "status": "Under review"
+    },
+    {
+      "date": "2026-05-14",
+      "type": "Feed shortage",
+      "priority": "Medium",
+      "details": "Starter feed inward request for evening loading.",
+      "status": "Processed"
+    },
+    {
+      "date": "2026-05-12",
+      "type": "Shed issue",
+      "priority": "Low",
+      "details": "Water line issue in Shed A.",
+      "status": "Closed"
+    }
+  ]
+}

@@ -1,0 +1,376 @@
+:root {
+  --fa-bg: #f4ece4;
+  --fa-surface: rgba(255, 250, 246, 0.95);
+  --fa-surface-soft: rgba(243, 232, 220, 0.72);
+  --fa-border: rgba(45, 35, 30, 0.11);
+  --fa-text: #251f1d;
+  --fa-muted: #766b63;
+  --fa-primary: #5f4b40;
+  --fa-primary-dark: #2a221f;
+  --fa-accent: #d9b98f;
+  --fa-shadow: 0 24px 60px rgba(37, 29, 24, 0.12);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: "Instrument Sans", sans-serif;
+  color: var(--fa-text);
+  background:
+    radial-gradient(circle at top left, rgba(162, 136, 98, 0.18), transparent 22%),
+    linear-gradient(180deg, #f6efe7 0%, #e5d8ca 100%);
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+.fa-body {
+  min-height: 100vh;
+}
+
+.fa-login-shell {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(360px, 440px);
+  gap: 1.4rem;
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 1.4rem;
+  min-height: 100vh;
+  align-items: center;
+}
+
+.fa-login-panel,
+.fa-auth-card,
+.fa-sidebar,
+.fa-section,
+.fa-kpi-card,
+.fa-detail-card,
+.fa-list-card {
+  border: 1px solid var(--fa-border);
+  border-radius: 28px;
+  background: var(--fa-surface);
+  box-shadow: var(--fa-shadow);
+}
+
+.fa-login-panel,
+.fa-auth-card {
+  padding: 1.6rem;
+}
+
+.fa-brand,
+.fa-page-head,
+.fa-section-head,
+.fa-list-row,
+.fa-nav,
+.fa-app-shell {
+  display: flex;
+}
+
+.fa-brand {
+  align-items: center;
+  gap: 0.85rem;
+}
+
+.fa-brand-mark {
+  display: grid;
+  place-items: center;
+  width: 52px;
+  height: 52px;
+  border-radius: 16px;
+  background: linear-gradient(135deg, var(--fa-primary-dark), var(--fa-primary));
+  color: #fff;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+}
+
+.fa-eyebrow {
+  margin: 0;
+  color: var(--fa-muted);
+  font-size: 0.72rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.fa-brand h1,
+.fa-copy h2,
+.fa-auth-card h3,
+.fa-page-head h2,
+.fa-section-head h3,
+.fa-detail-card strong,
+.fa-kpi-card strong {
+  margin: 0;
+  font-family: "Space Grotesk", sans-serif;
+}
+
+.fa-copy {
+  margin-top: 1.8rem;
+  max-width: 56ch;
+}
+
+.fa-copy h2 {
+  margin: 0.35rem 0 0.7rem;
+  font-size: clamp(2.4rem, 4.8vw, 4.6rem);
+  line-height: 0.94;
+}
+
+.fa-copy p,
+.fa-form-note,
+.fa-kpi-card p,
+.fa-detail-card p,
+.fa-list-row span {
+  color: var(--fa-muted);
+  line-height: 1.7;
+}
+
+.fa-form {
+  display: grid;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.fa-form label {
+  display: grid;
+  gap: 0.4rem;
+  color: var(--fa-muted);
+}
+
+.fa-form input,
+.fa-form select,
+.fa-form textarea {
+  width: 100%;
+  padding: 0.92rem 1rem;
+  border-radius: 16px;
+  border: 1px solid var(--fa-border);
+  background: rgba(255, 255, 255, 0.9);
+  color: var(--fa-text);
+}
+
+.fa-form textarea {
+  min-height: 140px;
+  resize: vertical;
+}
+
+.fa-inline-form {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  align-items: end;
+}
+
+.fa-inline-form .full {
+  grid-column: 1 / -1;
+}
+
+.fa-primary-btn,
+.fa-secondary-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.92rem 1.2rem;
+  border-radius: 999px;
+  border: 1px solid var(--fa-border);
+}
+
+.fa-primary-btn {
+  background: linear-gradient(135deg, var(--fa-primary-dark), var(--fa-primary));
+  color: #fff;
+}
+
+.fa-secondary-btn {
+  background: rgba(255, 251, 247, 0.85);
+  color: var(--fa-text);
+}
+
+.fa-app-shell {
+  align-items: stretch;
+  gap: 1.2rem;
+  padding: 1.2rem;
+}
+
+.fa-sidebar {
+  width: 250px;
+  padding: 1.2rem;
+  display: grid;
+  align-content: start;
+  gap: 1.1rem;
+}
+
+.fa-nav {
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.fa-nav a {
+  padding: 0.85rem 0.95rem;
+  border-radius: 16px;
+  color: var(--fa-muted);
+  border: 1px solid transparent;
+}
+
+.fa-nav a.is-active,
+.fa-nav a:hover {
+  background: var(--fa-surface-soft);
+  border-color: var(--fa-border);
+  color: var(--fa-text);
+}
+
+.fa-sidebar-card {
+  padding: 1rem;
+  border-radius: 20px;
+  background: var(--fa-surface-soft);
+}
+
+.fa-sidebar-card strong {
+  display: block;
+  margin-top: 0.25rem;
+  font-family: "Space Grotesk", sans-serif;
+}
+
+.fa-sidebar-card span {
+  color: var(--fa-muted);
+}
+
+.fa-content {
+  flex: 1 1 auto;
+  display: grid;
+  gap: 1rem;
+}
+
+.fa-page-head,
+.fa-section-head,
+.fa-list-row {
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+}
+
+.fa-kpi-grid,
+.fa-card-grid,
+.fa-detail-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.fa-kpi-card,
+.fa-detail-card {
+  padding: 1rem;
+}
+
+.fa-kpi-card span,
+.fa-detail-card span {
+  display: block;
+  color: var(--fa-muted);
+  font-size: 0.78rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.fa-kpi-card strong,
+.fa-detail-card strong {
+  display: block;
+  margin-top: 0.35rem;
+  font-size: 1.55rem;
+  color: var(--fa-text);
+}
+
+.fa-section {
+  padding: 1.25rem;
+}
+
+.fa-list-card {
+  padding: 0.2rem 1rem;
+}
+
+.fa-list-row {
+  padding: 0.9rem 0;
+  border-bottom: 1px solid var(--fa-border);
+}
+
+.fa-list-row:last-child {
+  border-bottom: 0;
+}
+
+.fa-list-row p {
+  margin: 0.35rem 0 0;
+  color: var(--fa-muted);
+  font-size: 0.92rem;
+  line-height: 1.5;
+}
+
+.fa-list-row strong {
+  font-family: "Space Grotesk", sans-serif;
+  color: var(--fa-text);
+}
+
+.fa-request-form {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.fa-request-form .full {
+  grid-column: 1 / -1;
+}
+
+.fa-status-message {
+  min-height: 1.25rem;
+  margin: 0.8rem 0 0;
+  color: #25634d;
+  font-size: 0.94rem;
+}
+
+.fa-status-message.is-error {
+  color: #a33636;
+}
+
+.fa-empty-state {
+  padding: 1rem 0;
+  color: var(--fa-muted);
+}
+
+@media (max-width: 980px) {
+  .fa-login-shell,
+  .fa-app-shell,
+  .fa-kpi-grid,
+  .fa-card-grid,
+  .fa-detail-grid,
+  .fa-request-form,
+  .fa-inline-form {
+    grid-template-columns: 1fr;
+  }
+
+  .fa-app-shell {
+    flex-direction: column;
+  }
+
+  .fa-sidebar {
+    width: auto;
+  }
+}
+
+@media (max-width: 620px) {
+  .fa-login-shell,
+  .fa-app-shell {
+    padding: 0.85rem;
+  }
+
+  .fa-page-head,
+  .fa-section-head {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}

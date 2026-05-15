@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Utsav Farmer Requests</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Instrument+Sans:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body class="fa-body" data-fa-page="requests">
+    <div class="fa-app-shell">
+      <aside class="fa-sidebar">
+        <div class="fa-brand">
+          <div class="fa-brand-mark">UF</div>
+          <div>
+            <p class="fa-eyebrow">Farmer App</p>
+            <h1>Utsav Farmer</h1>
+          </div>
+        </div>
+        <nav class="fa-nav">
+          <a href="./dashboard.html">Dashboard</a>
+          <a href="./feed.html">Feed</a>
+          <a href="./health.html">Health</a>
+          <a class="is-active" href="./requests.html">Requests</a>
+        </nav>
+      </aside>
+
+      <main class="fa-content">
+        <header class="fa-page-head">
+          <div>
+            <p class="fa-eyebrow">Support Requests</p>
+            <h2>Raise operational requests to the company team</h2>
+          </div>
+        </header>
+
+        <section class="fa-section">
+          <div class="fa-section-head">
+            <div>
+              <p class="fa-eyebrow">New Request</p>
+              <h3>Submit farm issue or stock requirement</h3>
+            </div>
+          </div>
+          <form class="fa-form fa-request-form" data-farmer-request>
+            <label>
+              Request type
+              <select name="type" required>
+                <option value="">Select request type</option>
+                <option>Feed shortage</option>
+                <option>Medicine required</option>
+                <option>Shed issue</option>
+                <option>Field officer support</option>
+              </select>
+            </label>
+            <label>
+              Priority
+              <select name="priority" required>
+                <option value="">Select priority</option>
+                <option>Low</option>
+                <option>Medium</option>
+                <option>High</option>
+              </select>
+            </label>
+            <label class="full">
+              Details
+              <textarea name="details" placeholder="Describe the farm issue or requirement" required></textarea>
+            </label>
+            <button class="fa-primary-btn" type="submit">Submit Request</button>
+          </form>
+          <p class="fa-status-message" data-request-status></p>
+        </section>
+
+        <section class="fa-section">
+          <div class="fa-section-head">
+            <div>
+              <p class="fa-eyebrow">Recent Requests</p>
+              <h3>Current status</h3>
+            </div>
+          </div>
+          <div class="fa-list-card" id="request-history"></div>
+        </section>
+      </main>
+    </div>
+    <script src="./app.js"></script>
+  </body>
+</html>

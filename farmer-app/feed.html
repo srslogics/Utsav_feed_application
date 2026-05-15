@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Utsav Farmer Feed</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Instrument+Sans:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body class="fa-body" data-fa-page="feed">
+    <div class="fa-app-shell">
+      <aside class="fa-sidebar">
+        <div class="fa-brand">
+          <div class="fa-brand-mark">UF</div>
+          <div>
+            <p class="fa-eyebrow">Farmer App</p>
+            <h1>Utsav Farmer</h1>
+          </div>
+        </div>
+        <nav class="fa-nav">
+          <a href="./dashboard.html">Dashboard</a>
+          <a class="is-active" href="./feed.html">Feed</a>
+          <a href="./health.html">Health</a>
+          <a href="./requests.html">Requests</a>
+        </nav>
+      </aside>
+
+      <main class="fa-content">
+        <header class="fa-page-head">
+          <div>
+            <p class="fa-eyebrow">Feed Records</p>
+            <h2>Shed-wise stock and inward history</h2>
+          </div>
+        </header>
+
+        <section class="fa-section">
+          <div class="fa-section-head">
+            <div>
+              <p class="fa-eyebrow">Feed Balance Entry</p>
+              <h3>Update current bags in each shed</h3>
+            </div>
+          </div>
+          <form class="fa-form fa-inline-form" data-feed-balance-form>
+            <label>
+              Shed
+              <select name="shed" required>
+                <option value="">Select shed</option>
+                <option>Shed A</option>
+                <option>Shed B</option>
+                <option>Shed C</option>
+              </select>
+            </label>
+            <label>
+              Feed type
+              <select name="feed_type" required>
+                <option value="">Select type</option>
+                <option>Pre-starter</option>
+                <option>Starter</option>
+                <option>Grower</option>
+                <option>Finisher</option>
+              </select>
+            </label>
+            <label>
+              Bags available
+              <input name="bags" type="number" min="0" placeholder="0" required />
+            </label>
+            <button class="fa-primary-btn" type="submit">Update stock</button>
+          </form>
+          <p class="fa-status-message" data-feed-balance-status></p>
+        </section>
+
+        <section class="fa-section">
+          <div class="fa-section-head">
+            <div>
+              <p class="fa-eyebrow">Current Balance</p>
+              <h3>Feed bags by shed</h3>
+            </div>
+          </div>
+          <div class="fa-card-grid" id="feed-balance"></div>
+        </section>
+
+        <section class="fa-section">
+          <div class="fa-section-head">
+            <div>
+              <p class="fa-eyebrow">Feed Inward</p>
+              <h3>Recent entries</h3>
+            </div>
+          </div>
+          <div class="fa-list-card" id="feed-history"></div>
+        </section>
+
+        <section class="fa-section">
+          <div class="fa-section-head">
+            <div>
+              <p class="fa-eyebrow">New Inward Entry</p>
+              <h3>Record feed received on farm</h3>
+            </div>
+          </div>
+          <form class="fa-form fa-inline-form" data-feed-inward-form>
+            <label>
+              Date
+              <input name="inward_date" type="date" required />
+            </label>
+            <label>
+              Feed type
+              <select name="feed_type" required>
+                <option value="">Select type</option>
+                <option>Pre-starter</option>
+                <option>Starter</option>
+                <option>Grower</option>
+                <option>Finisher</option>
+              </select>
+            </label>
+            <label>
+              Shed
+              <select name="shed" required>
+                <option value="">Select shed</option>
+                <option>Shed A</option>
+                <option>Shed B</option>
+                <option>Shed C</option>
+              </select>
+            </label>
+            <label>
+              Bags received
+              <input name="bags" type="number" min="1" placeholder="0" required />
+            </label>
+            <button class="fa-primary-btn" type="submit">Add inward</button>
+          </form>
+          <p class="fa-status-message" data-feed-inward-status></p>
+        </section>
+      </main>
+    </div>
+    <script src="./app.js"></script>
+  </body>
+</html>

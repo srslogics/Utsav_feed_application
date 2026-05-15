@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Utsav Farmer Health</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Instrument+Sans:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body class="fa-body" data-fa-page="health">
+    <div class="fa-app-shell">
+      <aside class="fa-sidebar">
+        <div class="fa-brand">
+          <div class="fa-brand-mark">UF</div>
+          <div>
+            <p class="fa-eyebrow">Farmer App</p>
+            <h1>Utsav Farmer</h1>
+          </div>
+        </div>
+        <nav class="fa-nav">
+          <a href="./dashboard.html">Dashboard</a>
+          <a href="./feed.html">Feed</a>
+          <a class="is-active" href="./health.html">Health</a>
+          <a href="./requests.html">Requests</a>
+        </nav>
+      </aside>
+
+      <main class="fa-content">
+        <header class="fa-page-head">
+          <div>
+            <p class="fa-eyebrow">Health Records</p>
+            <h2>Medicine and flock care</h2>
+          </div>
+        </header>
+
+        <section class="fa-section">
+          <div class="fa-section-head">
+            <div>
+              <p class="fa-eyebrow">Medicine Stock</p>
+              <h3>Update available or required medicines</h3>
+            </div>
+          </div>
+          <form class="fa-form fa-inline-form" data-medicine-stock-form>
+            <label>
+              Medicine name
+              <input name="name" type="text" placeholder="Enter medicine" required />
+            </label>
+            <label>
+              Status
+              <select name="status" required>
+                <option value="">Select status</option>
+                <option>Available</option>
+                <option>Required</option>
+              </select>
+            </label>
+            <label>
+              Quantity
+              <input name="quantity" type="text" placeholder="e.g. 3 bottles" required />
+            </label>
+            <label class="full">
+              Notes
+              <input name="notes" type="text" placeholder="Short note for stock condition" />
+            </label>
+            <button class="fa-primary-btn" type="submit">Save medicine stock</button>
+          </form>
+          <p class="fa-status-message" data-medicine-stock-status></p>
+        </section>
+
+        <section class="fa-section">
+          <div class="fa-section-head">
+            <div>
+              <p class="fa-eyebrow">Medicine Status</p>
+              <h3>Available and required</h3>
+            </div>
+          </div>
+          <div class="fa-detail-grid" id="health-summary"></div>
+        </section>
+
+        <section class="fa-section">
+          <div class="fa-section-head">
+            <div>
+              <p class="fa-eyebrow">Medicine Given</p>
+              <h3>Recent administration log</h3>
+            </div>
+          </div>
+          <div class="fa-list-card" id="health-log"></div>
+        </section>
+
+        <section class="fa-section">
+          <div class="fa-section-head">
+            <div>
+              <p class="fa-eyebrow">Medicine Given</p>
+              <h3>Record medicine administration to birds</h3>
+            </div>
+          </div>
+          <form class="fa-form fa-inline-form" data-medicine-log-form>
+            <label>
+              Date
+              <input name="entry_date" type="date" required />
+            </label>
+            <label>
+              Medicine name
+              <input name="name" type="text" placeholder="Enter medicine" required />
+            </label>
+            <label>
+              Status
+              <select name="status" required>
+                <option value="">Select status</option>
+                <option>Given</option>
+                <option>Scheduled</option>
+              </select>
+            </label>
+            <label>
+              Quantity
+              <input name="quantity" type="text" placeholder="e.g. 1 bottle" required />
+            </label>
+            <label class="full">
+              Notes
+              <input name="notes" type="text" placeholder="Time or usage note" />
+            </label>
+            <button class="fa-primary-btn" type="submit">Add medicine log</button>
+          </form>
+          <p class="fa-status-message" data-medicine-log-status></p>
+        </section>
+      </main>
+    </div>
+    <script src="./app.js"></script>
+  </body>
+</html>
