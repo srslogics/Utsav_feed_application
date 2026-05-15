@@ -1,7 +1,7 @@
 {
-  "name": "poultryos-integration-suite",
+  "name": "utsav-feed-industries-website",
   "version": "1.0.0",
-  "description": "Frontend prototype and starter Node service for a poultry integration platform.",
+  "description": "Corporate website and local Node server for Utsav Feed Industries.",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"

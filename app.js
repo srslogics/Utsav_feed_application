@@ -26,3 +26,21 @@ if (contactForm && contactSuccess) {
     contactSuccess.scrollIntoView({ behavior: "smooth", block: "nearest" });
   });
 }
+
+const appTabs = document.querySelectorAll("[data-target-screen]");
+const appScreens = document.querySelectorAll("[data-app-screen]");
+
+if (appTabs.length && appScreens.length) {
+  appTabs.forEach((tab) => {
+    tab.addEventListener("click", () => {
+      const target = tab.dataset.targetScreen;
+
+      appTabs.forEach((item) => item.classList.remove("is-active"));
+      appScreens.forEach((screen) => {
+        screen.classList.toggle("is-active", screen.dataset.appScreen === target);
+      });
+
+      tab.classList.add("is-active");
+    });
+  });
+}
