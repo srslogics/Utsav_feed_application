@@ -106,6 +106,7 @@ async function loadRequests() {
   const data = await readJson("/requests");
   renderList(document.querySelector("#request-history"), data.history);
   renderList(document.querySelector("#document-history"), data.documents);
+  renderList(document.querySelector("#issue-photo-history"), data.issue_photos);
 }
 
 async function loadDailyEntry() {
@@ -290,6 +291,16 @@ if (documentUploadForm) {
     documentUploadForm,
     "/documents",
     "[data-document-status]",
+    loadRequests
+  );
+}
+
+const issuePhotoForm = document.querySelector("[data-issue-photo-form]");
+if (issuePhotoForm) {
+  handleUploadSubmit(
+    issuePhotoForm,
+    "/issues/photo",
+    "[data-issue-photo-status]",
     loadRequests
   );
 }

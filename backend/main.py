@@ -308,6 +308,17 @@ def make_document_history(records: list[dict]) -> list[dict]:
     ]
 
 
+def make_issue_photo_history(records: list[dict]) -> list[dict]:
+    return [
+        {
+            "label": f'{record["date"]} / {record["issue_type"]} / {record["shed"]}',
+            "value": record["status"],
+            "note": f'{record["priority"]} priority • {record["notes"]} • File: {record["file_name"]}',
+        }
+        for record in records
+    ]
+
+
 def build_owner_alerts(daily_entries: list[dict], requests: list[dict], vaccine_log: list[dict]) -> list[dict]:
     alerts: list[dict] = []
 
@@ -665,6 +676,7 @@ def farmer_requests():
         "profile": data["profile"],
         "history": make_request_history(data["requests"]),
         "documents": make_document_history(data["documents"]),
+        "issue_photos": make_issue_photo_history(data["issue_photos"]),
     }
 
 
@@ -716,6 +728,43 @@ async def upload_document(
         data = load_data()
         data.setdefault("documents", [])
         data["documents"].insert(0, record)
+        save_data(data)
+
+    return {"success": True, "record": record}
+
+
+@app.post("/api/farmer/issues/photo")
+async def upload_issue_photo(
+    issue_type: str = Form(...),
+    shed: str = Form(...),
+    priority: str = Form(...),
+    notes: str = Form(""),
+    file: UploadFile = File(...),
+):
+    ensure_data_file()
+    timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
+    original_name = file.filename or "issue-photo"
+    suffix = Path(original_name).suffix or ".bin"
+    stored_name = f"{timestamp}-{safe_slug(issue_type)}{suffix}"
+    destination = UPLOADS_DIR / stored_name
+    content = await file.read()
+    destination.write_bytes(content)
+
+    record = {
+        "date": today_string(),
+        "issue_type": issue_type,
+        "shed": shed,
+        "priority": priority,
+        "notes": notes,
+        "file_name": original_name,
+        "stored_name": stored_name,
+        "status": "Shared with owner system",
+    }
+
+    with DATA_LOCK:
+        data = load_data()
+        data.setdefault("issue_photos", [])
+        data["issue_photos"].insert(0, record)
         save_data(data)
 
     return {"success": True, "record": record}

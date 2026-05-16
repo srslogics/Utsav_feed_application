@@ -88,6 +88,66 @@
         <section class="fa-section">
           <div class="fa-section-head">
             <div>
+              <p class="fa-eyebrow">Photo-first Issue Report | फोटो से रिपोर्ट</p>
+              <h3>Problem ki photo seedha owner system ko bhejein</h3>
+            </div>
+          </div>
+          <form class="fa-form fa-request-form" data-issue-photo-form enctype="multipart/form-data">
+            <label>
+              Issue type | समस्या का प्रकार
+              <select name="issue_type" required>
+                <option value="">Select issue type</option>
+                <option>Water line issue</option>
+                <option>Wet litter</option>
+                <option>Sick birds</option>
+                <option>Equipment problem</option>
+                <option>Electricity / DG issue</option>
+              </select>
+            </label>
+            <label>
+              Shed | शेड
+              <select name="shed" required>
+                <option value="">Select shed</option>
+                <option>Shed A</option>
+                <option>Shed B</option>
+                <option>Shed C</option>
+              </select>
+            </label>
+            <label>
+              Priority | urgency
+              <select name="priority" required>
+                <option value="">Select priority</option>
+                <option>Low</option>
+                <option>Medium</option>
+                <option>High</option>
+              </select>
+            </label>
+            <label>
+              Photo | फोटो
+              <input name="file" type="file" accept="image/*" capture="environment" required />
+            </label>
+            <label class="full">
+              Notes | छोटा नोट
+              <textarea name="notes" placeholder="Chhoti si jankari likhein, jaise problem kaha hai ya kab dekhi gayi"></textarea>
+            </label>
+            <button class="fa-primary-btn" type="submit">Photo owner ko bhejein</button>
+          </form>
+          <p class="fa-status-message" data-issue-photo-status></p>
+        </section>
+
+        <section class="fa-section">
+          <div class="fa-section-head">
+            <div>
+              <p class="fa-eyebrow">Issue Photos | फोटो रिपोर्ट</p>
+              <h3>Farm se bheji gayi photo reports</h3>
+            </div>
+          </div>
+          <div class="fa-list-card" id="issue-photo-history"></div>
+        </section>
+
+        <section class="fa-section">
+          <div class="fa-section-head">
+            <div>
               <p class="fa-eyebrow">Upload Documents & Bills | बिल अपलोड</p>
               <h3>Invoice, challan, aur documents seedha owner system ko bhejein</h3>
             </div>

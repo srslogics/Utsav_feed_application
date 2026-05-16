@@ -232,5 +232,17 @@
       "stored_name": "",
       "status": "Submitted to owner system"
     }
+  ],
+  "issue_photos": [
+    {
+      "date": "2026-05-16",
+      "issue_type": "Water line issue",
+      "shed": "Shed B",
+      "priority": "High",
+      "notes": "Nipple line pressure low near rear side.",
+      "file_name": "water-line-photo.jpg",
+      "stored_name": "",
+      "status": "Shared with owner system"
+    }
   ]
 }
