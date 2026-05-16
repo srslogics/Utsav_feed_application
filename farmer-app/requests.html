@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Utsav Farmer Requests</title>
+    <title>Utsav Farmer Requests | सहायता और बिल अपलोड</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -18,47 +18,47 @@
         <div class="fa-brand">
           <div class="fa-brand-mark">UF</div>
           <div>
-            <p class="fa-eyebrow">Farmer App</p>
+            <p class="fa-eyebrow">Farmer App | किसान ऐप</p>
             <h1>Utsav Farmer</h1>
           </div>
         </div>
         <nav class="fa-nav">
-          <a href="./dashboard.html">Dashboard</a>
-          <a href="./daily-entry.html">Daily Entry</a>
-          <a href="./feed.html">Feed</a>
-          <a href="./health.html">Health</a>
-          <a class="is-active" href="./requests.html">Requests</a>
+          <a href="./dashboard.html">Dashboard | होम</a>
+          <a href="./daily-entry.html">Daily Entry | दैनिक एंट्री</a>
+          <a href="./feed.html">Feed | दाना</a>
+          <a href="./health.html">Health | दवाई</a>
+          <a class="is-active" href="./requests.html">Requests | अनुरोध</a>
         </nav>
       </aside>
 
       <main class="fa-content">
         <header class="fa-page-head">
           <div>
-            <p class="fa-eyebrow">Support Requests</p>
-            <h2>Raise operational requests to the company team</h2>
+            <p class="fa-eyebrow">Support Requests | सहायता</p>
+            <h2>Company team ko zaroorat ya issue bhejein</h2>
           </div>
         </header>
 
         <section class="fa-section">
           <div class="fa-section-head">
             <div>
-              <p class="fa-eyebrow">New Request</p>
-              <h3>Submit farm issue or stock requirement</h3>
+              <p class="fa-eyebrow">New Request | Naya Anurodh</p>
+              <h3>Farm issue ya stock requirement bhejein</h3>
             </div>
           </div>
           <form class="fa-form fa-request-form" data-farmer-request>
             <label>
-              Request type
+              Request type | अनुरोध का प्रकार
               <select name="type" required>
                 <option value="">Select request type</option>
-                <option>Feed shortage</option>
-                <option>Medicine required</option>
-                <option>Shed issue</option>
-                <option>Field officer support</option>
+                  <option>Feed shortage | Feed kam hai</option>
+                  <option>Medicine required | Dawai chahiye</option>
+                  <option>Shed issue | Shed problem</option>
+                  <option>Field officer support | Field officer support</option>
               </select>
             </label>
             <label>
-              Priority
+              Priority | ज़रूरत की urgency
               <select name="priority" required>
                 <option value="">Select priority</option>
                 <option>Low</option>
@@ -67,10 +67,10 @@
               </select>
             </label>
             <label class="full">
-              Details
-              <textarea name="details" placeholder="Describe the farm issue or requirement" required></textarea>
+              Details | पूरी जानकारी
+              <textarea name="details" placeholder="Farm ki problem ya requirement yahan likhein" required></textarea>
             </label>
-            <button class="fa-primary-btn" type="submit">Submit Request</button>
+            <button class="fa-primary-btn" type="submit">Request bhejein</button>
           </form>
           <p class="fa-status-message" data-request-status></p>
         </section>
@@ -78,7 +78,7 @@
         <section class="fa-section">
           <div class="fa-section-head">
             <div>
-              <p class="fa-eyebrow">Recent Requests</p>
+              <p class="fa-eyebrow">Recent Requests | Recent Anurodh</p>
               <h3>Current status</h3>
             </div>
           </div>
@@ -88,13 +88,13 @@
         <section class="fa-section">
           <div class="fa-section-head">
             <div>
-              <p class="fa-eyebrow">Upload Documents & Bills</p>
-              <h3>Send invoices, challans, and supporting files to the owner system</h3>
+              <p class="fa-eyebrow">Upload Documents & Bills | बिल अपलोड</p>
+              <h3>Invoice, challan, aur documents seedha owner system ko bhejein</h3>
             </div>
           </div>
           <form class="fa-form fa-request-form" data-document-upload-form enctype="multipart/form-data">
             <label>
-              Document type
+              Document type | document ka type
               <select name="doc_type" required>
                 <option value="">Select document type</option>
                 <option>Feed Bill</option>
@@ -105,22 +105,22 @@
               </select>
             </label>
             <label>
-              Title
-              <input name="title" type="text" placeholder="Enter document title" required />
+              Title | title
+              <input name="title" type="text" placeholder="Document ka title daalein" required />
             </label>
             <label>
-              Amount
-              <input name="amount" type="text" placeholder="e.g. Rs 12,500" />
+              Amount | rakam
+              <input name="amount" type="text" placeholder="jaise Rs 12,500" />
             </label>
             <label>
-              File
+              File | file
               <input name="file" type="file" accept=".pdf,.jpg,.jpeg,.png,.webp,.doc,.docx" required />
             </label>
             <label class="full">
-              Notes
-              <textarea name="notes" placeholder="Any note the owner should see with this upload"></textarea>
+              Notes | note
+              <textarea name="notes" placeholder="Owner ko dikhne wali koi bhi baat yahan likhein"></textarea>
             </label>
-            <button class="fa-primary-btn" type="submit">Upload to owner system</button>
+            <button class="fa-primary-btn" type="submit">Owner system me upload karein</button>
           </form>
           <p class="fa-status-message" data-document-status></p>
         </section>
@@ -128,8 +128,8 @@
         <section class="fa-section">
           <div class="fa-section-head">
             <div>
-              <p class="fa-eyebrow">Uploaded Documents</p>
-              <h3>Recent files sent from the farm</h3>
+              <p class="fa-eyebrow">Uploaded Documents | Upload ki hui File</p>
+              <h3>Farm se bheji gayi latest files</h3>
             </div>
           </div>
           <div class="fa-list-card" id="document-history"></div>

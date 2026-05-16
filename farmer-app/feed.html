@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Utsav Farmer Feed</title>
+    <title>Utsav Farmer Feed | दाना रिकॉर्ड</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -18,37 +18,37 @@
         <div class="fa-brand">
           <div class="fa-brand-mark">UF</div>
           <div>
-            <p class="fa-eyebrow">Farmer App</p>
+            <p class="fa-eyebrow">Farmer App | किसान ऐप</p>
             <h1>Utsav Farmer</h1>
           </div>
         </div>
         <nav class="fa-nav">
-          <a href="./dashboard.html">Dashboard</a>
-          <a href="./daily-entry.html">Daily Entry</a>
-          <a class="is-active" href="./feed.html">Feed</a>
-          <a href="./health.html">Health</a>
-          <a href="./requests.html">Requests</a>
+          <a href="./dashboard.html">Dashboard | होम</a>
+          <a href="./daily-entry.html">Daily Entry | दैनिक एंट्री</a>
+          <a class="is-active" href="./feed.html">Feed | दाना</a>
+          <a href="./health.html">Health | दवाई</a>
+          <a href="./requests.html">Requests | अनुरोध</a>
         </nav>
       </aside>
 
       <main class="fa-content">
         <header class="fa-page-head">
           <div>
-            <p class="fa-eyebrow">Feed Records</p>
-            <h2>Shed-wise stock and inward history</h2>
+            <p class="fa-eyebrow">Feed Records | दाना रिकॉर्ड</p>
+            <h2>Shed-wise stock aur inward history</h2>
           </div>
         </header>
 
         <section class="fa-section">
           <div class="fa-section-head">
             <div>
-              <p class="fa-eyebrow">Feed Balance Entry</p>
-              <h3>Update current bags in each shed</h3>
+              <p class="fa-eyebrow">Feed Balance | बकाया दाना</p>
+              <h3>Har shed me kitne bag bache hain</h3>
             </div>
           </div>
           <form class="fa-form fa-inline-form" data-feed-balance-form>
             <label>
-              Shed
+              Shed | शेड
               <select name="shed" required>
                 <option value="">Select shed</option>
                 <option>Shed A</option>
@@ -57,7 +57,7 @@
               </select>
             </label>
             <label>
-              Feed type
+              Feed type | feed ka type
               <select name="feed_type" required>
                 <option value="">Select type</option>
                 <option>Pre-starter</option>
@@ -67,10 +67,10 @@
               </select>
             </label>
             <label>
-              Bags available
+              Bags available | bache hue bags
               <input name="bags" type="number" min="0" placeholder="0" required />
             </label>
-            <button class="fa-primary-btn" type="submit">Update stock</button>
+            <button class="fa-primary-btn" type="submit">Stock update karein</button>
           </form>
           <p class="fa-status-message" data-feed-balance-status></p>
         </section>
@@ -78,8 +78,8 @@
         <section class="fa-section">
           <div class="fa-section-head">
             <div>
-              <p class="fa-eyebrow">Current Balance</p>
-              <h3>Feed bags by shed</h3>
+              <p class="fa-eyebrow">Current Balance | Abhi ka Stock</p>
+              <h3>Shed ke hisab se feed bags</h3>
             </div>
           </div>
           <div class="fa-card-grid" id="feed-balance"></div>
@@ -88,7 +88,7 @@
         <section class="fa-section">
           <div class="fa-section-head">
             <div>
-              <p class="fa-eyebrow">Feed Inward</p>
+              <p class="fa-eyebrow">Feed Inward | Aaya hua Feed</p>
               <h3>Recent entries</h3>
             </div>
           </div>
@@ -98,17 +98,17 @@
         <section class="fa-section">
           <div class="fa-section-head">
             <div>
-              <p class="fa-eyebrow">New Inward Entry</p>
-              <h3>Record feed received on farm</h3>
+              <p class="fa-eyebrow">New Inward Entry | Naya Feed Entry</p>
+              <h3>Aaj farm par aaya feed record karein</h3>
             </div>
           </div>
           <form class="fa-form fa-inline-form" data-feed-inward-form>
             <label>
-              Date
+              Date | तारीख
               <input name="inward_date" type="date" required />
             </label>
             <label>
-              Feed type
+              Feed type | feed ka type
               <select name="feed_type" required>
                 <option value="">Select type</option>
                 <option>Pre-starter</option>
@@ -118,7 +118,7 @@
               </select>
             </label>
             <label>
-              Shed
+              Shed | शेड
               <select name="shed" required>
                 <option value="">Select shed</option>
                 <option>Shed A</option>
@@ -127,10 +127,10 @@
               </select>
             </label>
             <label>
-              Bags received
+              Bags received | aaye hue bags
               <input name="bags" type="number" min="1" placeholder="0" required />
             </label>
-            <button class="fa-primary-btn" type="submit">Add inward</button>
+            <button class="fa-primary-btn" type="submit">Inward add karein</button>
           </form>
           <p class="fa-status-message" data-feed-inward-status></p>
         </section>

@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Utsav Farmer Daily Entry</title>
+    <title>Utsav Farmer Daily Entry | दैनिक एंट्री</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -18,46 +18,46 @@
         <div class="fa-brand">
           <div class="fa-brand-mark">UF</div>
           <div>
-            <p class="fa-eyebrow">Farmer App</p>
+            <p class="fa-eyebrow">Farmer App | किसान ऐप</p>
             <h1>Utsav Farmer</h1>
           </div>
         </div>
         <nav class="fa-nav">
-          <a href="./dashboard.html">Dashboard</a>
-          <a class="is-active" href="./daily-entry.html">Daily Entry</a>
-          <a href="./feed.html">Feed</a>
-          <a href="./health.html">Health</a>
-          <a href="./requests.html">Requests</a>
+          <a href="./dashboard.html">Dashboard | होम</a>
+          <a class="is-active" href="./daily-entry.html">Daily Entry | दैनिक एंट्री</a>
+          <a href="./feed.html">Feed | दाना</a>
+          <a href="./health.html">Health | दवाई</a>
+          <a href="./requests.html">Requests | अनुरोध</a>
         </nav>
         <div class="fa-sidebar-card">
-          <p class="fa-eyebrow">What Management Tracks</p>
+          <p class="fa-eyebrow">Company Kya Dekhti Hai</p>
           <strong>Birds, feed, water, weight, environment</strong>
-          <span>Submit every shed entry on time for owner visibility.</span>
+          <span>Har shed ki entry time par bharne se owner ko sahi visibility milti hai.</span>
         </div>
       </aside>
 
       <main class="fa-content">
         <header class="fa-page-head">
           <div>
-            <p class="fa-eyebrow">Daily Farm Entry</p>
-            <h2>Submit the full daily shed report</h2>
+            <p class="fa-eyebrow">Daily Farm Entry | Roz ki Entry</p>
+            <h2>Har shed ka poora daily report bharein</h2>
           </div>
         </header>
 
         <section class="fa-section">
           <div class="fa-section-head">
             <div>
-              <p class="fa-eyebrow">Daily Submission</p>
-              <h3>Owner-focused farm details</h3>
+              <p class="fa-eyebrow">Daily Submission | Aaj ki Jankari</p>
+              <h3>Owner ke liye zaroori farm details</h3>
             </div>
           </div>
           <form class="fa-form fa-multi-form" data-daily-entry-form>
             <label>
-              Date
+              Date | तारीख
               <input name="entry_date" type="date" required />
             </label>
             <label>
-              Shed
+              Shed | शेड
               <select name="shed" required>
                 <option value="">Select shed</option>
                 <option>Shed A</option>
@@ -66,39 +66,39 @@
               </select>
             </label>
             <label>
-              Opening birds
+              Opening birds | शुरुआत के birds
               <input name="opening_birds" type="number" min="1" required />
             </label>
             <label>
-              Mortality
+              Mortality | मरे हुए birds
               <input name="mortality" type="number" min="0" required />
             </label>
             <label>
-              Culls
+              Culls | निकाले गए birds
               <input name="culls" type="number" min="0" required />
             </label>
             <label>
-              Feed used (bags)
+              Feed used (bags) | खाया गया feed
               <input name="feed_used_bags" type="number" min="0" required />
             </label>
             <label>
-              Water consumed (liters)
+              Water consumed (liters) | पानी की खपत
               <input name="water_liters" type="number" min="0" required />
             </label>
             <label>
-              Avg body weight (g)
+              Avg body weight (g) | औसत वजन
               <input name="avg_weight_g" type="number" min="1" required />
             </label>
             <label>
-              Temperature (C)
+              Temperature (C) | तापमान
               <input name="temperature_c" type="number" step="0.1" required />
             </label>
             <label>
-              Humidity (%)
+              Humidity (%) | नमी
               <input name="humidity_pct" type="number" min="0" max="100" required />
             </label>
             <label>
-              Litter condition
+              Litter condition | लिटर की हालत
               <select name="litter_condition" required>
                 <option value="">Select condition</option>
                 <option>Dry</option>
@@ -107,26 +107,26 @@
               </select>
             </label>
             <label>
-              Power cut hours
+              Power cut hours | बिजली बंद
               <input name="power_cut_hours" type="number" min="0" step="0.1" required />
             </label>
             <label>
-              DG hours
+              DG hours | DG चला
               <input name="dg_hours" type="number" min="0" step="0.1" required />
             </label>
             <label>
-              Uniformity (%)
+              Uniformity (%) | uniformity
               <input name="uniformity_pct" type="number" min="0" max="100" required />
             </label>
             <label class="full">
-              Issues observed
+              Issues observed | कोई दिक्कत
               <input name="issues" type="text" placeholder="Water line, ventilation, bird behavior, litter, etc." />
             </label>
             <label class="full">
-              Remarks
-              <textarea name="remarks" placeholder="Any daily remark the owner or field team should see"></textarea>
+              Remarks | टिप्पणी
+              <textarea name="remarks" placeholder="Aaj ki koi bhi zaroori baat yahan likhein"></textarea>
             </label>
-            <button class="fa-primary-btn" type="submit">Submit daily farm report</button>
+            <button class="fa-primary-btn" type="submit">Aaj ki report bhejein</button>
           </form>
           <p class="fa-status-message" data-daily-entry-status></p>
         </section>
@@ -134,8 +134,8 @@
         <section class="fa-section">
           <div class="fa-section-head">
             <div>
-              <p class="fa-eyebrow">Recent Daily Entries</p>
-              <h3>Latest shed updates</h3>
+              <p class="fa-eyebrow">Recent Daily Entries | Hal ki Entry</p>
+              <h3>Shed ki latest updates</h3>
             </div>
           </div>
           <div class="fa-list-card" id="daily-entry-history"></div>
@@ -144,8 +144,8 @@
         <section class="fa-section">
           <div class="fa-section-head">
             <div>
-              <p class="fa-eyebrow">Vaccination Watch</p>
-              <h3>Due and completed vaccine records</h3>
+              <p class="fa-eyebrow">Vaccination Watch | Vaccine Record</p>
+              <h3>Due aur completed vaccine details</h3>
             </div>
           </div>
           <div class="fa-list-card" id="daily-vaccine-history"></div>

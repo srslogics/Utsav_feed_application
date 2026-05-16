@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Utsav Farmer Health</title>
+    <title>Utsav Farmer Health | दवाई और हेल्थ</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -18,41 +18,41 @@
         <div class="fa-brand">
           <div class="fa-brand-mark">UF</div>
           <div>
-            <p class="fa-eyebrow">Farmer App</p>
+            <p class="fa-eyebrow">Farmer App | किसान ऐप</p>
             <h1>Utsav Farmer</h1>
           </div>
         </div>
         <nav class="fa-nav">
-          <a href="./dashboard.html">Dashboard</a>
-          <a href="./daily-entry.html">Daily Entry</a>
-          <a href="./feed.html">Feed</a>
-          <a class="is-active" href="./health.html">Health</a>
-          <a href="./requests.html">Requests</a>
+          <a href="./dashboard.html">Dashboard | होम</a>
+          <a href="./daily-entry.html">Daily Entry | दैनिक एंट्री</a>
+          <a href="./feed.html">Feed | दाना</a>
+          <a class="is-active" href="./health.html">Health | दवाई</a>
+          <a href="./requests.html">Requests | अनुरोध</a>
         </nav>
       </aside>
 
       <main class="fa-content">
         <header class="fa-page-head">
           <div>
-            <p class="fa-eyebrow">Health Records</p>
-            <h2>Medicine and flock care</h2>
+            <p class="fa-eyebrow">Health Records | हेल्थ रिकॉर्ड</p>
+            <h2>Dawai aur flock care details</h2>
           </div>
         </header>
 
         <section class="fa-section">
           <div class="fa-section-head">
             <div>
-              <p class="fa-eyebrow">Medicine Stock</p>
-              <h3>Update available or required medicines</h3>
+              <p class="fa-eyebrow">Medicine Stock | Dawai Stock</p>
+              <h3>Kaunsi dawai available hai ya chahiye</h3>
             </div>
           </div>
           <form class="fa-form fa-inline-form" data-medicine-stock-form>
             <label>
-              Medicine name
+              Medicine name | दवाई का नाम
               <input name="name" type="text" placeholder="Enter medicine" required />
             </label>
             <label>
-              Status
+              Status | स्थिति
               <select name="status" required>
                 <option value="">Select status</option>
                 <option>Available</option>
@@ -60,14 +60,14 @@
               </select>
             </label>
             <label>
-              Quantity
+              Quantity | मात्रा
               <input name="quantity" type="text" placeholder="e.g. 3 bottles" required />
             </label>
             <label class="full">
-              Notes
-              <input name="notes" type="text" placeholder="Short note for stock condition" />
+              Notes | नोट
+              <input name="notes" type="text" placeholder="Dawai ke baare mein chhota note" />
             </label>
-            <button class="fa-primary-btn" type="submit">Save medicine stock</button>
+            <button class="fa-primary-btn" type="submit">Dawai stock save karein</button>
           </form>
           <p class="fa-status-message" data-medicine-stock-status></p>
         </section>
@@ -75,8 +75,8 @@
         <section class="fa-section">
           <div class="fa-section-head">
             <div>
-              <p class="fa-eyebrow">Medicine Status</p>
-              <h3>Available and required</h3>
+              <p class="fa-eyebrow">Medicine Status | Dawai Ki Jankari</p>
+              <h3>Available aur required dawai</h3>
             </div>
           </div>
           <div class="fa-detail-grid" id="health-summary"></div>
@@ -85,7 +85,7 @@
         <section class="fa-section">
           <div class="fa-section-head">
             <div>
-              <p class="fa-eyebrow">Medicine Given</p>
+              <p class="fa-eyebrow">Medicine Given | Di gayi Dawai</p>
               <h3>Recent administration log</h3>
             </div>
           </div>
@@ -95,8 +95,8 @@
         <section class="fa-section">
           <div class="fa-section-head">
             <div>
-              <p class="fa-eyebrow">Vaccination Status</p>
-              <h3>Due and completed vaccine events</h3>
+              <p class="fa-eyebrow">Vaccination Status | Vaccine Record</p>
+              <h3>Due aur completed vaccine events</h3>
             </div>
           </div>
           <div class="fa-list-card" id="health-vaccines"></div>
@@ -105,21 +105,21 @@
         <section class="fa-section">
           <div class="fa-section-head">
             <div>
-              <p class="fa-eyebrow">Medicine Given</p>
-              <h3>Record medicine administration to birds</h3>
+              <p class="fa-eyebrow">Medicine Entry | Dawai Entry</p>
+              <h3>Birds ko di gayi dawai ka record</h3>
             </div>
           </div>
           <form class="fa-form fa-inline-form" data-medicine-log-form>
             <label>
-              Date
+              Date | तारीख
               <input name="entry_date" type="date" required />
             </label>
             <label>
-              Medicine name
+              Medicine name | दवाई का नाम
               <input name="name" type="text" placeholder="Enter medicine" required />
             </label>
             <label>
-              Status
+              Status | स्थिति
               <select name="status" required>
                 <option value="">Select status</option>
                 <option>Given</option>
@@ -127,14 +127,14 @@
               </select>
             </label>
             <label>
-              Quantity
+              Quantity | मात्रा
               <input name="quantity" type="text" placeholder="e.g. 1 bottle" required />
             </label>
             <label class="full">
-              Notes
-              <input name="notes" type="text" placeholder="Time or usage note" />
+              Notes | नोट
+              <input name="notes" type="text" placeholder="Time ya usage note" />
             </label>
-            <button class="fa-primary-btn" type="submit">Add medicine log</button>
+            <button class="fa-primary-btn" type="submit">Dawai entry save karein</button>
           </form>
           <p class="fa-status-message" data-medicine-log-status></p>
         </section>

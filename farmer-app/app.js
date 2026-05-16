@@ -129,7 +129,7 @@ if (loginForm) {
       });
       window.location.href = "./dashboard.html";
     } catch (error) {
-      setStatus(".fa-form-note", "Unable to login. Please check farmer credentials.", true);
+      setStatus(".fa-form-note", "Login nahi ho paaya. Kripya mobile number aur password check karein.", true);
     }
   });
 }
@@ -147,9 +147,9 @@ async function handleFormSubmit(form, path, selector, makePayload, afterSuccess)
       if (afterSuccess) {
         await afterSuccess();
       }
-      setStatus(selector, "Saved successfully.");
+      setStatus(selector, "Safalta se save ho gaya.");
     } catch (error) {
-      setStatus(selector, "Unable to save right now. Please try again.", true);
+      setStatus(selector, "Abhi save nahi ho paaya. Kripya dobara koshish karein.", true);
     }
   });
 }
@@ -170,9 +170,9 @@ async function handleUploadSubmit(form, path, selector, afterSuccess) {
       if (afterSuccess) {
         await afterSuccess();
       }
-      setStatus(selector, "Document uploaded successfully.");
+      setStatus(selector, "Document safalta se upload ho gaya.");
     } catch (error) {
-      setStatus(selector, "Unable to upload document right now. Please try again.", true);
+      setStatus(selector, "Abhi document upload nahi ho paaya. Kripya dobara koshish karein.", true);
     }
   });
 }
