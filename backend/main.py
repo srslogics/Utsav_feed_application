@@ -141,6 +141,25 @@ class RequestPayload(BaseModel):
     details: str
 
 
+class DailyEntryPayload(BaseModel):
+    entry_date: str
+    shed: str
+    opening_birds: int = Field(gt=0)
+    mortality: int = Field(ge=0)
+    culls: int = Field(ge=0)
+    feed_used_bags: int = Field(ge=0)
+    water_liters: int = Field(ge=0)
+    avg_weight_g: int = Field(gt=0)
+    temperature_c: float
+    humidity_pct: int = Field(ge=0, le=100)
+    litter_condition: str
+    power_cut_hours: float = Field(ge=0)
+    dg_hours: float = Field(ge=0)
+    uniformity_pct: int = Field(ge=0, le=100)
+    issues: str = ""
+    remarks: str = ""
+
+
 def ensure_data_file() -> None:
     if not DATA_FILE.exists():
         DATA_FILE.write_text(json.dumps(DEFAULT_DATA, indent=2))
@@ -239,6 +258,83 @@ def make_mortality_history(records: list[dict]) -> list[dict]:
     ]
 
 
+def make_daily_entry_history(records: list[dict]) -> list[dict]:
+    return [
+        {
+            "label": f'{record["date"]} / {record["shed"]}',
+            "value": f'{record["mortality"]} mortality • {record["feed_used_bags"]} feed bags',
+            "note": (
+                f'Water {record["water_liters"]} L • Avg wt {record["avg_weight_g"]} g • '
+                f'Temp {record["temperature_c"]} C'
+            ),
+        }
+        for record in records
+    ]
+
+
+def make_vaccine_history(records: list[dict]) -> list[dict]:
+    return [
+        {
+            "label": f'{record["date"]} / {record["shed"]} / {record["vaccine"]}',
+            "value": record["status"],
+            "note": record["notes"],
+        }
+        for record in records
+    ]
+
+
+def build_owner_alerts(daily_entries: list[dict], requests: list[dict], vaccine_log: list[dict]) -> list[dict]:
+    alerts: list[dict] = []
+
+    for record in daily_entries[:4]:
+        if record["mortality"] >= 15:
+            alerts.append(
+                {
+                    "label": f'{record["shed"]} mortality watch',
+                    "value": f'{record["mortality"]} birds',
+                    "note": f'{record["date"]} entry needs review',
+                }
+            )
+        if record["temperature_c"] >= 31:
+            alerts.append(
+                {
+                    "label": f'{record["shed"]} temperature high',
+                    "value": f'{record["temperature_c"]} C',
+                    "note": "Ventilation and cooling check advised",
+                }
+            )
+        if record["power_cut_hours"] >= 2:
+            alerts.append(
+                {
+                    "label": f'{record["shed"]} power interruption',
+                    "value": f'{record["power_cut_hours"]} hrs',
+                    "note": "Monitor DG usage and bird stress",
+                }
+            )
+
+    for request in requests[:3]:
+        if request["status"] != "Closed":
+            alerts.append(
+                {
+                    "label": request["type"],
+                    "value": request["status"],
+                    "note": request["details"],
+                }
+            )
+
+    for vaccine in vaccine_log[:3]:
+        if vaccine["status"] == "Due":
+            alerts.append(
+                {
+                    "label": f'Vaccine due in {vaccine["shed"]}',
+                    "value": vaccine["vaccine"],
+                    "note": vaccine["date"],
+                }
+            )
+
+    return alerts[:6]
+
+
 def public_file_response(file_name: str) -> FileResponse:
     file_path = PROJECT_ROOT / file_name
     if not file_path.exists():
@@ -281,16 +377,21 @@ def farmer_dashboard():
     with DATA_LOCK:
         data = load_data()
     profile = data["profile"]
-    mortality_today = sum(
-        int(item["birds"]) for item in data["mortality_log"] if item["date"] == today_string()
-    )
+    today_entries = [item for item in data["daily_entries"] if item["date"] == today_string()]
+    mortality_today = sum(int(item["mortality"]) for item in today_entries)
     total_feed = sum(int(item["bags"]) for item in data["feed_stock"])
     open_requests = sum(1 for item in data["requests"] if item["status"] != "Closed")
+    current_birds = sum(
+        int(item["opening_birds"]) - int(item["mortality"]) - int(item["culls"])
+        for item in today_entries
+    )
+    latest_entry = data["daily_entries"][0] if data["daily_entries"] else None
 
     return {
         "profile": profile,
         "kpis": [
             {"label": "Bird age", "value": f'{profile["bird_age_days"]} days', "note": "Active batch age"},
+            {"label": "Live birds", "value": f"{current_birds:,}", "note": "Based on today’s shed entries"},
             {"label": "Mortality today", "value": f"{mortality_today} birds", "note": "Submitted across sheds"},
             {"label": "Feed balance", "value": f"{total_feed} bags", "note": "Current stock on farm"},
             {"label": "Open requests", "value": str(open_requests), "note": "Pending operations support"},
@@ -298,15 +399,69 @@ def farmer_dashboard():
         "batch_summary": [
             {"label": "Batch", "value": profile["active_batch"], "note": "Current cycle"},
             {"label": "Farm", "value": profile["farm_name"], "note": profile["farmer_code"]},
+            {"label": "Capacity", "value": profile["farm_capacity"], "note": f'{profile["active_sheds"]} active sheds'},
             {"label": "Field officer", "value": profile["field_officer"], "note": "Assigned support"},
         ],
         "tasks": [
-            {"label": "Daily mortality entry", "value": "Submit before evening round"},
+            {"label": "Daily farm entry", "value": "Submit birds, feed, water, and environment data"},
             {"label": "Feed inward update", "value": "Add after unloading"},
             {"label": "Medicine note", "value": "Log medicines given to birds"},
+            {"label": "Support issues", "value": "Raise any shed or utility issue immediately"},
         ],
         "mortality_history": make_mortality_history(data["mortality_log"])[:5],
+        "owner_alerts": build_owner_alerts(data["daily_entries"], data["requests"], data["vaccination_log"]),
+        "latest_daily_entry": (
+            [
+                {"label": "Date", "value": latest_entry["date"], "note": "Latest submission"},
+                {"label": "Shed", "value": latest_entry["shed"], "note": "Most recent entry shed"},
+                {"label": "Feed used", "value": f'{latest_entry["feed_used_bags"]} bags', "note": "Daily feed consumption"},
+                {"label": "Water", "value": f'{latest_entry["water_liters"]} L', "note": "Daily water intake"},
+                {"label": "Avg weight", "value": f'{latest_entry["avg_weight_g"]} g', "note": "Current body weight"},
+                {"label": "Litter", "value": latest_entry["litter_condition"], "note": latest_entry["issues"]},
+            ]
+            if latest_entry
+            else []
+        ),
     }
+
+
+@app.get("/api/farmer/daily-entry")
+def farmer_daily_entry():
+    with DATA_LOCK:
+        data = load_data()
+
+    return {
+        "profile": data["profile"],
+        "entry_history": make_daily_entry_history(data["daily_entries"]),
+        "vaccine_history": make_vaccine_history(data["vaccination_log"]),
+    }
+
+
+@app.post("/api/farmer/daily-entry")
+def add_daily_entry(payload: DailyEntryPayload):
+    with DATA_LOCK:
+        data = load_data()
+        record = {
+            "date": payload.entry_date,
+            "shed": payload.shed,
+            "opening_birds": payload.opening_birds,
+            "mortality": payload.mortality,
+            "culls": payload.culls,
+            "feed_used_bags": payload.feed_used_bags,
+            "water_liters": payload.water_liters,
+            "avg_weight_g": payload.avg_weight_g,
+            "temperature_c": payload.temperature_c,
+            "humidity_pct": payload.humidity_pct,
+            "litter_condition": payload.litter_condition,
+            "power_cut_hours": payload.power_cut_hours,
+            "dg_hours": payload.dg_hours,
+            "uniformity_pct": payload.uniformity_pct,
+            "issues": payload.issues,
+            "remarks": payload.remarks,
+        }
+        data["daily_entries"].insert(0, record)
+        save_data(data)
+    return {"success": True, "record": record}
 
 
 @app.post("/api/farmer/mortality")
@@ -376,6 +531,7 @@ def farmer_health():
         "profile": data["profile"],
         "summary": make_medicine_summary(data["medicine_stock"]),
         "log": make_medicine_log(data["medicine_log"]),
+        "vaccines": make_vaccine_history(data["vaccination_log"]),
     }
 
 

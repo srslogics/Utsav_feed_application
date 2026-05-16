@@ -7,8 +7,66 @@
     "phone": "+91 9876543210",
     "active_batch": "B-2405",
     "bird_age_days": 24,
-    "field_officer": "Anil Sahu"
+    "field_officer": "Anil Sahu",
+    "farm_capacity": "32,000 birds",
+    "active_sheds": 2
   },
+  "daily_entries": [
+    {
+      "date": "2026-05-16",
+      "shed": "Shed A",
+      "opening_birds": 15820,
+      "mortality": 18,
+      "culls": 4,
+      "feed_used_bags": 22,
+      "water_liters": 5100,
+      "avg_weight_g": 1420,
+      "temperature_c": 30.5,
+      "humidity_pct": 62,
+      "litter_condition": "Dry",
+      "power_cut_hours": 1.2,
+      "dg_hours": 1.0,
+      "uniformity_pct": 88,
+      "issues": "No major issue observed",
+      "remarks": "Ventilation adjusted after noon heat."
+    },
+    {
+      "date": "2026-05-16",
+      "shed": "Shed B",
+      "opening_birds": 14980,
+      "mortality": 11,
+      "culls": 2,
+      "feed_used_bags": 20,
+      "water_liters": 4720,
+      "avg_weight_g": 1385,
+      "temperature_c": 31.2,
+      "humidity_pct": 65,
+      "litter_condition": "Moderate",
+      "power_cut_hours": 2.1,
+      "dg_hours": 1.8,
+      "uniformity_pct": 84,
+      "issues": "Water pressure low in one nipple line",
+      "remarks": "Line checked and cleaned in evening."
+    },
+    {
+      "date": "2026-05-15",
+      "shed": "Shed A",
+      "opening_birds": 15845,
+      "mortality": 16,
+      "culls": 3,
+      "feed_used_bags": 21,
+      "water_liters": 4980,
+      "avg_weight_g": 1360,
+      "temperature_c": 29.8,
+      "humidity_pct": 60,
+      "litter_condition": "Dry",
+      "power_cut_hours": 0.7,
+      "dg_hours": 0.5,
+      "uniformity_pct": 87,
+      "issues": "Normal",
+      "remarks": "Routine day."
+    }
+  ],
   "feed_stock": [
     {
       "shed": "Shed A",
@@ -112,6 +170,22 @@
       "status": "Available",
       "quantity": "1 pack",
       "notes": "Held in reserve"
+    }
+  ],
+  "vaccination_log": [
+    {
+      "date": "2026-05-16",
+      "shed": "Shed A",
+      "vaccine": "ND Booster",
+      "status": "Given",
+      "notes": "Completed in drinking water line"
+    },
+    {
+      "date": "2026-05-18",
+      "shed": "Shed B",
+      "vaccine": "IB Booster",
+      "status": "Due",
+      "notes": "To be administered in morning"
     }
   ],
   "requests": [

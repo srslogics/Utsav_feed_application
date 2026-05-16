@@ -235,6 +235,14 @@ button {
   grid-column: 1 / -1;
 }
 
+.fa-multi-form {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.fa-multi-form .full {
+  grid-column: 1 / -1;
+}
+
 .fa-primary-btn,
 .fa-secondary-btn {
   display: inline-flex;
@@ -378,6 +386,10 @@ button {
   gap: 1rem;
 }
 
+.fa-kpi-grid-five {
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+}
+
 .fa-kpi-card,
 .fa-detail-card {
   padding: 1.1rem;
@@ -460,7 +472,9 @@ button {
   .fa-card-grid,
   .fa-detail-grid,
   .fa-request-form,
-  .fa-inline-form {
+  .fa-inline-form,
+  .fa-multi-form,
+  .fa-kpi-grid-five {
     grid-template-columns: 1fr;
   }
 

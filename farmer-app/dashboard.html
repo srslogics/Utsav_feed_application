@@ -24,6 +24,7 @@
         </div>
         <nav class="fa-nav">
           <a class="is-active" href="./dashboard.html">Dashboard</a>
+          <a href="./daily-entry.html">Daily Entry</a>
           <a href="./feed.html">Feed</a>
           <a href="./health.html">Health</a>
           <a href="./requests.html">Requests</a>
@@ -44,7 +45,7 @@
           <a class="fa-secondary-btn" href="./requests.html">Raise Request</a>
         </header>
 
-        <section class="fa-kpi-grid" id="dashboard-kpis"></section>
+        <section class="fa-kpi-grid fa-kpi-grid-five" id="dashboard-kpis"></section>
 
         <section class="fa-section">
           <div class="fa-section-head">
@@ -59,31 +60,22 @@
         <section class="fa-section">
           <div class="fa-section-head">
             <div>
-              <p class="fa-eyebrow">Daily Mortality</p>
-              <h3>Submit today’s shed entry</h3>
+              <p class="fa-eyebrow">Owner Alerts</p>
+              <h3>What management should watch today</h3>
             </div>
           </div>
-          <form class="fa-form fa-inline-form" data-mortality-form>
-            <label>
-              Shed
-              <select name="shed" required>
-                <option value="">Select shed</option>
-                <option>Shed A</option>
-                <option>Shed B</option>
-                <option>Shed C</option>
-              </select>
-            </label>
-            <label>
-              Birds
-              <input name="birds" type="number" min="1" placeholder="Enter count" required />
-            </label>
-            <label class="full">
-              Notes
-              <input name="notes" type="text" placeholder="Optional note for operations team" />
-            </label>
-            <button class="fa-primary-btn" type="submit">Save mortality entry</button>
-          </form>
-          <p class="fa-status-message" data-mortality-status></p>
+          <div class="fa-list-card" id="dashboard-alerts"></div>
+        </section>
+
+        <section class="fa-section">
+          <div class="fa-section-head">
+            <div>
+              <p class="fa-eyebrow">Latest Daily Entry</p>
+              <h3>Most recent shed submission</h3>
+            </div>
+            <a class="fa-secondary-btn" href="./daily-entry.html">Open daily entry</a>
+          </div>
+          <div class="fa-detail-grid" id="dashboard-latest-entry"></div>
         </section>
 
         <section class="fa-section">

@@ -84,6 +84,8 @@ async function loadDashboard() {
   renderKeyValueGrid(document.querySelector("#dashboard-batch"), data.batch_summary);
   renderList(document.querySelector("#dashboard-tasks"), data.tasks);
   renderList(document.querySelector("#dashboard-mortality-log"), data.mortality_history);
+  renderList(document.querySelector("#dashboard-alerts"), data.owner_alerts);
+  renderKeyValueGrid(document.querySelector("#dashboard-latest-entry"), data.latest_daily_entry);
 }
 
 async function loadFeed() {
@@ -96,11 +98,18 @@ async function loadHealth() {
   const data = await readJson("/health");
   renderKeyValueGrid(document.querySelector("#health-summary"), data.summary);
   renderList(document.querySelector("#health-log"), data.log);
+  renderList(document.querySelector("#health-vaccines"), data.vaccines);
 }
 
 async function loadRequests() {
   const data = await readJson("/requests");
   renderList(document.querySelector("#request-history"), data.history);
+}
+
+async function loadDailyEntry() {
+  const data = await readJson("/daily-entry");
+  renderList(document.querySelector("#daily-entry-history"), data.entry_history);
+  renderList(document.querySelector("#daily-vaccine-history"), data.vaccine_history);
 }
 
 const loginForm = document.querySelector("[data-farmer-login]");
@@ -143,18 +152,31 @@ async function handleFormSubmit(form, path, selector, makePayload, afterSuccess)
   });
 }
 
-const mortalityForm = document.querySelector("[data-mortality-form]");
-if (mortalityForm) {
+const dailyEntryForm = document.querySelector("[data-daily-entry-form]");
+if (dailyEntryForm) {
   handleFormSubmit(
-    mortalityForm,
-    "/mortality",
-    "[data-mortality-status]",
+    dailyEntryForm,
+    "/daily-entry",
+    "[data-daily-entry-status]",
     (formData) => ({
+      entry_date: formData.get("entry_date"),
       shed: formData.get("shed"),
-      birds: Number(formData.get("birds")),
-      notes: formData.get("notes"),
+      opening_birds: Number(formData.get("opening_birds")),
+      mortality: Number(formData.get("mortality")),
+      culls: Number(formData.get("culls")),
+      feed_used_bags: Number(formData.get("feed_used_bags")),
+      water_liters: Number(formData.get("water_liters")),
+      avg_weight_g: Number(formData.get("avg_weight_g")),
+      temperature_c: Number(formData.get("temperature_c")),
+      humidity_pct: Number(formData.get("humidity_pct")),
+      litter_condition: formData.get("litter_condition"),
+      power_cut_hours: Number(formData.get("power_cut_hours")),
+      dg_hours: Number(formData.get("dg_hours")),
+      uniformity_pct: Number(formData.get("uniformity_pct")),
+      issues: formData.get("issues"),
+      remarks: formData.get("remarks"),
     }),
-    loadDashboard
+    loadDailyEntry
   );
 }
 
@@ -240,6 +262,8 @@ if (requestForm) {
 const page = document.body.dataset.faPage;
 if (page === "dashboard") {
   loadDashboard().catch(console.error);
+} else if (page === "daily-entry") {
+  loadDailyEntry().catch(console.error);
 } else if (page === "feed") {
   loadFeed().catch(console.error);
 } else if (page === "health") {
