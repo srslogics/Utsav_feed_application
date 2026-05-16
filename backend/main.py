@@ -5,6 +5,8 @@ from threading import Lock
 
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
 
@@ -20,8 +22,21 @@ app.add_middleware(
 
 
 BASE_DIR = Path(__file__).resolve().parent
+PROJECT_ROOT = BASE_DIR.parent
 DATA_FILE = BASE_DIR / "data.json"
 DATA_LOCK = Lock()
+
+WEBSITE_FILES = {
+    "/": "index.html",
+    "/index.html": "index.html",
+    "/website.html": "website.html",
+    "/website-about.html": "website-about.html",
+    "/website-farmers.html": "website-farmers.html",
+    "/website-contact.html": "website-contact.html",
+    "/website-platform.html": "website-platform.html",
+    "/styles.css": "styles.css",
+    "/app.js": "app.js",
+}
 
 
 DEFAULT_DATA = {
@@ -224,6 +239,17 @@ def make_mortality_history(records: list[dict]) -> list[dict]:
     ]
 
 
+def public_file_response(file_name: str) -> FileResponse:
+    file_path = PROJECT_ROOT / file_name
+    if not file_path.exists():
+        raise HTTPException(status_code=404, detail="File not found.")
+    return FileResponse(file_path)
+
+
+for route_path, file_name in WEBSITE_FILES.items():
+    app.add_api_route(route_path, lambda file_name=file_name: public_file_response(file_name), methods=["GET"])
+
+
 @app.get("/api/health")
 def healthcheck():
     return {"status": "ok"}
@@ -408,3 +434,10 @@ def add_request(payload: RequestPayload):
         data["requests"].insert(0, record)
         save_data(data)
     return {"success": True, "record": record}
+
+
+app.mount(
+    "/farmer-app",
+    StaticFiles(directory=PROJECT_ROOT / "farmer-app", html=True),
+    name="farmer-app",
+)
