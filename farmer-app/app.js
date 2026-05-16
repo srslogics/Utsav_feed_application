@@ -81,6 +81,7 @@ function renderList(container, items) {
 async function loadDashboard() {
   const data = await readJson("/dashboard");
   renderKpis(document.querySelector("#dashboard-kpis"), data.kpis);
+  renderKpis(document.querySelector("#dashboard-performance"), data.performance_metrics);
   renderKeyValueGrid(document.querySelector("#dashboard-batch"), data.batch_summary);
   renderList(document.querySelector("#dashboard-tasks"), data.tasks);
   renderList(document.querySelector("#dashboard-mortality-log"), data.mortality_history);
@@ -104,6 +105,7 @@ async function loadHealth() {
 async function loadRequests() {
   const data = await readJson("/requests");
   renderList(document.querySelector("#request-history"), data.history);
+  renderList(document.querySelector("#document-history"), data.documents);
 }
 
 async function loadDailyEntry() {
@@ -148,6 +150,29 @@ async function handleFormSubmit(form, path, selector, makePayload, afterSuccess)
       setStatus(selector, "Saved successfully.");
     } catch (error) {
       setStatus(selector, "Unable to save right now. Please try again.", true);
+    }
+  });
+}
+
+async function handleUploadSubmit(form, path, selector, afterSuccess) {
+  form.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    const formData = new FormData(form);
+    try {
+      const response = await fetch(`${farmerApiBase}${path}`, {
+        method: "POST",
+        body: formData,
+      });
+      if (!response.ok) {
+        throw new Error(`Request failed: ${response.status}`);
+      }
+      form.reset();
+      if (afterSuccess) {
+        await afterSuccess();
+      }
+      setStatus(selector, "Document uploaded successfully.");
+    } catch (error) {
+      setStatus(selector, "Unable to upload document right now. Please try again.", true);
     }
   });
 }
@@ -255,6 +280,16 @@ if (requestForm) {
       priority: formData.get("priority"),
       details: formData.get("details"),
     }),
+    loadRequests
+  );
+}
+
+const documentUploadForm = document.querySelector("[data-document-upload-form]");
+if (documentUploadForm) {
+  handleUploadSubmit(
+    documentUploadForm,
+    "/documents",
+    "[data-document-status]",
     loadRequests
   );
 }

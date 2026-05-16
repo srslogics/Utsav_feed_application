@@ -210,5 +210,27 @@
       "details": "Water line issue in Shed A.",
       "status": "Closed"
     }
+  ],
+  "documents": [
+    {
+      "date": "2026-05-16",
+      "type": "Utility Bill",
+      "title": "Diesel bill for DG",
+      "amount": "Rs 3200",
+      "notes": "Uploaded for owner approval",
+      "file_name": "owner-bill.txt",
+      "stored_name": "20260516164016-diesel-bill-for-dg.txt",
+      "status": "Submitted to owner system"
+    },
+    {
+      "date": "2026-05-16",
+      "type": "Feed Bill",
+      "title": "Starter feed inward challan",
+      "amount": "Rs 18,400",
+      "notes": "Submitted for owner verification after unloading.",
+      "file_name": "starter-feed-challan.pdf",
+      "stored_name": "",
+      "status": "Submitted to owner system"
+    }
   ]
 }

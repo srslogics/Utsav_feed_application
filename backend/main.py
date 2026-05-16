@@ -1,9 +1,11 @@
 import json
+import re
+from datetime import datetime
 from datetime import date
 from pathlib import Path
 from threading import Lock
 
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, File, Form, HTTPException, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
@@ -24,7 +26,10 @@ app.add_middleware(
 BASE_DIR = Path(__file__).resolve().parent
 PROJECT_ROOT = BASE_DIR.parent
 DATA_FILE = BASE_DIR / "data.json"
+UPLOADS_DIR = BASE_DIR / "uploads"
 DATA_LOCK = Lock()
+
+UPLOADS_DIR.mkdir(exist_ok=True)
 
 WEBSITE_FILES = {
     "/": "index.html",
@@ -163,6 +168,7 @@ class DailyEntryPayload(BaseModel):
 def ensure_data_file() -> None:
     if not DATA_FILE.exists():
         DATA_FILE.write_text(json.dumps(DEFAULT_DATA, indent=2))
+    UPLOADS_DIR.mkdir(exist_ok=True)
 
 
 def load_data() -> dict:
@@ -172,6 +178,11 @@ def load_data() -> dict:
 
 def save_data(data: dict) -> None:
     DATA_FILE.write_text(json.dumps(data, indent=2))
+
+
+def safe_slug(value: str) -> str:
+    cleaned = re.sub(r"[^a-zA-Z0-9]+", "-", value.strip().lower()).strip("-")
+    return cleaned or "document"
 
 
 def today_string() -> str:
@@ -283,6 +294,20 @@ def make_vaccine_history(records: list[dict]) -> list[dict]:
     ]
 
 
+def make_document_history(records: list[dict]) -> list[dict]:
+    return [
+        {
+            "label": f'{record["date"]} / {record["type"]}',
+            "value": record["status"],
+            "note": (
+                f'{record["title"]} • {record["amount"] or "No amount"} • '
+                f'File: {record["file_name"]}'
+            ),
+        }
+        for record in records
+    ]
+
+
 def build_owner_alerts(daily_entries: list[dict], requests: list[dict], vaccine_log: list[dict]) -> list[dict]:
     alerts: list[dict] = []
 
@@ -333,6 +358,71 @@ def build_owner_alerts(daily_entries: list[dict], requests: list[dict], vaccine_
             )
 
     return alerts[:6]
+
+
+def build_performance_metrics(daily_entries: list[dict]) -> list[dict]:
+    if not daily_entries:
+        return []
+
+    latest_by_shed: dict[str, dict] = {}
+    for record in daily_entries:
+        if record["shed"] not in latest_by_shed:
+            latest_by_shed[record["shed"]] = record
+
+    total_feed_bags = sum(float(record["feed_used_bags"]) for record in daily_entries)
+    total_feed_kg = total_feed_bags * 50
+    placement_birds = sum(float(record["opening_birds"]) for record in latest_by_shed.values())
+    current_live_birds = sum(
+        float(record["opening_birds"]) - float(record["mortality"]) - float(record["culls"])
+        for record in latest_by_shed.values()
+    )
+    total_mortality = sum(float(record["mortality"]) for record in daily_entries)
+    total_culls = sum(float(record["culls"]) for record in daily_entries)
+
+    weighted_live_weight_kg = sum(
+        (
+            (float(record["opening_birds"]) - float(record["mortality"]) - float(record["culls"]))
+            * float(record["avg_weight_g"])
+        )
+        / 1000
+        for record in latest_by_shed.values()
+    )
+    avg_weight_g = (
+        sum(float(record["avg_weight_g"]) for record in latest_by_shed.values()) / len(latest_by_shed)
+        if latest_by_shed
+        else 0
+    )
+    livability = ((current_live_birds / placement_birds) * 100) if placement_birds else 0
+    running_fcr = (total_feed_kg / weighted_live_weight_kg) if weighted_live_weight_kg else 0
+    feed_per_bird_kg = (total_feed_kg / current_live_birds) if current_live_birds else 0
+
+    return [
+        {
+            "label": "Running FCR",
+            "value": f"{running_fcr:.2f}",
+            "note": "Estimated from submitted cycle feed and current live weight",
+        },
+        {
+            "label": "Livability",
+            "value": f"{livability:.1f}%",
+            "note": f"{int(current_live_birds):,} live birds from {int(placement_birds):,} placed",
+        },
+        {
+            "label": "Feed consumed",
+            "value": f"{total_feed_kg:,.0f} kg",
+            "note": f"{total_feed_bags:,.0f} total bags recorded in cycle",
+        },
+        {
+            "label": "Current live weight",
+            "value": f"{weighted_live_weight_kg:,.0f} kg",
+            "note": f"Average body weight {avg_weight_g:,.0f} g",
+        },
+        {
+            "label": "Feed per bird",
+            "value": f"{feed_per_bird_kg:.2f} kg",
+            "note": f"Mortality {int(total_mortality):,} • culls {int(total_culls):,}",
+        },
+    ]
 
 
 def public_file_response(file_name: str) -> FileResponse:
@@ -410,6 +500,7 @@ def farmer_dashboard():
         ],
         "mortality_history": make_mortality_history(data["mortality_log"])[:5],
         "owner_alerts": build_owner_alerts(data["daily_entries"], data["requests"], data["vaccination_log"]),
+        "performance_metrics": build_performance_metrics(data["daily_entries"]),
         "latest_daily_entry": (
             [
                 {"label": "Date", "value": latest_entry["date"], "note": "Latest submission"},
@@ -573,6 +664,7 @@ def farmer_requests():
     return {
         "profile": data["profile"],
         "history": make_request_history(data["requests"]),
+        "documents": make_document_history(data["documents"]),
     }
 
 
@@ -592,8 +684,46 @@ def add_request(payload: RequestPayload):
     return {"success": True, "record": record}
 
 
+@app.post("/api/farmer/documents")
+async def upload_document(
+    doc_type: str = Form(...),
+    title: str = Form(...),
+    amount: str = Form(""),
+    notes: str = Form(""),
+    file: UploadFile = File(...),
+):
+    ensure_data_file()
+    timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
+    original_name = file.filename or "document"
+    suffix = Path(original_name).suffix or ".bin"
+    stored_name = f"{timestamp}-{safe_slug(title)}{suffix}"
+    destination = UPLOADS_DIR / stored_name
+    content = await file.read()
+    destination.write_bytes(content)
+
+    record = {
+        "date": today_string(),
+        "type": doc_type,
+        "title": title,
+        "amount": amount,
+        "notes": notes,
+        "file_name": original_name,
+        "stored_name": stored_name,
+        "status": "Submitted to owner system",
+    }
+
+    with DATA_LOCK:
+        data = load_data()
+        data.setdefault("documents", [])
+        data["documents"].insert(0, record)
+        save_data(data)
+
+    return {"success": True, "record": record}
+
+
 app.mount(
     "/farmer-app",
     StaticFiles(directory=PROJECT_ROOT / "farmer-app", html=True),
     name="farmer-app",
 )
+app.mount("/uploads", StaticFiles(directory=UPLOADS_DIR), name="uploads")

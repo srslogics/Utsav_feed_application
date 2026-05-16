@@ -84,6 +84,56 @@
           </div>
           <div class="fa-list-card" id="request-history"></div>
         </section>
+
+        <section class="fa-section">
+          <div class="fa-section-head">
+            <div>
+              <p class="fa-eyebrow">Upload Documents & Bills</p>
+              <h3>Send invoices, challans, and supporting files to the owner system</h3>
+            </div>
+          </div>
+          <form class="fa-form fa-request-form" data-document-upload-form enctype="multipart/form-data">
+            <label>
+              Document type
+              <select name="doc_type" required>
+                <option value="">Select document type</option>
+                <option>Feed Bill</option>
+                <option>Medicine Bill</option>
+                <option>Equipment Invoice</option>
+                <option>Utility Bill</option>
+                <option>Farm Document</option>
+              </select>
+            </label>
+            <label>
+              Title
+              <input name="title" type="text" placeholder="Enter document title" required />
+            </label>
+            <label>
+              Amount
+              <input name="amount" type="text" placeholder="e.g. Rs 12,500" />
+            </label>
+            <label>
+              File
+              <input name="file" type="file" accept=".pdf,.jpg,.jpeg,.png,.webp,.doc,.docx" required />
+            </label>
+            <label class="full">
+              Notes
+              <textarea name="notes" placeholder="Any note the owner should see with this upload"></textarea>
+            </label>
+            <button class="fa-primary-btn" type="submit">Upload to owner system</button>
+          </form>
+          <p class="fa-status-message" data-document-status></p>
+        </section>
+
+        <section class="fa-section">
+          <div class="fa-section-head">
+            <div>
+              <p class="fa-eyebrow">Uploaded Documents</p>
+              <h3>Recent files sent from the farm</h3>
+            </div>
+          </div>
+          <div class="fa-list-card" id="document-history"></div>
+        </section>
       </main>
     </div>
     <script src="/farmer-app/app.js?v=20260516"></script>
