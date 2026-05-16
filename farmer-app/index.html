@@ -10,7 +10,7 @@
       href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Instrument+Sans:wght@400;500;600;700&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="./styles.css" />
+    <link rel="stylesheet" href="/farmer-app/styles.css?v=20260516" />
   </head>
   <body class="fa-body">
     <main class="fa-login-shell">
@@ -30,6 +30,23 @@
             records, and support requests directly to the Utsav operations team.
           </p>
         </div>
+        <div class="fa-highlights">
+          <article class="fa-highlight-card">
+            <span>Farm Visibility</span>
+            <strong>Shed-wise feed and mortality updates</strong>
+            <p>Track feed bags, mortality, and batch health from one farmer account.</p>
+          </article>
+          <article class="fa-highlight-card">
+            <span>Medicine Records</span>
+            <strong>Stock, requirements, and usage history</strong>
+            <p>Keep medicine availability and administration logs aligned with the operations team.</p>
+          </article>
+          <article class="fa-highlight-card">
+            <span>Direct Support</span>
+            <strong>Operational requests without call delays</strong>
+            <p>Raise feed, medicine, shed, and field support requests in real time.</p>
+          </article>
+        </div>
       </section>
 
       <section class="fa-auth-card">
@@ -41,14 +58,21 @@
             <input name="phone" type="tel" placeholder="+91 98XXXXXXXX" required />
           </label>
           <label>
-            Password / OTP
-            <input name="password" type="password" placeholder="Enter password or OTP" required />
+            Password
+            <input name="password" type="password" placeholder="Enter your password" required />
           </label>
           <button class="fa-primary-btn" type="submit">Login to Farmer App</button>
         </form>
-        <p class="fa-form-note">Use registered farmer credentials issued by Utsav Feed Industries.</p>
+        <div class="fa-auth-meta">
+          <p class="fa-form-note">Use registered farmer credentials issued by Utsav Feed Industries.</p>
+          <div class="fa-auth-badges">
+            <span>Farmer ID login</span>
+            <span>Real-time entries</span>
+            <span>Operations linked</span>
+          </div>
+        </div>
       </section>
     </main>
-    <script src="./app.js"></script>
+    <script src="/farmer-app/app.js?v=20260516"></script>
   </body>
 </html>

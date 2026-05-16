@@ -1,14 +1,15 @@
 :root {
-  --fa-bg: #f4ece4;
-  --fa-surface: rgba(255, 250, 246, 0.95);
-  --fa-surface-soft: rgba(243, 232, 220, 0.72);
-  --fa-border: rgba(45, 35, 30, 0.11);
-  --fa-text: #251f1d;
-  --fa-muted: #766b63;
-  --fa-primary: #5f4b40;
-  --fa-primary-dark: #2a221f;
-  --fa-accent: #d9b98f;
-  --fa-shadow: 0 24px 60px rgba(37, 29, 24, 0.12);
+  --fa-bg: #efe5d9;
+  --fa-surface: rgba(255, 251, 247, 0.96);
+  --fa-surface-soft: rgba(108, 77, 60, 0.09);
+  --fa-border: rgba(61, 43, 34, 0.11);
+  --fa-text: #1d1714;
+  --fa-muted: #73675f;
+  --fa-primary: #6c4d3c;
+  --fa-primary-dark: #241915;
+  --fa-accent: #d3a87a;
+  --fa-accent-strong: #bf8a54;
+  --fa-shadow: 0 28px 70px rgba(34, 23, 16, 0.14);
 }
 
 * {
@@ -21,8 +22,9 @@ body {
   font-family: "Instrument Sans", sans-serif;
   color: var(--fa-text);
   background:
-    radial-gradient(circle at top left, rgba(162, 136, 98, 0.18), transparent 22%),
-    linear-gradient(180deg, #f6efe7 0%, #e5d8ca 100%);
+    radial-gradient(circle at top left, rgba(191, 138, 84, 0.18), transparent 24%),
+    radial-gradient(circle at right 18%, rgba(108, 77, 60, 0.12), transparent 22%),
+    linear-gradient(180deg, #f5eee6 0%, #dfd1c2 100%);
 }
 
 a {
@@ -47,11 +49,11 @@ button {
 
 .fa-login-shell {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(360px, 440px);
-  gap: 1.4rem;
-  max-width: 1180px;
+  grid-template-columns: minmax(0, 1.12fr) minmax(360px, 430px);
+  gap: 1.6rem;
+  max-width: 1240px;
   margin: 0 auto;
-  padding: 1.4rem;
+  padding: 1.8rem;
   min-height: 100vh;
   align-items: center;
 }
@@ -64,14 +66,34 @@ button {
 .fa-detail-card,
 .fa-list-card {
   border: 1px solid var(--fa-border);
-  border-radius: 28px;
+  border-radius: 30px;
   background: var(--fa-surface);
   box-shadow: var(--fa-shadow);
 }
 
 .fa-login-panel,
 .fa-auth-card {
-  padding: 1.6rem;
+  padding: 1.8rem;
+}
+
+.fa-login-panel {
+  position: relative;
+  overflow: hidden;
+  background:
+    linear-gradient(145deg, rgba(255, 251, 247, 0.98), rgba(248, 240, 232, 0.96)),
+    var(--fa-surface);
+}
+
+.fa-login-panel::after {
+  content: "";
+  position: absolute;
+  right: -38px;
+  bottom: -72px;
+  width: 220px;
+  height: 220px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(191, 138, 84, 0.25), transparent 70%);
+  pointer-events: none;
 }
 
 .fa-brand,
@@ -91,13 +113,14 @@ button {
 .fa-brand-mark {
   display: grid;
   place-items: center;
-  width: 52px;
-  height: 52px;
-  border-radius: 16px;
-  background: linear-gradient(135deg, var(--fa-primary-dark), var(--fa-primary));
+  width: 58px;
+  height: 58px;
+  border-radius: 18px;
+  background: linear-gradient(135deg, var(--fa-primary-dark), var(--fa-primary), var(--fa-accent-strong));
   color: #fff;
   font-weight: 700;
   letter-spacing: 0.06em;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.16);
 }
 
 .fa-eyebrow {
@@ -120,14 +143,14 @@ button {
 }
 
 .fa-copy {
-  margin-top: 1.8rem;
+  margin-top: 2.2rem;
   max-width: 56ch;
 }
 
 .fa-copy h2 {
   margin: 0.35rem 0 0.7rem;
-  font-size: clamp(2.4rem, 4.8vw, 4.6rem);
-  line-height: 0.94;
+  font-size: clamp(2.5rem, 5vw, 5rem);
+  line-height: 0.96;
 }
 
 .fa-copy p,
@@ -137,6 +160,42 @@ button {
 .fa-list-row span {
   color: var(--fa-muted);
   line-height: 1.7;
+}
+
+.fa-highlights {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+  margin-top: 2rem;
+}
+
+.fa-highlight-card {
+  padding: 1.05rem;
+  border-radius: 22px;
+  border: 1px solid rgba(108, 77, 60, 0.12);
+  background: rgba(255, 255, 255, 0.66);
+  backdrop-filter: blur(10px);
+}
+
+.fa-highlight-card span {
+  display: block;
+  color: var(--fa-accent-strong);
+  font-size: 0.74rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.fa-highlight-card strong {
+  display: block;
+  margin-top: 0.45rem;
+  font-family: "Space Grotesk", sans-serif;
+  font-size: 1.05rem;
+}
+
+.fa-highlight-card p {
+  margin: 0.55rem 0 0;
+  color: var(--fa-muted);
+  line-height: 1.6;
 }
 
 .fa-form {
@@ -181,14 +240,16 @@ button {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 0.92rem 1.2rem;
+  padding: 0.98rem 1.24rem;
   border-radius: 999px;
   border: 1px solid var(--fa-border);
+  transition: transform 140ms ease, box-shadow 140ms ease;
 }
 
 .fa-primary-btn {
-  background: linear-gradient(135deg, var(--fa-primary-dark), var(--fa-primary));
+  background: linear-gradient(135deg, var(--fa-primary-dark), var(--fa-primary), var(--fa-accent-strong));
   color: #fff;
+  box-shadow: 0 16px 30px rgba(42, 29, 21, 0.2);
 }
 
 .fa-secondary-btn {
@@ -196,10 +257,46 @@ button {
   color: var(--fa-text);
 }
 
+.fa-primary-btn:hover,
+.fa-secondary-btn:hover {
+  transform: translateY(-1px);
+}
+
+.fa-auth-card {
+  background:
+    linear-gradient(180deg, rgba(255, 252, 249, 0.98), rgba(248, 239, 230, 0.94)),
+    var(--fa-surface);
+}
+
+.fa-auth-card h3 {
+  font-size: 1.6rem;
+  margin-top: 0.3rem;
+}
+
+.fa-auth-meta {
+  display: grid;
+  gap: 0.8rem;
+  margin-top: 1rem;
+}
+
+.fa-auth-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+}
+
+.fa-auth-badges span {
+  padding: 0.45rem 0.8rem;
+  border-radius: 999px;
+  background: rgba(108, 77, 60, 0.08);
+  color: var(--fa-text);
+  font-size: 0.84rem;
+}
+
 .fa-app-shell {
   align-items: stretch;
-  gap: 1.2rem;
-  padding: 1.2rem;
+  gap: 1.25rem;
+  padding: 1.25rem;
 }
 
 .fa-sidebar {
@@ -208,6 +305,9 @@ button {
   display: grid;
   align-content: start;
   gap: 1.1rem;
+  background:
+    linear-gradient(180deg, rgba(255, 249, 244, 0.96), rgba(242, 229, 216, 0.96)),
+    var(--fa-surface);
 }
 
 .fa-nav {
@@ -216,22 +316,23 @@ button {
 }
 
 .fa-nav a {
-  padding: 0.85rem 0.95rem;
-  border-radius: 16px;
+  padding: 0.92rem 1rem;
+  border-radius: 18px;
   color: var(--fa-muted);
   border: 1px solid transparent;
+  font-weight: 600;
 }
 
 .fa-nav a.is-active,
 .fa-nav a:hover {
-  background: var(--fa-surface-soft);
+  background: linear-gradient(135deg, rgba(108, 77, 60, 0.12), rgba(191, 138, 84, 0.12));
   border-color: var(--fa-border);
   color: var(--fa-text);
 }
 
 .fa-sidebar-card {
   padding: 1rem;
-  border-radius: 20px;
+  border-radius: 22px;
   background: var(--fa-surface-soft);
 }
 
@@ -249,6 +350,16 @@ button {
   flex: 1 1 auto;
   display: grid;
   gap: 1rem;
+}
+
+.fa-page-head {
+  padding: 0.4rem 0.2rem 0;
+}
+
+.fa-page-head h2 {
+  margin: 0.18rem 0 0;
+  font-family: "Space Grotesk", sans-serif;
+  font-size: clamp(1.8rem, 3.4vw, 2.5rem);
 }
 
 .fa-page-head,
@@ -269,7 +380,7 @@ button {
 
 .fa-kpi-card,
 .fa-detail-card {
-  padding: 1rem;
+  padding: 1.1rem;
 }
 
 .fa-kpi-card span,
@@ -285,12 +396,12 @@ button {
 .fa-detail-card strong {
   display: block;
   margin-top: 0.35rem;
-  font-size: 1.55rem;
+  font-size: 1.45rem;
   color: var(--fa-text);
 }
 
 .fa-section {
-  padding: 1.25rem;
+  padding: 1.3rem;
 }
 
 .fa-list-card {
@@ -360,12 +471,20 @@ button {
   .fa-sidebar {
     width: auto;
   }
+
+  .fa-highlights {
+    grid-template-columns: 1fr;
+  }
 }
 
 @media (max-width: 620px) {
   .fa-login-shell,
   .fa-app-shell {
     padding: 0.85rem;
+  }
+
+  .fa-copy h2 {
+    font-size: 2.3rem;
   }
 
   .fa-page-head,
