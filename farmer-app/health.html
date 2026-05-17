@@ -29,6 +29,11 @@
           <a class="is-active" href="./health.html">Health | दवाई</a>
           <a href="./requests.html">Requests | अनुरोध</a>
         </nav>
+        <div class="fa-farm-strip">
+          <span data-profile-farm>Utsav Partner Farm 12</span>
+          <strong data-profile-batch>Batch B-2405</strong>
+          <small data-profile-cluster>Korba Cluster</small>
+        </div>
       </aside>
 
       <main class="fa-content">
@@ -36,10 +41,17 @@
           <div>
             <p class="fa-eyebrow">Health Records | हेल्थ रिकॉर्ड</p>
             <h2>Dawai aur flock care details</h2>
+            <p class="fa-page-intro">Kis dawai ka stock hai, kya chahiye aur birds ko kya diya gaya, sab yahin record hoga.</p>
           </div>
         </header>
 
-        <section class="fa-section">
+        <section class="fa-shortcut-row">
+          <a class="fa-shortcut-chip" href="#medicine-stock-form">Stock Save</a>
+          <a class="fa-shortcut-chip" href="#medicine-log-form">Given Record</a>
+          <a class="fa-shortcut-chip" href="#health-vaccines">Vaccine Watch</a>
+        </section>
+
+        <section class="fa-section" id="medicine-stock-form">
           <div class="fa-section-head">
             <div>
               <p class="fa-eyebrow">Medicine Stock | Dawai Stock</p>
@@ -72,7 +84,7 @@
           <p class="fa-status-message" data-medicine-stock-status></p>
         </section>
 
-        <section class="fa-section">
+        <section class="fa-section" id="health-vaccines">
           <div class="fa-section-head">
             <div>
               <p class="fa-eyebrow">Medicine Status | Dawai Ki Jankari</p>
@@ -82,7 +94,7 @@
           <div class="fa-detail-grid" id="health-summary"></div>
         </section>
 
-        <section class="fa-section">
+        <section class="fa-section" id="medicine-log-form">
           <div class="fa-section-head">
             <div>
               <p class="fa-eyebrow">Medicine Given | Di gayi Dawai</p>
@@ -140,6 +152,13 @@
         </section>
       </main>
     </div>
+    <nav class="fa-bottom-nav">
+      <a href="./dashboard.html">Home</a>
+      <a href="./daily-entry.html">Entry</a>
+      <a href="./feed.html">Feed</a>
+      <a class="is-active" href="./health.html">Health</a>
+      <a href="./requests.html">Upload</a>
+    </nav>
     <script src="/farmer-app/app.js?v=20260516"></script>
   </body>
 </html>

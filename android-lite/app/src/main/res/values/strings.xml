@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Utsav Farmer</string>
+    <string name="status_live">Live farm records</string>
+    <string name="status_loading">Opening farmer workspace</string>
+    <string name="status_refreshing">Syncing latest farm updates</string>
+    <string name="status_connection_issue">Connection issue. Pull to refresh.</string>
+    <string name="refresh">Refresh</string>
+    <string name="file_chooser_title">Choose photo or document</string>
+</resources>

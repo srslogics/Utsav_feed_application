@@ -29,6 +29,11 @@
           <a href="./health.html">Health | दवाई</a>
           <a class="is-active" href="./requests.html">Requests | अनुरोध</a>
         </nav>
+        <div class="fa-farm-strip">
+          <span data-profile-farm>Utsav Partner Farm 12</span>
+          <strong data-profile-batch>Batch B-2405</strong>
+          <small data-profile-cluster>Korba Cluster</small>
+        </div>
       </aside>
 
       <main class="fa-content">
@@ -36,10 +41,47 @@
           <div>
             <p class="fa-eyebrow">Support Requests | सहायता</p>
             <h2>Company team ko zaroorat ya issue bhejein</h2>
+            <p class="fa-page-intro">Typing kam, photo aur bill upload zyada. Ye screen owner tak direct information pahunchane ke liye hai.</p>
           </div>
         </header>
 
-        <section class="fa-section">
+        <section class="fa-info-strip">
+          <article>
+            <span>Fastest</span>
+            <strong>Photo bhejein</strong>
+            <p>Issue dikhe to photo kheechkar seedha owner system me bhejein.</p>
+          </article>
+          <article>
+            <span>Proof</span>
+            <strong>Bill upload karein</strong>
+            <p>Feed, medicine, diesel ya utility bill yahin se submit karein.</p>
+          </article>
+          <article>
+            <span>Support</span>
+            <strong>Normal request</strong>
+            <p>Feed shortage ya field officer help ke liye simple request bhejein.</p>
+          </article>
+        </section>
+
+        <section class="fa-quick-grid fa-quick-grid-three">
+          <a class="fa-quick-card fa-quick-card-alert" href="#issue-photo-form">
+            <span>Photo</span>
+            <strong>Issue Report</strong>
+            <p>Paani, litter, bird health, equipment ya bijli issue bhejein.</p>
+          </a>
+          <a class="fa-quick-card" href="#document-upload-form">
+            <span>Bill</span>
+            <strong>Document Upload</strong>
+            <p>Invoice, challan aur approval document submit karein.</p>
+          </a>
+          <a class="fa-quick-card" href="#request-form">
+            <span>Request</span>
+            <strong>Support Raise</strong>
+            <p>Text request tab use karein jab photo ki zaroorat na ho.</p>
+          </a>
+        </section>
+
+        <section class="fa-section" id="request-form">
           <div class="fa-section-head">
             <div>
               <p class="fa-eyebrow">New Request | Naya Anurodh</p>
@@ -75,7 +117,7 @@
           <p class="fa-status-message" data-request-status></p>
         </section>
 
-        <section class="fa-section">
+        <section class="fa-section" id="issue-photo-form">
           <div class="fa-section-head">
             <div>
               <p class="fa-eyebrow">Recent Requests | Recent Anurodh</p>
@@ -85,7 +127,7 @@
           <div class="fa-list-card" id="request-history"></div>
         </section>
 
-        <section class="fa-section">
+        <section class="fa-section" id="document-upload-form">
           <div class="fa-section-head">
             <div>
               <p class="fa-eyebrow">Photo-first Issue Report | फोटो से रिपोर्ट</p>
@@ -196,6 +238,13 @@
         </section>
       </main>
     </div>
+    <nav class="fa-bottom-nav">
+      <a href="./dashboard.html">Home</a>
+      <a href="./daily-entry.html">Entry</a>
+      <a href="./feed.html">Feed</a>
+      <a href="./health.html">Health</a>
+      <a class="is-active" href="./requests.html">Upload</a>
+    </nav>
     <script src="/farmer-app/app.js?v=20260516"></script>
   </body>
 </html>

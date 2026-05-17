@@ -29,10 +29,15 @@
           <a href="./health.html">Health | दवाई</a>
           <a href="./requests.html">Requests | अनुरोध</a>
         </nav>
+        <div class="fa-farm-strip">
+          <span data-profile-farm>Utsav Partner Farm 12</span>
+          <strong data-profile-batch>Batch B-2405</strong>
+          <small data-profile-cluster>Korba Cluster</small>
+        </div>
         <div class="fa-sidebar-card">
           <p class="fa-eyebrow">Farmer | किसान</p>
-          <strong>Rakesh Verma</strong>
-          <span>Korba Cluster</span>
+          <strong data-profile-name>Rakesh Verma</strong>
+          <span data-profile-cluster>Korba Cluster</span>
         </div>
       </aside>
 
@@ -41,9 +46,66 @@
           <div>
             <p class="fa-eyebrow">Dashboard | आज का रिकॉर्ड</p>
             <h2>Aaj ke farm ki mukhya jankari</h2>
+            <p class="fa-page-intro">
+              Sabse pehle aaj ka record bharein. Feed, dawai, issue aur bill upload yahin se
+              turant kar sakte hain.
+            </p>
           </div>
           <a class="fa-secondary-btn" href="./requests.html">Request Bhejein</a>
         </header>
+
+        <section class="fa-hero-card">
+          <div>
+            <p class="fa-eyebrow">Farm Snapshot | Turant Jankari</p>
+            <h3 data-profile-farm>Utsav Partner Farm 12</h3>
+            <p>
+              Farmer <strong data-profile-name>Rakesh Verma</strong> •
+              <span data-profile-cluster>Korba Cluster</span> •
+              <span data-profile-batch>Batch B-2405</span>
+            </p>
+          </div>
+          <div class="fa-hero-stats">
+            <article>
+              <span>Capacity</span>
+              <strong data-profile-capacity>32,000 birds</strong>
+            </article>
+            <article>
+              <span>Field Officer</span>
+              <strong data-profile-officer>Anil Sahu</strong>
+            </article>
+          </div>
+        </section>
+
+        <section class="fa-section">
+          <div class="fa-section-head">
+            <div>
+              <p class="fa-eyebrow">Quick Actions | Jaldi Kaam</p>
+              <h3>Sabse zyada use hone wale kaam</h3>
+            </div>
+          </div>
+          <div class="fa-quick-grid">
+            <a class="fa-quick-card" href="./daily-entry.html">
+              <span>1</span>
+              <strong>Aaj ki Entry</strong>
+              <p>Mortality, feed, paani aur shed condition abhi bharein.</p>
+            </a>
+            <a class="fa-quick-card" href="./feed.html">
+              <span>2</span>
+              <strong>Feed Update</strong>
+              <p>Kitne bag bache hain aur aaj kya inward aaya hai save karein.</p>
+            </a>
+            <a class="fa-quick-card" href="./health.html">
+              <span>3</span>
+              <strong>Dawai Record</strong>
+              <p>Available, required aur birds ko di gayi dawai note karein.</p>
+            </a>
+            <a class="fa-quick-card fa-quick-card-alert" href="./requests.html">
+              <span>4</span>
+              <strong>Photo / Bill Bhejein</strong>
+              <p>Issue ki photo ya bill owner system ko seedha bhejein.</p>
+            </a>
+          </div>
+        </section>
 
         <section class="fa-kpi-grid fa-kpi-grid-five" id="dashboard-kpis"></section>
 
@@ -109,6 +171,13 @@
         </section>
       </main>
     </div>
+    <nav class="fa-bottom-nav">
+      <a class="is-active" href="./dashboard.html">Home</a>
+      <a href="./daily-entry.html">Entry</a>
+      <a href="./feed.html">Feed</a>
+      <a href="./health.html">Health</a>
+      <a href="./requests.html">Upload</a>
+    </nav>
     <script src="/farmer-app/app.js?v=20260516"></script>
   </body>
 </html>

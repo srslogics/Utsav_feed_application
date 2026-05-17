@@ -479,6 +479,9 @@ def farmer_dashboard():
         data = load_data()
     profile = data["profile"]
     today_entries = [item for item in data["daily_entries"] if item["date"] == today_string()]
+    if not today_entries and data["daily_entries"]:
+        latest_date = data["daily_entries"][0]["date"]
+        today_entries = [item for item in data["daily_entries"] if item["date"] == latest_date]
     mortality_today = sum(int(item["mortality"]) for item in today_entries)
     total_feed = sum(int(item["bags"]) for item in data["feed_stock"])
     open_requests = sum(1 for item in data["requests"] if item["status"] != "Closed")

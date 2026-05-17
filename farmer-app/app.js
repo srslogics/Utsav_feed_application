@@ -29,6 +29,42 @@ function setStatus(selector, message, isError = false) {
   element.classList.toggle("is-error", isError);
 }
 
+function populateProfile(profile) {
+  if (!profile) {
+    return;
+  }
+
+  document.querySelectorAll("[data-profile-name]").forEach((element) => {
+    element.textContent = profile.farmer_name;
+  });
+  document.querySelectorAll("[data-profile-cluster]").forEach((element) => {
+    element.textContent = profile.cluster;
+  });
+  document.querySelectorAll("[data-profile-farm]").forEach((element) => {
+    element.textContent = profile.farm_name;
+  });
+  document.querySelectorAll("[data-profile-batch]").forEach((element) => {
+    element.textContent = `Batch ${profile.active_batch}`;
+  });
+  document.querySelectorAll("[data-profile-capacity]").forEach((element) => {
+    element.textContent = profile.farm_capacity;
+  });
+  document.querySelectorAll("[data-profile-officer]").forEach((element) => {
+    element.textContent = profile.field_officer;
+  });
+}
+
+function setDefaultDates() {
+  const today = new Date().toISOString().slice(0, 10);
+  document
+    .querySelectorAll('input[type="date"]')
+    .forEach((input) => {
+      if (!input.value) {
+        input.value = today;
+      }
+    });
+}
+
 function renderKpis(container, items) {
   container.innerHTML = items
     .map(
@@ -80,6 +116,7 @@ function renderList(container, items) {
 
 async function loadDashboard() {
   const data = await readJson("/dashboard");
+  populateProfile(data.profile);
   renderKpis(document.querySelector("#dashboard-kpis"), data.kpis);
   renderKpis(document.querySelector("#dashboard-performance"), data.performance_metrics);
   renderKeyValueGrid(document.querySelector("#dashboard-batch"), data.batch_summary);
@@ -91,12 +128,14 @@ async function loadDashboard() {
 
 async function loadFeed() {
   const data = await readJson("/feed");
+  populateProfile(data.profile);
   renderKeyValueGrid(document.querySelector("#feed-balance"), data.shed_balances);
   renderList(document.querySelector("#feed-history"), data.inward_history);
 }
 
 async function loadHealth() {
   const data = await readJson("/health");
+  populateProfile(data.profile);
   renderKeyValueGrid(document.querySelector("#health-summary"), data.summary);
   renderList(document.querySelector("#health-log"), data.log);
   renderList(document.querySelector("#health-vaccines"), data.vaccines);
@@ -104,6 +143,7 @@ async function loadHealth() {
 
 async function loadRequests() {
   const data = await readJson("/requests");
+  populateProfile(data.profile);
   renderList(document.querySelector("#request-history"), data.history);
   renderList(document.querySelector("#document-history"), data.documents);
   renderList(document.querySelector("#issue-photo-history"), data.issue_photos);
@@ -111,6 +151,7 @@ async function loadRequests() {
 
 async function loadDailyEntry() {
   const data = await readJson("/daily-entry");
+  populateProfile(data.profile);
   renderList(document.querySelector("#daily-entry-history"), data.entry_history);
   renderList(document.querySelector("#daily-vaccine-history"), data.vaccine_history);
 }
@@ -145,6 +186,7 @@ async function handleFormSubmit(form, path, selector, makePayload, afterSuccess)
         body: JSON.stringify(makePayload(formData)),
       });
       form.reset();
+      setDefaultDates();
       if (afterSuccess) {
         await afterSuccess();
       }
@@ -168,10 +210,11 @@ async function handleUploadSubmit(form, path, selector, afterSuccess) {
         throw new Error(`Request failed: ${response.status}`);
       }
       form.reset();
+      setDefaultDates();
       if (afterSuccess) {
         await afterSuccess();
       }
-      setStatus(selector, "Document safalta se upload ho gaya.");
+      setStatus(selector, "Safalta se upload ho gaya.");
     } catch (error) {
       setStatus(selector, "Abhi document upload nahi ho paaya. Kripya dobara koshish karein.", true);
     }
@@ -306,6 +349,7 @@ if (issuePhotoForm) {
 }
 
 const page = document.body.dataset.faPage;
+setDefaultDates();
 if (page === "dashboard") {
   loadDashboard().catch(console.error);
 } else if (page === "daily-entry") {
@@ -316,4 +360,6 @@ if (page === "dashboard") {
   loadHealth().catch(console.error);
 } else if (page === "requests") {
   loadRequests().catch(console.error);
+} else if (page) {
+  readJson("/profile").then(populateProfile).catch(console.error);
 }
