@@ -156,12 +156,44 @@
   grid-template-columns: repeat(4, minmax(0, 1fr));
 }
 
+.owner-split-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.owner-form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.95rem 1rem;
+}
+
+.owner-form-grid button {
+  grid-column: 1 / -1;
+}
+
+.owner-create-note {
+  margin-top: 0.9rem;
+}
+
+.owner-subhead {
+  margin-top: 1.2rem;
+}
+
 @media (max-width: 980px) {
   .fa-kpi-grid-six {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .owner-hero {
+    grid-template-columns: 1fr;
+  }
+
+  .owner-split-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .owner-form-grid {
     grid-template-columns: 1fr;
   }
 }

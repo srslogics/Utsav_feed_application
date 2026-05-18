@@ -1,248 +1,288 @@
 {
-  "profile": {
-    "farmer_name": "Rakesh Verma",
-    "cluster": "Korba Cluster",
-    "farm_name": "Utsav Partner Farm 12",
-    "farmer_code": "UF-042",
-    "phone": "+91 9876543210",
-    "active_batch": "B-2405",
-    "bird_age_days": 24,
-    "field_officer": "Anil Sahu",
-    "farm_capacity": "32,000 birds",
-    "active_sheds": 2
-  },
-  "daily_entries": [
+  "farmers": [
     {
-      "date": "2026-05-16",
-      "shed": "Shed A",
-      "opening_birds": 15820,
-      "mortality": 18,
-      "culls": 4,
-      "feed_used_bags": 22,
-      "water_liters": 5100,
-      "avg_weight_g": 1420,
-      "temperature_c": 30.5,
-      "humidity_pct": 62,
-      "litter_condition": "Dry",
-      "power_cut_hours": 1.2,
-      "dg_hours": 1.0,
-      "uniformity_pct": 88,
-      "issues": "No major issue observed",
-      "remarks": "Ventilation adjusted after noon heat."
+      "profile": {
+        "farmer_name": "Rakesh Verma",
+        "cluster": "Korba Cluster",
+        "farm_name": "Utsav Partner Farm 12",
+        "farmer_code": "UF-042",
+        "phone": "+91 9876543210",
+        "password": "utsav123",
+        "active_batch": "B-2405",
+        "bird_age_days": 24,
+        "field_officer": "Anil Sahu",
+        "field_officer_phone": "+91 9898989898",
+        "farm_capacity": "32,000 birds",
+        "active_sheds": 2
+      },
+      "daily_entries": [
+        {
+          "date": "2026-05-16",
+          "shed": "Shed A",
+          "opening_birds": 15820,
+          "mortality": 18,
+          "culls": 4,
+          "feed_used_bags": 22,
+          "water_liters": 5100,
+          "avg_weight_g": 1420,
+          "temperature_c": 30.5,
+          "humidity_pct": 62,
+          "litter_condition": "Dry",
+          "power_cut_hours": 1.2,
+          "dg_hours": 1.0,
+          "uniformity_pct": 88,
+          "issues": "No major issue observed",
+          "remarks": "Ventilation adjusted after noon heat."
+        },
+        {
+          "date": "2026-05-16",
+          "shed": "Shed B",
+          "opening_birds": 14980,
+          "mortality": 11,
+          "culls": 2,
+          "feed_used_bags": 20,
+          "water_liters": 4720,
+          "avg_weight_g": 1385,
+          "temperature_c": 31.2,
+          "humidity_pct": 65,
+          "litter_condition": "Moderate",
+          "power_cut_hours": 2.1,
+          "dg_hours": 1.8,
+          "uniformity_pct": 84,
+          "issues": "Water pressure low in one nipple line",
+          "remarks": "Line checked and cleaned in evening."
+        },
+        {
+          "date": "2026-05-15",
+          "shed": "Shed A",
+          "opening_birds": 15845,
+          "mortality": 16,
+          "culls": 3,
+          "feed_used_bags": 21,
+          "water_liters": 4980,
+          "avg_weight_g": 1360,
+          "temperature_c": 29.8,
+          "humidity_pct": 60,
+          "litter_condition": "Dry",
+          "power_cut_hours": 0.7,
+          "dg_hours": 0.5,
+          "uniformity_pct": 87,
+          "issues": "Normal",
+          "remarks": "Routine day."
+        }
+      ],
+      "feed_stock": [
+        { "shed": "Shed A", "feed_type": "Pre-starter", "bags": 8 },
+        { "shed": "Shed A", "feed_type": "Starter", "bags": 22 },
+        { "shed": "Shed B", "feed_type": "Starter", "bags": 14 },
+        { "shed": "Shed B", "feed_type": "Finisher", "bags": 30 }
+      ],
+      "feed_inward": [
+        { "date": "2026-05-14", "feed_type": "Starter", "bags": 18, "shed": "Shed A" },
+        { "date": "2026-05-12", "feed_type": "Finisher", "bags": 24, "shed": "Shed B" },
+        { "date": "2026-05-09", "feed_type": "Starter", "bags": 20, "shed": "Shed B" }
+      ],
+      "mortality_log": [
+        { "date": "2026-05-15", "shed": "Shed A", "birds": 18, "notes": "Morning entry" },
+        { "date": "2026-05-14", "shed": "Shed B", "birds": 12, "notes": "Heat stress watch" },
+        { "date": "2026-05-13", "shed": "Shed A", "birds": 10, "notes": "Normal range" }
+      ],
+      "medicine_stock": [
+        { "name": "Electrolyte", "status": "Available", "quantity": "4 packs", "notes": "Current farm stock" },
+        { "name": "Respiratory support", "status": "Required", "quantity": "2 bottles", "notes": "Requested today" },
+        { "name": "Vitamin mix", "status": "Available", "quantity": "3 bottles", "notes": "Used in morning line" }
+      ],
+      "medicine_log": [
+        { "date": "2026-05-15", "name": "Vitamin mix", "status": "Given", "quantity": "1 bottle", "notes": "6:30 AM administration" },
+        { "date": "2026-05-14", "name": "Liver tonic", "status": "Given", "quantity": "500 ml", "notes": "Routine support" },
+        { "date": "2026-05-13", "name": "Electrolyte", "status": "Available", "quantity": "1 pack", "notes": "Held in reserve" }
+      ],
+      "vaccination_log": [
+        { "date": "2026-05-16", "shed": "Shed A", "vaccine": "ND Booster", "status": "Given", "notes": "Completed in drinking water line" },
+        { "date": "2026-05-18", "shed": "Shed B", "vaccine": "IB Booster", "status": "Due", "notes": "To be administered in morning" }
+      ],
+      "requests": [
+        { "date": "2026-05-15", "type": "Medicine required", "priority": "High", "details": "Respiratory support needed for Shed B.", "status": "Under review" },
+        { "date": "2026-05-14", "type": "Feed shortage", "priority": "Medium", "details": "Starter feed inward request for evening loading.", "status": "Processed" },
+        { "date": "2026-05-12", "type": "Shed issue", "priority": "Low", "details": "Water line issue in Shed A.", "status": "Closed" }
+      ],
+      "documents": [
+        {
+          "date": "2026-05-16",
+          "type": "Utility Bill",
+          "title": "Diesel bill for DG",
+          "amount": "Rs 3200",
+          "notes": "Uploaded for owner approval",
+          "file_name": "owner-bill.txt",
+          "stored_name": "20260516164016-diesel-bill-for-dg.txt",
+          "status": "Submitted to owner system"
+        },
+        {
+          "date": "2026-05-16",
+          "type": "Feed Bill",
+          "title": "Starter feed inward challan",
+          "amount": "Rs 18,400",
+          "notes": "Submitted for owner verification after unloading.",
+          "file_name": "starter-feed-challan.pdf",
+          "stored_name": "",
+          "status": "Submitted to owner system"
+        }
+      ],
+      "issue_photos": [
+        {
+          "date": "2026-05-16",
+          "issue_type": "Water line issue",
+          "shed": "Shed B",
+          "priority": "High",
+          "notes": "Nipple line pressure low near rear side.",
+          "file_name": "water-line-photo.jpg",
+          "stored_name": "",
+          "status": "Shared with owner system"
+        }
+      ],
+      "field_visits": [
+        {
+          "visit_date": "2026-05-16",
+          "shed": "Shed B",
+          "avg_weight_g": 1390,
+          "mortality": 11,
+          "feed_stock_note": "Starter 14 bags visible, finisher 30 bags stacked.",
+          "medicine_note": "Respiratory support requested, vitamin stock available.",
+          "issue_summary": "Rear nipple line pressure low near back row.",
+          "action_taken": "Line flushed, farmer advised to monitor till evening."
+        },
+        {
+          "visit_date": "2026-05-18",
+          "shed": "Shed A",
+          "avg_weight_g": 1455,
+          "mortality": 9,
+          "feed_stock_note": "Starter bags in control, no emergency indent.",
+          "medicine_note": "Electrolyte and vitamin stock available.",
+          "issue_summary": "Minor wet patch near drinkers.",
+          "action_taken": "Advised litter turning and recheck tomorrow"
+        }
+      ]
     },
     {
-      "date": "2026-05-16",
-      "shed": "Shed B",
-      "opening_birds": 14980,
-      "mortality": 11,
-      "culls": 2,
-      "feed_used_bags": 20,
-      "water_liters": 4720,
-      "avg_weight_g": 1385,
-      "temperature_c": 31.2,
-      "humidity_pct": 65,
-      "litter_condition": "Moderate",
-      "power_cut_hours": 2.1,
-      "dg_hours": 1.8,
-      "uniformity_pct": 84,
-      "issues": "Water pressure low in one nipple line",
-      "remarks": "Line checked and cleaned in evening."
-    },
-    {
-      "date": "2026-05-15",
-      "shed": "Shed A",
-      "opening_birds": 15845,
-      "mortality": 16,
-      "culls": 3,
-      "feed_used_bags": 21,
-      "water_liters": 4980,
-      "avg_weight_g": 1360,
-      "temperature_c": 29.8,
-      "humidity_pct": 60,
-      "litter_condition": "Dry",
-      "power_cut_hours": 0.7,
-      "dg_hours": 0.5,
-      "uniformity_pct": 87,
-      "issues": "Normal",
-      "remarks": "Routine day."
-    }
-  ],
-  "feed_stock": [
-    {
-      "shed": "Shed A",
-      "feed_type": "Pre-starter",
-      "bags": 8
-    },
-    {
-      "shed": "Shed A",
-      "feed_type": "Starter",
-      "bags": 22
-    },
-    {
-      "shed": "Shed B",
-      "feed_type": "Starter",
-      "bags": 14
-    },
-    {
-      "shed": "Shed B",
-      "feed_type": "Finisher",
-      "bags": 30
-    }
-  ],
-  "feed_inward": [
-    {
-      "date": "2026-05-14",
-      "feed_type": "Starter",
-      "bags": 18,
-      "shed": "Shed A"
-    },
-    {
-      "date": "2026-05-12",
-      "feed_type": "Finisher",
-      "bags": 24,
-      "shed": "Shed B"
-    },
-    {
-      "date": "2026-05-09",
-      "feed_type": "Starter",
-      "bags": 20,
-      "shed": "Shed B"
-    }
-  ],
-  "mortality_log": [
-    {
-      "date": "2026-05-15",
-      "shed": "Shed A",
-      "birds": 18,
-      "notes": "Morning entry"
-    },
-    {
-      "date": "2026-05-14",
-      "shed": "Shed B",
-      "birds": 12,
-      "notes": "Heat stress watch"
-    },
-    {
-      "date": "2026-05-13",
-      "shed": "Shed A",
-      "birds": 10,
-      "notes": "Normal range"
-    }
-  ],
-  "medicine_stock": [
-    {
-      "name": "Electrolyte",
-      "status": "Available",
-      "quantity": "4 packs",
-      "notes": "Current farm stock"
-    },
-    {
-      "name": "Respiratory support",
-      "status": "Required",
-      "quantity": "2 bottles",
-      "notes": "Requested today"
-    },
-    {
-      "name": "Vitamin mix",
-      "status": "Available",
-      "quantity": "3 bottles",
-      "notes": "Used in morning line"
-    }
-  ],
-  "medicine_log": [
-    {
-      "date": "2026-05-15",
-      "name": "Vitamin mix",
-      "status": "Given",
-      "quantity": "1 bottle",
-      "notes": "6:30 AM administration"
-    },
-    {
-      "date": "2026-05-14",
-      "name": "Liver tonic",
-      "status": "Given",
-      "quantity": "500 ml",
-      "notes": "Routine support"
-    },
-    {
-      "date": "2026-05-13",
-      "name": "Electrolyte",
-      "status": "Available",
-      "quantity": "1 pack",
-      "notes": "Held in reserve"
-    }
-  ],
-  "vaccination_log": [
-    {
-      "date": "2026-05-16",
-      "shed": "Shed A",
-      "vaccine": "ND Booster",
-      "status": "Given",
-      "notes": "Completed in drinking water line"
-    },
-    {
-      "date": "2026-05-18",
-      "shed": "Shed B",
-      "vaccine": "IB Booster",
-      "status": "Due",
-      "notes": "To be administered in morning"
-    }
-  ],
-  "requests": [
-    {
-      "date": "2026-05-15",
-      "type": "Medicine required",
-      "priority": "High",
-      "details": "Respiratory support needed for Shed B.",
-      "status": "Under review"
-    },
-    {
-      "date": "2026-05-14",
-      "type": "Feed shortage",
-      "priority": "Medium",
-      "details": "Starter feed inward request for evening loading.",
-      "status": "Processed"
-    },
-    {
-      "date": "2026-05-12",
-      "type": "Shed issue",
-      "priority": "Low",
-      "details": "Water line issue in Shed A.",
-      "status": "Closed"
-    }
-  ],
-  "documents": [
-    {
-      "date": "2026-05-16",
-      "type": "Utility Bill",
-      "title": "Diesel bill for DG",
-      "amount": "Rs 3200",
-      "notes": "Uploaded for owner approval",
-      "file_name": "owner-bill.txt",
-      "stored_name": "20260516164016-diesel-bill-for-dg.txt",
-      "status": "Submitted to owner system"
-    },
-    {
-      "date": "2026-05-16",
-      "type": "Feed Bill",
-      "title": "Starter feed inward challan",
-      "amount": "Rs 18,400",
-      "notes": "Submitted for owner verification after unloading.",
-      "file_name": "starter-feed-challan.pdf",
-      "stored_name": "",
-      "status": "Submitted to owner system"
-    }
-  ],
-  "issue_photos": [
-    {
-      "date": "2026-05-16",
-      "issue_type": "Water line issue",
-      "shed": "Shed B",
-      "priority": "High",
-      "notes": "Nipple line pressure low near rear side.",
-      "file_name": "water-line-photo.jpg",
-      "stored_name": "",
-      "status": "Shared with owner system"
+      "profile": {
+        "farmer_name": "Sanjay Patel",
+        "cluster": "Bilaspur Cluster",
+        "farm_name": "Utsav Partner Farm 19",
+        "farmer_code": "UF-057",
+        "phone": "+91 9876543211",
+        "password": "utsav124",
+        "active_batch": "B-2411",
+        "bird_age_days": 18,
+        "field_officer": "Anil Sahu",
+        "field_officer_phone": "+91 9898989898",
+        "farm_capacity": "28,000 birds",
+        "active_sheds": 2
+      },
+      "daily_entries": [
+        {
+          "date": "2026-05-16",
+          "shed": "Shed A",
+          "opening_birds": 13620,
+          "mortality": 9,
+          "culls": 2,
+          "feed_used_bags": 17,
+          "water_liters": 4210,
+          "avg_weight_g": 1125,
+          "temperature_c": 29.4,
+          "humidity_pct": 58,
+          "litter_condition": "Dry",
+          "power_cut_hours": 0.5,
+          "dg_hours": 0.3,
+          "uniformity_pct": 90,
+          "issues": "Routine day",
+          "remarks": "Bird movement active."
+        },
+        {
+          "date": "2026-05-16",
+          "shed": "Shed C",
+          "opening_birds": 13210,
+          "mortality": 14,
+          "culls": 1,
+          "feed_used_bags": 16,
+          "water_liters": 3980,
+          "avg_weight_g": 1095,
+          "temperature_c": 30.1,
+          "humidity_pct": 61,
+          "litter_condition": "Moderate",
+          "power_cut_hours": 1.4,
+          "dg_hours": 1.1,
+          "uniformity_pct": 86,
+          "issues": "Fan speed fluctuating in rear bay",
+          "remarks": "Technician visit requested."
+        }
+      ],
+      "feed_stock": [
+        { "shed": "Shed A", "feed_type": "Starter", "bags": 19 },
+        { "shed": "Shed A", "feed_type": "Grower", "bags": 10 },
+        { "shed": "Shed C", "feed_type": "Starter", "bags": 11 },
+        { "shed": "Shed C", "feed_type": "Grower", "bags": 18 }
+      ],
+      "feed_inward": [
+        { "date": "2026-05-15", "feed_type": "Grower", "bags": 18, "shed": "Shed C" },
+        { "date": "2026-05-14", "feed_type": "Starter", "bags": 16, "shed": "Shed A" }
+      ],
+      "mortality_log": [
+        { "date": "2026-05-16", "shed": "Shed C", "birds": 14, "notes": "Rear ventilation watch" },
+        { "date": "2026-05-15", "shed": "Shed A", "birds": 8, "notes": "Normal range" }
+      ],
+      "medicine_stock": [
+        { "name": "Electrolyte", "status": "Available", "quantity": "3 packs", "notes": "Used after noon" },
+        { "name": "Liver tonic", "status": "Available", "quantity": "2 bottles", "notes": "Morning stock" },
+        { "name": "Antibiotic support", "status": "Required", "quantity": "1 box", "notes": "Approval requested" }
+      ],
+      "medicine_log": [
+        { "date": "2026-05-16", "name": "Electrolyte", "status": "Given", "quantity": "1 pack", "notes": "Added in line" },
+        { "date": "2026-05-15", "name": "Liver tonic", "status": "Given", "quantity": "250 ml", "notes": "Routine support" }
+      ],
+      "vaccination_log": [
+        { "date": "2026-05-17", "shed": "Shed A", "vaccine": "Gumboro Booster", "status": "Given", "notes": "Morning administration completed" },
+        { "date": "2026-05-19", "shed": "Shed C", "vaccine": "ND Booster", "status": "Due", "notes": "Planned for tomorrow morning" }
+      ],
+      "requests": [
+        { "date": "2026-05-16", "type": "Equipment support", "priority": "High", "details": "Rear fan speed issue in Shed C.", "status": "Under review" },
+        { "date": "2026-05-15", "type": "Medicine required", "priority": "Medium", "details": "Need antibiotic support approval.", "status": "Processed" }
+      ],
+      "documents": [
+        {
+          "date": "2026-05-16",
+          "type": "Medicine Bill",
+          "title": "Electrolyte and tonic invoice",
+          "amount": "Rs 7,850",
+          "notes": "Shared for owner approval",
+          "file_name": "medicine-bill.jpg",
+          "stored_name": "",
+          "status": "Submitted to owner system"
+        }
+      ],
+      "issue_photos": [
+        {
+          "date": "2026-05-16",
+          "issue_type": "Equipment issue",
+          "shed": "Shed C",
+          "priority": "High",
+          "notes": "Rear fan speed fluctuating after noon.",
+          "file_name": "fan-issue.jpg",
+          "stored_name": "",
+          "status": "Shared with owner system"
+        }
+      ],
+      "field_visits": [
+        {
+          "visit_date": "2026-05-16",
+          "shed": "Shed C",
+          "avg_weight_g": 1102,
+          "mortality": 14,
+          "feed_stock_note": "Grower bags adequate for one day.",
+          "medicine_note": "Antibiotic support pending approval.",
+          "issue_summary": "Rear fan speed unstable in hot hours.",
+          "action_taken": "Technician escalation raised and temporary airflow adjusted."
+        }
+      ]
     }
   ]
 }

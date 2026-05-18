@@ -109,6 +109,9 @@ async function loadDashboard() {
   renderGrid(document.querySelector("#owner-farms"), data.farms);
   renderList(document.querySelector("#owner-priority"), data.priority);
   renderList(document.querySelector("#owner-field-activity"), data.field_activity);
+  renderList(document.querySelector("#owner-latest-reporting"), data.latest_reporting);
+  renderList(document.querySelector("#owner-feed-visibility"), data.feed_visibility);
+  renderList(document.querySelector("#owner-health-watch"), data.health_watch);
   renderList(document.querySelector("#owner-uploads"), data.uploads);
 }
 
@@ -116,6 +119,9 @@ async function loadFarms() {
   const data = await requestJson(`${ownerApiBase}/farms`);
   populateProfile(data.profile);
   renderGrid(document.querySelector("#owner-farms-directory"), data.farms);
+  renderList(document.querySelector("#owner-farms-latest-entries"), data.latest_entries);
+  renderList(document.querySelector("#owner-farmer-accounts"), data.farmer_accounts || []);
+  renderList(document.querySelector("#owner-field-officers"), data.field_officers || []);
 }
 
 async function loadOperations() {
@@ -124,6 +130,7 @@ async function loadOperations() {
   renderList(document.querySelector("#owner-operations-requests"), data.requests);
   renderList(document.querySelector("#owner-operations-photos"), data.photos);
   renderList(document.querySelector("#owner-operations-visits"), data.visits);
+  renderList(document.querySelector("#owner-operations-daily-entries"), data.daily_entries);
 }
 
 async function loadFinance() {
@@ -152,6 +159,45 @@ if (loginForm) {
       window.location.href = result.redirect || "/owner-app/dashboard.html";
     } catch {
       setStatus(".fa-form-note", "Login nahi ho paaya. Owner credentials dobara check karein.", true);
+    }
+  });
+}
+
+const createFarmerForm = document.querySelector("[data-owner-create-farmer]");
+if (createFarmerForm) {
+  createFarmerForm.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    const formData = new FormData(createFarmerForm);
+    const payload = {
+      farmer_name: formData.get("farmer_name"),
+      phone: formData.get("phone"),
+      password: formData.get("password"),
+      cluster: formData.get("cluster"),
+      farm_name: formData.get("farm_name"),
+      farmer_code: formData.get("farmer_code"),
+      active_batch: formData.get("active_batch"),
+      bird_age_days: Number(formData.get("bird_age_days") || 0),
+      field_officer: formData.get("field_officer"),
+      field_officer_phone: formData.get("field_officer_phone"),
+      farm_capacity: formData.get("farm_capacity"),
+      active_sheds: Number(formData.get("active_sheds") || 1),
+    };
+
+    try {
+      const result = await requestJson(`${ownerApiBase}/farmers`, {
+        method: "POST",
+        body: JSON.stringify(payload),
+      });
+      setStatus(
+        ".owner-create-note",
+        `Farmer account create ho gaya: ${result.farmer.farmer_name} • ${result.farmer.phone} • Password ${result.login_password}`
+      );
+      createFarmerForm.reset();
+      const shedsInput = createFarmerForm.querySelector('input[name="active_sheds"]');
+      if (shedsInput) shedsInput.value = "1";
+      loadFarms().catch(console.error);
+    } catch (error) {
+      setStatus(".owner-create-note", "Farmer create nahi ho paaya. Phone ya farmer code dobara check karein.", true);
     }
   });
 }

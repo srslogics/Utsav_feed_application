@@ -51,6 +51,96 @@
           </div>
           <div class="fa-detail-grid" id="owner-farms-directory"></div>
         </section>
+
+        <section class="fa-section">
+          <div class="fa-section-head">
+            <div>
+              <p class="fa-eyebrow">Latest Reporting</p>
+              <h3>Latest farmer submitted entries</h3>
+            </div>
+          </div>
+          <div class="fa-list-card" id="owner-farms-latest-entries"></div>
+        </section>
+
+        <section class="owner-split-grid">
+          <section class="fa-section">
+            <div class="fa-section-head">
+              <div>
+                <p class="fa-eyebrow">Create Farmer Account</p>
+                <h3>New grower login and farm profile</h3>
+              </div>
+            </div>
+            <form class="fa-form owner-form-grid" data-owner-create-farmer>
+              <label>
+                Farmer Name
+                <input name="farmer_name" type="text" placeholder="Farmer ka naam" required />
+              </label>
+              <label>
+                Mobile Number
+                <input name="phone" type="tel" placeholder="+91 98XXXXXXXX" required />
+              </label>
+              <label>
+                Password
+                <input name="password" type="text" placeholder="Temporary password" required />
+              </label>
+              <label>
+                Cluster
+                <input name="cluster" type="text" placeholder="Korba / Bilaspur" required />
+              </label>
+              <label>
+                Farm Name
+                <input name="farm_name" type="text" placeholder="Farm ka naam" required />
+              </label>
+              <label>
+                Farmer Code
+                <input name="farmer_code" type="text" placeholder="UF-0XX" required />
+              </label>
+              <label>
+                Active Batch
+                <input name="active_batch" type="text" placeholder="B-2415" />
+              </label>
+              <label>
+                Bird Age (days)
+                <input name="bird_age_days" type="number" min="0" placeholder="0" />
+              </label>
+              <label>
+                Field Officer
+                <input name="field_officer" type="text" placeholder="Field officer ka naam" required />
+              </label>
+              <label>
+                Officer Phone
+                <input name="field_officer_phone" type="tel" placeholder="+91 98XXXXXXXX" />
+              </label>
+              <label>
+                Farm Capacity
+                <input name="farm_capacity" type="text" placeholder="32,000 birds" />
+              </label>
+              <label>
+                Active Sheds
+                <input name="active_sheds" type="number" min="1" value="1" required />
+              </label>
+              <button class="fa-primary-btn" type="submit">Create Farmer Account</button>
+            </form>
+            <p class="fa-form-note owner-create-note">Owner yahan se naya farmer login generate kar sakta hai.</p>
+          </section>
+
+          <section class="fa-section">
+            <div class="fa-section-head">
+              <div>
+                <p class="fa-eyebrow">Farmer Accounts</p>
+                <h3>Current grower login base</h3>
+              </div>
+            </div>
+            <div class="fa-list-card" id="owner-farmer-accounts"></div>
+            <div class="fa-section-head owner-subhead">
+              <div>
+                <p class="fa-eyebrow">Field Officers</p>
+                <h3>Available assignment list</h3>
+              </div>
+            </div>
+            <div class="fa-list-card" id="owner-field-officers"></div>
+          </section>
+        </section>
       </main>
     </div>
     <nav class="fa-bottom-nav owner-bottom-nav">

@@ -344,6 +344,21 @@ class FieldVisitPayload(BaseModel):
     action_taken: str = ""
 
 
+class OwnerFarmerCreatePayload(BaseModel):
+    farmer_name: str
+    phone: str
+    password: str
+    cluster: str
+    farm_name: str
+    farmer_code: str
+    active_batch: str = ""
+    bird_age_days: int = Field(default=0, ge=0)
+    field_officer: str
+    field_officer_phone: str = ""
+    farm_capacity: str = ""
+    active_sheds: int = Field(default=1, ge=1)
+
+
 def safe_slug(value: str) -> str:
     cleaned = re.sub(r"[^a-zA-Z0-9]+", "-", value.strip().lower()).strip("-")
     return cleaned or "document"
@@ -561,6 +576,124 @@ def build_performance_metrics(entries: list[DailyEntry]) -> list[dict]:
     ]
 
 
+def summarize_owner_latest_entries(entries: list[DailyEntry], db: Session) -> list[dict]:
+    latest_by_farmer: dict[int, DailyEntry] = {}
+    for entry in entries:
+        if entry.farmer_id not in latest_by_farmer:
+            latest_by_farmer[entry.farmer_id] = entry
+
+    items = []
+    for farmer_id, entry in latest_by_farmer.items():
+        farmer = db.get(User, farmer_id)
+        items.append(
+            {
+                "label": f"{farmer.farm_name if farmer else '-'} / {entry.shed}",
+                "value": f"{entry.entry_date}",
+                "note": (
+                    f"Mortality {entry.mortality} • Feed {entry.feed_used_bags} bags • "
+                    f"Water {entry.water_liters} L • Avg wt {entry.avg_weight_g} g"
+                ),
+            }
+        )
+    return items[:8]
+
+
+def summarize_owner_feed(records: list[FeedStock], db: Session) -> list[dict]:
+    items = []
+    for record in records:
+        farmer = db.get(User, record.farmer_id)
+        items.append(
+            {
+                "label": f"{farmer.farm_name if farmer else '-'} / {record.shed}",
+                "value": f"{record.bags} bags",
+                "note": record.feed_type,
+            }
+        )
+    return items[:10]
+
+
+def summarize_owner_health(medicine_records: list[MedicineStock], vaccine_records: list[VaccinationLog], db: Session) -> list[dict]:
+    items: list[dict] = []
+    for record in medicine_records[:5]:
+        farmer = db.get(User, record.farmer_id)
+        items.append(
+            {
+                "label": f"{farmer.farm_name if farmer else '-'} / {record.name}",
+                "value": record.status,
+                "note": f"{record.quantity} • {record.notes or 'No note'}",
+            }
+        )
+    for record in vaccine_records[:5]:
+        farmer = db.get(User, record.farmer_id)
+        items.append(
+            {
+                "label": f"{farmer.farm_name if farmer else '-'} / {record.vaccine}",
+                "value": record.status,
+                "note": f"{record.shed} • {record.entry_date}",
+            }
+        )
+    return items[:10]
+
+
+def summarize_owner_requests(requests: list[SupportRequest], db: Session) -> list[dict]:
+    items: list[dict] = []
+    for record in requests:
+        farmer = db.get(User, record.farmer_id)
+        items.append(
+            {
+                "label": f"{farmer.farm_name if farmer else '-'} / {record.request_type}",
+                "value": record.status,
+                "note": f"{record.entry_date} • {record.priority} • {record.details}",
+            }
+        )
+    return items[:10]
+
+
+def summarize_owner_issue_photos(records: list[IssuePhoto], db: Session) -> list[dict]:
+    items: list[dict] = []
+    for record in records:
+        farmer = db.get(User, record.farmer_id)
+        items.append(
+            {
+                "label": f"{farmer.farm_name if farmer else '-'} / {record.issue_type}",
+                "value": record.status,
+                "note": f"{record.entry_date} • {record.shed} • {record.priority}",
+            }
+        )
+    return items[:10]
+
+
+def summarize_owner_field_visits(records: list[FieldVisit], db: Session) -> list[dict]:
+    items: list[dict] = []
+    for record in records:
+        farmer = db.get(User, record.farmer_id)
+        items.append(
+            {
+                "label": f"{farmer.farm_name if farmer else '-'} / {record.visit_date}",
+                "value": record.shed,
+                "note": (
+                    f"Mortality {record.mortality} • Avg wt {record.avg_weight_g} g • "
+                    f"{record.action_taken or record.issue_summary or 'No action note'}"
+                ),
+            }
+        )
+    return items[:10]
+
+
+def summarize_owner_documents(records: list[DocumentUpload], db: Session) -> list[dict]:
+    items: list[dict] = []
+    for record in records:
+        farmer = db.get(User, record.farmer_id)
+        items.append(
+            {
+                "label": f"{farmer.farm_name if farmer else '-'} / {record.doc_type}",
+                "value": record.status,
+                "note": f"{record.entry_date} • {record.title} • {record.amount or 'No amount'}",
+            }
+        )
+    return items[:10]
+
+
 def current_cycle_entries(db: Session, farmer_id: int) -> list[DailyEntry]:
     return list(db.scalars(select(DailyEntry).where(DailyEntry.farmer_id == farmer_id).order_by(DailyEntry.entry_date.desc(), DailyEntry.created_at.desc())))
 
@@ -572,9 +705,134 @@ def latest_date_entries(entries: list[DailyEntry]) -> list[DailyEntry]:
     return [item for item in entries if item.entry_date == latest_date]
 
 
+def farmer_seed_bundles(seed_data: dict) -> list[dict]:
+    if seed_data.get("farmers"):
+        return seed_data["farmers"]
+    return [
+        {
+            "profile": seed_data.get("profile", {}),
+            "daily_entries": seed_data.get("daily_entries", []),
+            "feed_stock": seed_data.get("feed_stock", []),
+            "feed_inward": seed_data.get("feed_inward", []),
+            "mortality_log": seed_data.get("mortality_log", []),
+            "medicine_stock": seed_data.get("medicine_stock", []),
+            "medicine_log": seed_data.get("medicine_log", []),
+            "vaccination_log": seed_data.get("vaccination_log", []),
+            "requests": seed_data.get("requests", []),
+            "documents": seed_data.get("documents", []),
+            "issue_photos": seed_data.get("issue_photos", []),
+            "field_visits": seed_data.get("field_visits", []),
+        }
+    ]
+
+
+def create_farmer_user(profile: dict) -> User:
+    return User(
+        role="farmer",
+        name=profile.get("farmer_name", "Rakesh Verma"),
+        phone=profile.get("phone", "+91 9876543210"),
+        password_hash=hash_password(profile.get("password", os.getenv("FARMER_APP_DEFAULT_PASSWORD", "utsav123"))),
+        cluster=profile.get("cluster", "Korba Cluster"),
+        farm_name=profile.get("farm_name", "Utsav Partner Farm 12"),
+        farmer_code=profile.get("farmer_code", "UF-042"),
+        active_batch=profile.get("active_batch", "B-2405"),
+        bird_age_days=profile.get("bird_age_days", 24),
+        field_officer=profile.get("field_officer", "Anil Sahu"),
+        farm_capacity=profile.get("farm_capacity", "32,000 birds"),
+        active_sheds=profile.get("active_sheds", 2),
+    )
+
+
+def ensure_field_officer_by_values(
+    db: Session,
+    officer_name: str,
+    cluster: str,
+    officer_phone: str = "",
+    officer_password: str = "",
+) -> User:
+    officer_phone = officer_phone or os.getenv("FIELD_APP_DEFAULT_PHONE", "+91 9898989898")
+    officer = db.scalar(select(User).where(User.role == "field", User.phone == officer_phone))
+    if officer:
+        return officer
+    officer = db.scalar(select(User).where(User.role == "field", User.name == officer_name))
+    if officer:
+        return officer
+    officer = User(
+        role="field",
+        name=officer_name,
+        phone=officer_phone,
+        password_hash=hash_password(officer_password or os.getenv("FIELD_APP_DEFAULT_PASSWORD", "field123")),
+        cluster=cluster or "Korba Cluster",
+        title="Field Officer",
+    )
+    db.add(officer)
+    db.flush()
+    return officer
+
+
+def ensure_field_officer(db: Session, profile: dict) -> User:
+    return ensure_field_officer_by_values(
+        db,
+        officer_name=profile.get("field_officer", "Anil Sahu"),
+        cluster=profile.get("cluster", "Korba Cluster"),
+        officer_phone=profile.get("field_officer_phone", ""),
+        officer_password=profile.get("field_officer_password", ""),
+    )
+
+
+def seed_farmer_records(db: Session, farmer: User, officer: User, bundle: dict) -> None:
+    if not db.scalar(select(func.count(DailyEntry.id)).where(DailyEntry.farmer_id == farmer.id)):
+        for item in bundle.get("daily_entries", []):
+            db.add(DailyEntry(farmer_id=farmer.id, entry_date=item["date"], shed=item["shed"], opening_birds=item["opening_birds"], mortality=item["mortality"], culls=item["culls"], feed_used_bags=item["feed_used_bags"], water_liters=item["water_liters"], avg_weight_g=item["avg_weight_g"], temperature_c=item["temperature_c"], humidity_pct=item["humidity_pct"], litter_condition=item["litter_condition"], power_cut_hours=item["power_cut_hours"], dg_hours=item["dg_hours"], uniformity_pct=item["uniformity_pct"], issues=item.get("issues", ""), remarks=item.get("remarks", "")))
+    if not db.scalar(select(func.count(FeedStock.id)).where(FeedStock.farmer_id == farmer.id)):
+        for item in bundle.get("feed_stock", []):
+            db.add(FeedStock(farmer_id=farmer.id, shed=item["shed"], feed_type=item["feed_type"], bags=item["bags"]))
+    if not db.scalar(select(func.count(FeedInward.id)).where(FeedInward.farmer_id == farmer.id)):
+        for item in bundle.get("feed_inward", []):
+            db.add(FeedInward(farmer_id=farmer.id, inward_date=item["date"], feed_type=item["feed_type"], bags=item["bags"], shed=item["shed"]))
+    if not db.scalar(select(func.count(MortalityLog.id)).where(MortalityLog.farmer_id == farmer.id)):
+        for item in bundle.get("mortality_log", []):
+            db.add(MortalityLog(farmer_id=farmer.id, entry_date=item["date"], shed=item["shed"], birds=item["birds"], notes=item.get("notes", "")))
+    if not db.scalar(select(func.count(MedicineStock.id)).where(MedicineStock.farmer_id == farmer.id)):
+        for item in bundle.get("medicine_stock", []):
+            db.add(MedicineStock(farmer_id=farmer.id, name=item["name"], status=item["status"], quantity=item["quantity"], notes=item.get("notes", "")))
+    if not db.scalar(select(func.count(MedicineLog.id)).where(MedicineLog.farmer_id == farmer.id)):
+        for item in bundle.get("medicine_log", []):
+            db.add(MedicineLog(farmer_id=farmer.id, entry_date=item["date"], name=item["name"], status=item["status"], quantity=item["quantity"], notes=item.get("notes", "")))
+    if not db.scalar(select(func.count(VaccinationLog.id)).where(VaccinationLog.farmer_id == farmer.id)):
+        for item in bundle.get("vaccination_log", []):
+            db.add(VaccinationLog(farmer_id=farmer.id, entry_date=item["date"], shed=item["shed"], vaccine=item["vaccine"], status=item["status"], notes=item.get("notes", "")))
+    if not db.scalar(select(func.count(SupportRequest.id)).where(SupportRequest.farmer_id == farmer.id)):
+        for item in bundle.get("requests", []):
+            db.add(SupportRequest(farmer_id=farmer.id, entry_date=item["date"], request_type=item["type"], priority=item["priority"], details=item["details"], status=item["status"]))
+    if not db.scalar(select(func.count(DocumentUpload.id)).where(DocumentUpload.farmer_id == farmer.id)):
+        for item in bundle.get("documents", []):
+            db.add(DocumentUpload(farmer_id=farmer.id, entry_date=item["date"], doc_type=item["type"], title=item["title"], amount=item.get("amount", ""), notes=item.get("notes", ""), file_name=item["file_name"], stored_name=item.get("stored_name", ""), status=item["status"]))
+    if not db.scalar(select(func.count(IssuePhoto.id)).where(IssuePhoto.farmer_id == farmer.id)):
+        for item in bundle.get("issue_photos", []):
+            db.add(IssuePhoto(farmer_id=farmer.id, entry_date=item["date"], issue_type=item["issue_type"], shed=item["shed"], priority=item["priority"], notes=item.get("notes", ""), file_name=item["file_name"], stored_name=item.get("stored_name", ""), status=item["status"]))
+    if not db.scalar(select(func.count(FieldVisit.id)).where(FieldVisit.farmer_id == farmer.id)):
+        for item in bundle.get("field_visits", []):
+            db.add(
+                FieldVisit(
+                    officer_id=officer.id,
+                    farmer_id=farmer.id,
+                    visit_date=item["visit_date"],
+                    shed=item["shed"],
+                    avg_weight_g=item["avg_weight_g"],
+                    mortality=item["mortality"],
+                    feed_stock_note=item.get("feed_stock_note", ""),
+                    medicine_note=item.get("medicine_note", ""),
+                    issue_summary=item.get("issue_summary", ""),
+                    action_taken=item.get("action_taken", ""),
+                )
+            )
+
+
 def seed_database_from_json() -> None:
     seed_data = json.loads(DATA_FILE.read_text()) if DATA_FILE.exists() else {}
-    profile = seed_data.get("profile", {})
+    bundles = farmer_seed_bundles(seed_data)
+    profile = bundles[0].get("profile", {}) if bundles else {}
     with session_scope() as db:
         existing = db.scalar(select(func.count(User.id)))
         if existing:
@@ -591,31 +849,20 @@ def seed_database_from_json() -> None:
                         title="Owner",
                     )
                 )
-                db.commit()
+            for bundle in bundles:
+                farmer_profile = bundle.get("profile", {})
+                farmer = db.scalar(select(User).where(User.role == "farmer", User.phone == farmer_profile.get("phone")))
+                if not farmer and farmer_profile.get("farmer_code"):
+                    farmer = db.scalar(select(User).where(User.role == "farmer", User.farmer_code == farmer_profile.get("farmer_code")))
+                if not farmer:
+                    farmer = create_farmer_user(farmer_profile)
+                    db.add(farmer)
+                    db.flush()
+                officer = ensure_field_officer(db, farmer_profile)
+                seed_farmer_records(db, farmer, officer, bundle)
+            db.commit()
             return
 
-        farmer = User(
-            role="farmer",
-            name=profile.get("farmer_name", "Rakesh Verma"),
-            phone=profile.get("phone", "+91 9876543210"),
-            password_hash=hash_password(os.getenv("FARMER_APP_DEFAULT_PASSWORD", "utsav123")),
-            cluster=profile.get("cluster", "Korba Cluster"),
-            farm_name=profile.get("farm_name", "Utsav Partner Farm 12"),
-            farmer_code=profile.get("farmer_code", "UF-042"),
-            active_batch=profile.get("active_batch", "B-2405"),
-            bird_age_days=profile.get("bird_age_days", 24),
-            field_officer=profile.get("field_officer", "Anil Sahu"),
-            farm_capacity=profile.get("farm_capacity", "32,000 birds"),
-            active_sheds=profile.get("active_sheds", 2),
-        )
-        officer = User(
-            role="field",
-            name=profile.get("field_officer", "Anil Sahu"),
-            phone=os.getenv("FIELD_APP_DEFAULT_PHONE", "+91 9898989898"),
-            password_hash=hash_password(os.getenv("FIELD_APP_DEFAULT_PASSWORD", "field123")),
-            cluster=profile.get("cluster", "Korba Cluster"),
-            title="Field Officer",
-        )
         owner = User(
             role="owner",
             name=os.getenv("OWNER_APP_DEFAULT_NAME", "Utsav Admin"),
@@ -624,44 +871,15 @@ def seed_database_from_json() -> None:
             cluster=profile.get("cluster", "Korba Cluster"),
             title="Owner",
         )
-        db.add_all([farmer, officer, owner])
+        db.add(owner)
         db.flush()
-
-        for item in seed_data.get("daily_entries", []):
-            db.add(DailyEntry(farmer_id=farmer.id, entry_date=item["date"], shed=item["shed"], opening_birds=item["opening_birds"], mortality=item["mortality"], culls=item["culls"], feed_used_bags=item["feed_used_bags"], water_liters=item["water_liters"], avg_weight_g=item["avg_weight_g"], temperature_c=item["temperature_c"], humidity_pct=item["humidity_pct"], litter_condition=item["litter_condition"], power_cut_hours=item["power_cut_hours"], dg_hours=item["dg_hours"], uniformity_pct=item["uniformity_pct"], issues=item.get("issues", ""), remarks=item.get("remarks", "")))
-        for item in seed_data.get("feed_stock", []):
-            db.add(FeedStock(farmer_id=farmer.id, shed=item["shed"], feed_type=item["feed_type"], bags=item["bags"]))
-        for item in seed_data.get("feed_inward", []):
-            db.add(FeedInward(farmer_id=farmer.id, inward_date=item["date"], feed_type=item["feed_type"], bags=item["bags"], shed=item["shed"]))
-        for item in seed_data.get("mortality_log", []):
-            db.add(MortalityLog(farmer_id=farmer.id, entry_date=item["date"], shed=item["shed"], birds=item["birds"], notes=item.get("notes", "")))
-        for item in seed_data.get("medicine_stock", []):
-            db.add(MedicineStock(farmer_id=farmer.id, name=item["name"], status=item["status"], quantity=item["quantity"], notes=item.get("notes", "")))
-        for item in seed_data.get("medicine_log", []):
-            db.add(MedicineLog(farmer_id=farmer.id, entry_date=item["date"], name=item["name"], status=item["status"], quantity=item["quantity"], notes=item.get("notes", "")))
-        for item in seed_data.get("vaccination_log", []):
-            db.add(VaccinationLog(farmer_id=farmer.id, entry_date=item["date"], shed=item["shed"], vaccine=item["vaccine"], status=item["status"], notes=item.get("notes", "")))
-        for item in seed_data.get("requests", []):
-            db.add(SupportRequest(farmer_id=farmer.id, entry_date=item["date"], request_type=item["type"], priority=item["priority"], details=item["details"], status=item["status"]))
-        for item in seed_data.get("documents", []):
-            db.add(DocumentUpload(farmer_id=farmer.id, entry_date=item["date"], doc_type=item["type"], title=item["title"], amount=item.get("amount", ""), notes=item.get("notes", ""), file_name=item["file_name"], stored_name=item.get("stored_name", ""), status=item["status"]))
-        for item in seed_data.get("issue_photos", []):
-            db.add(IssuePhoto(farmer_id=farmer.id, entry_date=item["date"], issue_type=item["issue_type"], shed=item["shed"], priority=item["priority"], notes=item.get("notes", ""), file_name=item["file_name"], stored_name=item.get("stored_name", ""), status=item["status"]))
-
-        db.add(
-            FieldVisit(
-                officer_id=officer.id,
-                farmer_id=farmer.id,
-                visit_date="2026-05-16",
-                shed="Shed B",
-                avg_weight_g=1390,
-                mortality=11,
-                feed_stock_note="Starter 14 bags visible, finisher 30 bags stacked.",
-                medicine_note="Respiratory support requested, vitamin stock available.",
-                issue_summary="Rear nipple line pressure low near back row.",
-                action_taken="Line flushed, farmer advised to monitor till evening.",
-            )
-        )
+        for bundle in bundles:
+            farmer_profile = bundle.get("profile", {})
+            farmer = create_farmer_user(farmer_profile)
+            db.add(farmer)
+            db.flush()
+            officer = ensure_field_officer(db, farmer_profile)
+            seed_farmer_records(db, farmer, officer, bundle)
         db.commit()
 
 
@@ -1106,13 +1324,21 @@ def owner_dashboard(request: Request):
         documents = list(db.scalars(select(DocumentUpload).order_by(DocumentUpload.created_at.desc())))
         field_visits = list(db.scalars(select(FieldVisit).order_by(FieldVisit.visit_date.desc(), FieldVisit.created_at.desc())))
         feed_stock = list(db.scalars(select(FeedStock)))
+        medicine_stock = list(db.scalars(select(MedicineStock).order_by(MedicineStock.created_at.desc())))
+        vaccine_log = list(db.scalars(select(VaccinationLog).order_by(VaccinationLog.entry_date.desc(), VaccinationLog.created_at.desc())))
 
-    latest_entries = latest_entries_by_shed(daily_entries)
-    total_live_birds = sum(item.opening_birds - item.mortality - item.culls for item in latest_entries.values())
-    high_mortality_farms = len([item for item in latest_entries.values() if item.mortality >= 15])
-    pending_requests = len([item for item in support_requests if item.status != "Closed"])
-    pending_docs = len(documents[:10])
-    total_feed_bags = sum(item.bags for item in feed_stock)
+        latest_entries = latest_entries_by_shed(daily_entries)
+        total_live_birds = sum(item.opening_birds - item.mortality - item.culls for item in latest_entries.values())
+        high_mortality_farms = len([item for item in latest_entries.values() if item.mortality >= 15])
+        pending_requests = len([item for item in support_requests if item.status != "Closed"])
+        pending_docs = len(documents[:10])
+        total_feed_bags = sum(item.bags for item in feed_stock)
+        latest_reporting = summarize_owner_latest_entries(daily_entries, db)
+        feed_visibility = summarize_owner_feed(feed_stock, db)
+        health_watch = summarize_owner_health(medicine_stock, vaccine_log, db)
+        priority_items = summarize_owner_requests(support_requests, db)[:5] + summarize_owner_issue_photos(issue_photos, db)[:5]
+        field_activity = summarize_owner_field_visits(field_visits, db)[:6]
+        uploads = summarize_owner_documents(documents, db)[:6]
 
     return {
         "profile": serialize_profile(user),
@@ -1132,29 +1358,12 @@ def owner_dashboard(request: Request):
             }
             for farm in farmers
         ],
-        "priority": [
-            {"label": req.request_type, "value": req.priority, "note": req.details}
-            for req in support_requests[:5]
-        ] + [
-            {"label": photo.issue_type, "value": photo.priority, "note": f"{photo.shed} • {photo.notes}"}
-            for photo in issue_photos[:5]
-        ],
-        "field_activity": [
-            {
-                "label": f"{visit.visit_date} / {db.get(User, visit.farmer_id).farm_name if db.get(User, visit.farmer_id) else '-'}",
-                "value": visit.shed,
-                "note": f"Mortality {visit.mortality} • Avg wt {visit.avg_weight_g} g • {visit.issue_summary or 'No major issue'}",
-            }
-            for visit in field_visits[:6]
-        ],
-        "uploads": [
-            {
-                "label": f"{doc.entry_date} / {doc.doc_type}",
-                "value": doc.status,
-                "note": f"{doc.title} • {doc.amount or 'No amount'}",
-            }
-            for doc in documents[:6]
-        ],
+        "priority": priority_items,
+        "field_activity": field_activity,
+        "uploads": uploads,
+        "latest_reporting": latest_reporting,
+        "feed_visibility": feed_visibility,
+        "health_watch": health_watch,
     }
 
 
@@ -1164,10 +1373,12 @@ def owner_farms(request: Request):
     with session_scope() as db:
         farmers = list(db.scalars(select(User).where(User.role == "farmer").order_by(User.farm_name)))
         latest_entries = list(db.scalars(select(DailyEntry).order_by(DailyEntry.entry_date.desc(), DailyEntry.created_at.desc())))
+        field_officers = list(db.scalars(select(User).where(User.role == "field").order_by(User.name)))
         latest_by_farmer: dict[int, DailyEntry] = {}
         for entry in latest_entries:
             if entry.farmer_id not in latest_by_farmer:
                 latest_by_farmer[entry.farmer_id] = entry
+        latest_entry_list = summarize_owner_latest_entries(latest_entries, db)
 
     return {
         "profile": serialize_profile(user),
@@ -1182,6 +1393,73 @@ def owner_farms(request: Request):
             }
             for farm in farmers
         ],
+        "latest_entries": latest_entry_list,
+        "farmer_accounts": [
+            {
+                "label": farm.farm_name or "-",
+                "value": farm.farmer_code or "-",
+                "note": f"{farm.name} • {farm.phone} • {farm.field_officer or 'No officer assigned'}",
+            }
+            for farm in farmers
+        ],
+        "field_officers": [
+            {
+                "label": officer.name,
+                "value": officer.phone,
+                "note": officer.cluster or "",
+            }
+            for officer in field_officers
+        ],
+    }
+
+
+@app.post("/api/owner/farmers")
+def owner_create_farmer(payload: OwnerFarmerCreatePayload, request: Request):
+    get_current_user(request, "owner")
+    with session_scope() as db:
+        existing_phone = db.scalar(select(User).where(User.phone == payload.phone))
+        if existing_phone:
+            raise HTTPException(status_code=400, detail="Phone number already exists.")
+        existing_code = db.scalar(select(User).where(User.role == "farmer", User.farmer_code == payload.farmer_code))
+        if existing_code:
+            raise HTTPException(status_code=400, detail="Farmer code already exists.")
+
+        officer = ensure_field_officer_by_values(
+            db,
+            officer_name=payload.field_officer,
+            cluster=payload.cluster,
+            officer_phone=payload.field_officer_phone,
+        )
+        farmer = User(
+            role="farmer",
+            name=payload.farmer_name,
+            phone=payload.phone,
+            password_hash=hash_password(payload.password),
+            cluster=payload.cluster,
+            farm_name=payload.farm_name,
+            farmer_code=payload.farmer_code,
+            active_batch=payload.active_batch,
+            bird_age_days=payload.bird_age_days,
+            field_officer=officer.name,
+            farm_capacity=payload.farm_capacity,
+            active_sheds=payload.active_sheds,
+        )
+        db.add(farmer)
+        db.commit()
+        db.refresh(farmer)
+
+    return {
+        "success": True,
+        "message": "Farmer account created successfully.",
+        "farmer": {
+            "farmer_name": farmer.name,
+            "farm_name": farmer.farm_name,
+            "farmer_code": farmer.farmer_code,
+            "phone": farmer.phone,
+            "field_officer": farmer.field_officer,
+            "cluster": farmer.cluster,
+        },
+        "login_password": payload.password,
     }
 
 
@@ -1192,20 +1470,17 @@ def owner_operations(request: Request):
         requests = list(db.scalars(select(SupportRequest).order_by(SupportRequest.created_at.desc())))
         photos = list(db.scalars(select(IssuePhoto).order_by(IssuePhoto.created_at.desc())))
         visits = list(db.scalars(select(FieldVisit).order_by(FieldVisit.visit_date.desc(), FieldVisit.created_at.desc())))
+        daily_entries = list(db.scalars(select(DailyEntry).order_by(DailyEntry.entry_date.desc(), DailyEntry.created_at.desc())))
+        daily_entry_list = summarize_owner_latest_entries(daily_entries, db)
+        request_items = summarize_owner_requests(requests, db)
+        photo_items = summarize_owner_issue_photos(photos, db)
+        visit_items = summarize_owner_field_visits(visits, db)
     return {
         "profile": serialize_profile(user),
-        "requests": [
-            {"label": f"{item.entry_date} / {item.request_type}", "value": item.status, "note": f"{item.priority} • {item.details}"}
-            for item in requests
-        ],
-        "photos": [
-            {"label": f"{item.entry_date} / {item.issue_type}", "value": item.status, "note": f"{item.shed} • {item.notes}"}
-            for item in photos
-        ],
-        "visits": [
-            {"label": f"{item.visit_date} / {item.shed}", "value": f"{item.avg_weight_g} g", "note": item.action_taken or item.issue_summary or "No action note"}
-            for item in visits
-        ],
+        "requests": request_items,
+        "photos": photo_items,
+        "visits": visit_items,
+        "daily_entries": daily_entry_list,
     }
 
 
@@ -1215,6 +1490,15 @@ def owner_finance(request: Request):
     with session_scope() as db:
         documents = list(db.scalars(select(DocumentUpload).order_by(DocumentUpload.created_at.desc())))
         feed_inward = list(db.scalars(select(FeedInward).order_by(FeedInward.inward_date.desc(), FeedInward.created_at.desc())))
+        document_items = summarize_owner_documents(documents, db)
+        inward_items = [
+            {
+                "label": f"{db.get(User, item.farmer_id).farm_name if db.get(User, item.farmer_id) else '-'} / {item.shed}",
+                "value": f"{item.bags} bags",
+                "note": f"{item.inward_date} • {item.feed_type}",
+            }
+            for item in feed_inward[:10]
+        ]
     total_doc_amount = 0
     for doc in documents:
         digits = re.sub(r"[^0-9.]", "", doc.amount or "")
@@ -1230,14 +1514,8 @@ def owner_finance(request: Request):
             {"label": "Reported amount", "value": f"Rs {total_doc_amount:,.0f}", "note": "Parsed from upload entries"},
             {"label": "Feed inward entries", "value": str(len(feed_inward)), "note": "Recent inward records"},
         ],
-        "documents": [
-            {"label": f"{doc.entry_date} / {doc.doc_type}", "value": doc.status, "note": f"{doc.title} • {doc.amount or 'No amount'}"}
-            for doc in documents
-        ],
-        "feed_inward": [
-            {"label": f"{item.inward_date} / {item.feed_type}", "value": f"{item.bags} bags", "note": item.shed}
-            for item in feed_inward[:10]
-        ],
+        "documents": document_items,
+        "feed_inward": inward_items,
     }
 
 
