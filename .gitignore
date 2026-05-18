@@ -6,5 +6,6 @@ android-lite/keystore/
 
 backend/uploads/
 backend/__pycache__/
+backend/utsav.sqlite3
 
 .DS_Store

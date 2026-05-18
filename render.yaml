@@ -4,3 +4,14 @@ services:
     runtime: python
     buildCommand: pip install -r backend/requirements.txt
     startCommand: uvicorn backend.main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: DATABASE_URL
+        sync: false
+      - key: SESSION_SECRET
+        sync: false
+      - key: FARMER_APP_DEFAULT_PASSWORD
+        sync: false
+      - key: FIELD_APP_DEFAULT_PHONE
+        sync: false
+      - key: FIELD_APP_DEFAULT_PASSWORD
+        sync: false

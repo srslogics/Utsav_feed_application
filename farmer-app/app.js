@@ -1,78 +1,58 @@
-const apiOrigin =
-  window.location.protocol === "file:"
-    ? "http://127.0.0.1:8000"
-    : "";
-
+const apiOrigin = window.location.protocol === "file:" ? "http://127.0.0.1:8000" : "";
 const farmerApiBase = `${apiOrigin}/api/farmer`;
+const authApiBase = `${apiOrigin}/api/auth`;
 
-async function readJson(path, options = {}) {
-  const response = await fetch(`${farmerApiBase}${path}`, {
+async function requestJson(url, options = {}) {
+  const response = await fetch(url, {
+    credentials: "include",
     headers: {
-      "Content-Type": "application/json",
+      ...(options.body instanceof FormData ? {} : { "Content-Type": "application/json" }),
       ...(options.headers || {}),
     },
     ...options,
   });
 
   if (!response.ok) {
-    throw new Error(`Request failed: ${response.status}`);
+    const errorBody = await response.text();
+    throw new Error(errorBody || `Request failed: ${response.status}`);
   }
+
   return response.json();
 }
 
 function setStatus(selector, message, isError = false) {
   const element = document.querySelector(selector);
-  if (!element) {
-    return;
-  }
+  if (!element) return;
   element.textContent = message;
   element.classList.toggle("is-error", isError);
 }
 
 function populateProfile(profile) {
-  if (!profile) {
-    return;
-  }
-
-  document.querySelectorAll("[data-profile-name]").forEach((element) => {
-    element.textContent = profile.farmer_name;
-  });
-  document.querySelectorAll("[data-profile-cluster]").forEach((element) => {
-    element.textContent = profile.cluster;
-  });
-  document.querySelectorAll("[data-profile-farm]").forEach((element) => {
-    element.textContent = profile.farm_name;
-  });
-  document.querySelectorAll("[data-profile-batch]").forEach((element) => {
-    element.textContent = `Batch ${profile.active_batch}`;
-  });
-  document.querySelectorAll("[data-profile-capacity]").forEach((element) => {
-    element.textContent = profile.farm_capacity;
-  });
-  document.querySelectorAll("[data-profile-officer]").forEach((element) => {
-    element.textContent = profile.field_officer;
-  });
+  if (!profile) return;
+  document.querySelectorAll("[data-profile-name]").forEach((el) => (el.textContent = profile.farmer_name || profile.name || ""));
+  document.querySelectorAll("[data-profile-cluster]").forEach((el) => (el.textContent = profile.cluster || ""));
+  document.querySelectorAll("[data-profile-farm]").forEach((el) => (el.textContent = profile.farm_name || ""));
+  document.querySelectorAll("[data-profile-batch]").forEach((el) => (el.textContent = `Batch ${profile.active_batch || "-"}`));
+  document.querySelectorAll("[data-profile-capacity]").forEach((el) => (el.textContent = profile.farm_capacity || "-"));
+  document.querySelectorAll("[data-profile-officer]").forEach((el) => (el.textContent = profile.field_officer || "-"));
 }
 
 function setDefaultDates() {
   const today = new Date().toISOString().slice(0, 10);
-  document
-    .querySelectorAll('input[type="date"]')
-    .forEach((input) => {
-      if (!input.value) {
-        input.value = today;
-      }
-    });
+  document.querySelectorAll('input[type="date"]').forEach((input) => {
+    if (!input.value) input.value = today;
+  });
 }
 
 function renderKpis(container, items) {
+  if (!container) return;
   container.innerHTML = items
     .map(
       (item) => `
         <article class="fa-kpi-card">
           <span>${item.label}</span>
           <strong>${item.value}</strong>
-          <p>${item.note}</p>
+          <p>${item.note || ""}</p>
         </article>
       `
     )
@@ -80,13 +60,14 @@ function renderKpis(container, items) {
 }
 
 function renderKeyValueGrid(container, items) {
+  if (!container) return;
   container.innerHTML = items
     .map(
       (item) => `
         <article class="fa-detail-card">
           <span>${item.label}</span>
           <strong>${item.value}</strong>
-          <p>${item.note}</p>
+          <p>${item.note || ""}</p>
         </article>
       `
     )
@@ -94,8 +75,9 @@ function renderKeyValueGrid(container, items) {
 }
 
 function renderList(container, items) {
+  if (!container) return;
   if (!items.length) {
-    container.innerHTML = `<div class="fa-empty-state">No records available yet.</div>`;
+    container.innerHTML = `<div class="fa-empty-state">Abhi koi record available nahi hai.</div>`;
     return;
   }
 
@@ -114,27 +96,60 @@ function renderList(container, items) {
     .join("");
 }
 
+async function requireFarmerSession({ allowLoginPage = false } = {}) {
+  try {
+    const session = await requestJson(`${authApiBase}/session`);
+    if (session.role !== "farmer") {
+      window.location.href = "/farmer-app/";
+      return null;
+    }
+    populateProfile(session.user);
+    if (allowLoginPage) {
+      window.location.href = "/farmer-app/dashboard.html";
+      return null;
+    }
+    return session.user;
+  } catch {
+    if (!allowLoginPage) {
+      window.location.href = "/farmer-app/";
+    }
+    return null;
+  }
+}
+
+async function logoutUser() {
+  await requestJson(`${authApiBase}/logout`, { method: "POST" });
+  window.location.href = "/farmer-app/";
+}
+
 async function loadDashboard() {
-  const data = await readJson("/dashboard");
+  const data = await requestJson(`${farmerApiBase}/dashboard`);
   populateProfile(data.profile);
   renderKpis(document.querySelector("#dashboard-kpis"), data.kpis);
   renderKpis(document.querySelector("#dashboard-performance"), data.performance_metrics);
   renderKeyValueGrid(document.querySelector("#dashboard-batch"), data.batch_summary);
-  renderList(document.querySelector("#dashboard-tasks"), data.tasks);
-  renderList(document.querySelector("#dashboard-mortality-log"), data.mortality_history);
   renderList(document.querySelector("#dashboard-alerts"), data.owner_alerts);
   renderKeyValueGrid(document.querySelector("#dashboard-latest-entry"), data.latest_daily_entry);
+  renderList(document.querySelector("#dashboard-tasks"), data.tasks);
+  renderList(document.querySelector("#dashboard-mortality-log"), data.mortality_history);
+}
+
+async function loadDailyEntry() {
+  const data = await requestJson(`${farmerApiBase}/daily-entry`);
+  populateProfile(data.profile);
+  renderList(document.querySelector("#daily-entry-history"), data.entry_history);
+  renderList(document.querySelector("#daily-vaccine-history"), data.vaccine_history);
 }
 
 async function loadFeed() {
-  const data = await readJson("/feed");
+  const data = await requestJson(`${farmerApiBase}/feed`);
   populateProfile(data.profile);
   renderKeyValueGrid(document.querySelector("#feed-balance"), data.shed_balances);
   renderList(document.querySelector("#feed-history"), data.inward_history);
 }
 
 async function loadHealth() {
-  const data = await readJson("/health");
+  const data = await requestJson(`${farmerApiBase}/health`);
   populateProfile(data.profile);
   renderKeyValueGrid(document.querySelector("#health-summary"), data.summary);
   renderList(document.querySelector("#health-log"), data.log);
@@ -142,90 +157,87 @@ async function loadHealth() {
 }
 
 async function loadRequests() {
-  const data = await readJson("/requests");
+  const data = await requestJson(`${farmerApiBase}/requests`);
   populateProfile(data.profile);
   renderList(document.querySelector("#request-history"), data.history);
   renderList(document.querySelector("#document-history"), data.documents);
   renderList(document.querySelector("#issue-photo-history"), data.issue_photos);
 }
 
-async function loadDailyEntry() {
-  const data = await readJson("/daily-entry");
-  populateProfile(data.profile);
-  renderList(document.querySelector("#daily-entry-history"), data.entry_history);
-  renderList(document.querySelector("#daily-vaccine-history"), data.vaccine_history);
-}
-
-const loginForm = document.querySelector("[data-farmer-login]");
-if (loginForm) {
-  loginForm.addEventListener("submit", async (event) => {
-    event.preventDefault();
-    const formData = new FormData(loginForm);
-    try {
-      await readJson("/login", {
-        method: "POST",
-        body: JSON.stringify({
-          phone: formData.get("phone"),
-          password: formData.get("password"),
-        }),
-      });
-      window.location.href = "./dashboard.html";
-    } catch (error) {
-      setStatus(".fa-form-note", "Login nahi ho paaya. Kripya mobile number aur password check karein.", true);
-    }
-  });
-}
-
-async function handleFormSubmit(form, path, selector, makePayload, afterSuccess) {
+async function handleFormSubmit(form, url, selector, makePayload, afterSuccess) {
   form.addEventListener("submit", async (event) => {
     event.preventDefault();
     const formData = new FormData(form);
     try {
-      await readJson(path, {
+      await requestJson(url, {
         method: "POST",
         body: JSON.stringify(makePayload(formData)),
       });
       form.reset();
       setDefaultDates();
-      if (afterSuccess) {
-        await afterSuccess();
-      }
+      if (afterSuccess) await afterSuccess();
       setStatus(selector, "Safalta se save ho gaya.");
-    } catch (error) {
+    } catch {
       setStatus(selector, "Abhi save nahi ho paaya. Kripya dobara koshish karein.", true);
     }
   });
 }
 
-async function handleUploadSubmit(form, path, selector, afterSuccess) {
+async function handleUploadSubmit(form, url, selector, afterSuccess) {
   form.addEventListener("submit", async (event) => {
     event.preventDefault();
     const formData = new FormData(form);
     try {
-      const response = await fetch(`${farmerApiBase}${path}`, {
+      await requestJson(url, {
         method: "POST",
         body: formData,
       });
-      if (!response.ok) {
-        throw new Error(`Request failed: ${response.status}`);
-      }
       form.reset();
       setDefaultDates();
-      if (afterSuccess) {
-        await afterSuccess();
-      }
+      if (afterSuccess) await afterSuccess();
       setStatus(selector, "Safalta se upload ho gaya.");
-    } catch (error) {
-      setStatus(selector, "Abhi document upload nahi ho paaya. Kripya dobara koshish karein.", true);
+    } catch {
+      setStatus(selector, "Upload abhi nahi ho paaya. Kripya dobara koshish karein.", true);
     }
   });
 }
+
+const loginForm = document.querySelector("[data-farmer-login]");
+if (loginForm) {
+  requireFarmerSession({ allowLoginPage: true });
+  loginForm.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    const formData = new FormData(loginForm);
+    try {
+      const result = await requestJson(`${authApiBase}/login`, {
+        method: "POST",
+        body: JSON.stringify({
+          phone: formData.get("phone"),
+          password: formData.get("password"),
+          role: "farmer",
+        }),
+      });
+      window.location.href = result.redirect || "/farmer-app/dashboard.html";
+    } catch {
+      setStatus(".fa-form-note", "Login nahi ho paaya. Mobile number aur password dobara check karein.", true);
+    }
+  });
+}
+
+const logoutButtons = document.querySelectorAll("[data-logout]");
+logoutButtons.forEach((button) => {
+  button.addEventListener("click", () => {
+    logoutUser().catch(() => {
+      window.location.href = "/farmer-app/";
+    });
+  });
+});
 
 const dailyEntryForm = document.querySelector("[data-daily-entry-form]");
 if (dailyEntryForm) {
   handleFormSubmit(
     dailyEntryForm,
-    "/daily-entry",
+    `${farmerApiBase}/daily-entry`,
     "[data-daily-entry-status]",
     (formData) => ({
       entry_date: formData.get("entry_date"),
@@ -253,7 +265,7 @@ const feedBalanceForm = document.querySelector("[data-feed-balance-form]");
 if (feedBalanceForm) {
   handleFormSubmit(
     feedBalanceForm,
-    "/feed/balance",
+    `${farmerApiBase}/feed/balance`,
     "[data-feed-balance-status]",
     (formData) => ({
       shed: formData.get("shed"),
@@ -268,7 +280,7 @@ const feedInwardForm = document.querySelector("[data-feed-inward-form]");
 if (feedInwardForm) {
   handleFormSubmit(
     feedInwardForm,
-    "/feed/inward",
+    `${farmerApiBase}/feed/inward`,
     "[data-feed-inward-status]",
     (formData) => ({
       inward_date: formData.get("inward_date"),
@@ -284,7 +296,7 @@ const medicineStockForm = document.querySelector("[data-medicine-stock-form]");
 if (medicineStockForm) {
   handleFormSubmit(
     medicineStockForm,
-    "/health/stock",
+    `${farmerApiBase}/health/stock`,
     "[data-medicine-stock-status]",
     (formData) => ({
       name: formData.get("name"),
@@ -300,7 +312,7 @@ const medicineLogForm = document.querySelector("[data-medicine-log-form]");
 if (medicineLogForm) {
   handleFormSubmit(
     medicineLogForm,
-    "/health/administer",
+    `${farmerApiBase}/health/administer`,
     "[data-medicine-log-status]",
     (formData) => ({
       entry_date: formData.get("entry_date"),
@@ -317,7 +329,7 @@ const requestForm = document.querySelector("[data-farmer-request]");
 if (requestForm) {
   handleFormSubmit(
     requestForm,
-    "/requests",
+    `${farmerApiBase}/requests`,
     "[data-request-status]",
     (formData) => ({
       type: formData.get("type"),
@@ -330,36 +342,24 @@ if (requestForm) {
 
 const documentUploadForm = document.querySelector("[data-document-upload-form]");
 if (documentUploadForm) {
-  handleUploadSubmit(
-    documentUploadForm,
-    "/documents",
-    "[data-document-status]",
-    loadRequests
-  );
+  handleUploadSubmit(documentUploadForm, `${farmerApiBase}/documents`, "[data-document-status]", loadRequests);
 }
 
 const issuePhotoForm = document.querySelector("[data-issue-photo-form]");
 if (issuePhotoForm) {
-  handleUploadSubmit(
-    issuePhotoForm,
-    "/issues/photo",
-    "[data-issue-photo-status]",
-    loadRequests
-  );
+  handleUploadSubmit(issuePhotoForm, `${farmerApiBase}/issues/photo`, "[data-issue-photo-status]", loadRequests);
 }
 
 const page = document.body.dataset.faPage;
 setDefaultDates();
-if (page === "dashboard") {
-  loadDashboard().catch(console.error);
-} else if (page === "daily-entry") {
-  loadDailyEntry().catch(console.error);
-} else if (page === "feed") {
-  loadFeed().catch(console.error);
-} else if (page === "health") {
-  loadHealth().catch(console.error);
-} else if (page === "requests") {
-  loadRequests().catch(console.error);
-} else if (page) {
-  readJson("/profile").then(populateProfile).catch(console.error);
+
+if (page) {
+  requireFarmerSession().then((user) => {
+    if (!user) return;
+    if (page === "dashboard") loadDashboard().catch(console.error);
+    if (page === "daily-entry") loadDailyEntry().catch(console.error);
+    if (page === "feed") loadFeed().catch(console.error);
+    if (page === "health") loadHealth().catch(console.error);
+    if (page === "requests") loadRequests().catch(console.error);
+  });
 }

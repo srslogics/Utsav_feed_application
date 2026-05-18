@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Utsav Field Officer Login</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Instrument+Sans:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/field-app/styles.css?v=20260518" />
+  </head>
+  <body class="fa-body field-body">
+    <main class="fa-login-shell">
+      <section class="fa-login-panel">
+        <div class="fa-brand">
+          <div class="fa-brand-mark">UF</div>
+          <div>
+            <p class="fa-eyebrow">Field Operations</p>
+            <h1>Utsav Field App</h1>
+          </div>
+        </div>
+        <div class="fa-copy">
+          <p class="fa-eyebrow">Officer Workspace</p>
+          <h2>Farm visits, issue follow-up aur reporting ek hi jagah.</h2>
+          <p>
+            Field officer yahan se assigned farms dekh sakta hai, visit note save kar sakta hai,
+            aur farmer se aayi urgent problems ko close follow-up kar sakta hai.
+          </p>
+        </div>
+        <div class="fa-highlights">
+          <article class="fa-highlight-card">
+            <span>Visit Ready</span>
+            <strong>Farm list with priorities</strong>
+            <p>Daily visit planning aur cluster-wise farm visibility.</p>
+          </article>
+          <article class="fa-highlight-card">
+            <span>Issue Follow-up</span>
+            <strong>Photo aur request tracking</strong>
+            <p>Farmer uploads aur support requests ek consolidated queue me.</p>
+          </article>
+          <article class="fa-highlight-card">
+            <span>Field Record</span>
+            <strong>Weight, mortality aur action taken</strong>
+            <p>Visit ke baad exact field observation save karein.</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="fa-auth-card">
+        <p class="fa-eyebrow">Secure Access</p>
+        <h3>Field officer login</h3>
+        <form class="fa-form" data-field-login>
+          <label>
+            Mobile Number
+            <input name="phone" type="tel" placeholder="+91 98XXXXXXXX" required />
+          </label>
+          <label>
+            Password
+            <input name="password" type="password" placeholder="Password daalein" required />
+          </label>
+          <button class="fa-primary-btn" type="submit">Open Field App</button>
+        </form>
+        <p class="fa-form-note">Registered field team credentials ka use karein.</p>
+      </section>
+    </main>
+    <script src="/field-app/app.js?v=20260518"></script>
+  </body>
+</html>

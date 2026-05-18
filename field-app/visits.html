@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Utsav Field Visits</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Instrument+Sans:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/field-app/styles.css?v=20260518" />
+  </head>
+  <body class="fa-body field-body" data-field-page="visits">
+    <div class="fa-app-shell">
+      <aside class="fa-sidebar">
+        <div class="fa-brand">
+          <div class="fa-brand-mark">UF</div>
+          <div>
+            <p class="fa-eyebrow">Field Operations</p>
+            <h1>Utsav Field App</h1>
+          </div>
+        </div>
+        <nav class="fa-nav">
+          <a href="./dashboard.html">Dashboard</a>
+          <a class="is-active" href="./visits.html">Visits</a>
+          <a href="./issues.html">Issues</a>
+        </nav>
+        <button class="fa-secondary-btn" type="button" data-field-logout>Logout</button>
+      </aside>
+
+      <main class="fa-content">
+        <header class="fa-page-head">
+          <div>
+            <p class="fa-eyebrow">Visit Log</p>
+            <h2>Farm visit submit karein</h2>
+          </div>
+        </header>
+
+        <section class="fa-section">
+          <div class="fa-section-head">
+            <div>
+              <p class="fa-eyebrow">New Visit</p>
+              <h3>Field observation save karein</h3>
+            </div>
+          </div>
+          <form class="fa-form fa-multi-form" data-field-visit-form>
+            <label>
+              Visit date
+              <input name="visit_date" type="date" required />
+            </label>
+            <label>
+              Farm
+              <select name="farmer_code" data-field-farm-select required>
+                <option value="">Select farm</option>
+              </select>
+            </label>
+            <label>
+              Shed
+              <select name="shed" required>
+                <option value="">Select shed</option>
+                <option>Shed A</option>
+                <option>Shed B</option>
+                <option>Shed C</option>
+              </select>
+            </label>
+            <label>
+              Avg weight (g)
+              <input name="avg_weight_g" type="number" min="1" required />
+            </label>
+            <label>
+              Mortality
+              <input name="mortality" type="number" min="0" required />
+            </label>
+            <label class="full">
+              Feed stock note
+              <input name="feed_stock_note" type="text" placeholder="Visible stock ya shortage note" />
+            </label>
+            <label class="full">
+              Medicine note
+              <input name="medicine_note" type="text" placeholder="Medicine stock ya requirement note" />
+            </label>
+            <label class="full">
+              Issue summary
+              <textarea name="issue_summary" placeholder="Kya issue dikha, short summary"></textarea>
+            </label>
+            <label class="full">
+              Action taken
+              <textarea name="action_taken" placeholder="Visit ke baad kya action liya gaya"></textarea>
+            </label>
+            <button class="fa-primary-btn" type="submit">Save visit</button>
+          </form>
+          <p class="fa-status-message" data-field-visit-status></p>
+        </section>
+
+        <section class="fa-section">
+          <div class="fa-section-head">
+            <div>
+              <p class="fa-eyebrow">Visit History</p>
+              <h3>Recent field entries</h3>
+            </div>
+          </div>
+          <div class="fa-list-card" id="field-visits-history"></div>
+        </section>
+      </main>
+    </div>
+    <nav class="fa-bottom-nav">
+      <a href="./dashboard.html">Home</a>
+      <a class="is-active" href="./visits.html">Visits</a>
+      <a href="./issues.html">Issues</a>
+    </nav>
+    <script src="/field-app/app.js?v=20260518"></script>
+  </body>
+</html>

@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Utsav Field Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Instrument+Sans:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/field-app/styles.css?v=20260518" />
+  </head>
+  <body class="fa-body field-body" data-field-page="dashboard">
+    <div class="fa-app-shell">
+      <aside class="fa-sidebar">
+        <div class="fa-brand">
+          <div class="fa-brand-mark">UF</div>
+          <div>
+            <p class="fa-eyebrow">Field Operations</p>
+            <h1>Utsav Field App</h1>
+          </div>
+        </div>
+        <nav class="fa-nav">
+          <a class="is-active" href="./dashboard.html">Dashboard</a>
+          <a href="./visits.html">Visits</a>
+          <a href="./issues.html">Issues</a>
+        </nav>
+        <div class="fa-farm-strip">
+          <span data-field-name>Anil Sahu</span>
+          <strong data-field-cluster>Korba Cluster</strong>
+          <small data-field-title>Field Officer</small>
+        </div>
+        <button class="fa-secondary-btn" type="button" data-field-logout>Logout</button>
+      </aside>
+
+      <main class="fa-content">
+        <header class="fa-page-head">
+          <div>
+            <p class="fa-eyebrow">Field Dashboard</p>
+            <h2>Aaj ke assigned farms aur priority issues</h2>
+            <p class="fa-page-intro">Sabse pehle open issues dekhein, phir visit note save karein.</p>
+          </div>
+        </header>
+
+        <section class="fa-kpi-grid" id="field-kpis"></section>
+
+        <section class="fa-section">
+          <div class="fa-section-head">
+            <div>
+              <p class="fa-eyebrow">Assigned Farms</p>
+              <h3>Mapped farms in your cluster</h3>
+            </div>
+          </div>
+          <div class="fa-detail-grid" id="field-farms"></div>
+        </section>
+
+        <section class="fa-section">
+          <div class="fa-section-head">
+            <div>
+              <p class="fa-eyebrow">Priority Queue</p>
+              <h3>Requests aur photo issues</h3>
+            </div>
+          </div>
+          <div class="fa-list-card" id="field-priority"></div>
+        </section>
+
+        <section class="fa-section">
+          <div class="fa-section-head">
+            <div>
+              <p class="fa-eyebrow">Recent Visits</p>
+              <h3>Recent field submissions</h3>
+            </div>
+          </div>
+          <div class="fa-list-card" id="field-visit-history"></div>
+        </section>
+      </main>
+    </div>
+    <nav class="fa-bottom-nav">
+      <a class="is-active" href="./dashboard.html">Home</a>
+      <a href="./visits.html">Visits</a>
+      <a href="./issues.html">Issues</a>
+    </nav>
+    <script src="/field-app/app.js?v=20260518"></script>
+  </body>
+</html>

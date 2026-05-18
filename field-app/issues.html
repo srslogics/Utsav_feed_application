@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Utsav Field Issues</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Instrument+Sans:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/field-app/styles.css?v=20260518" />
+  </head>
+  <body class="fa-body field-body" data-field-page="issues">
+    <div class="fa-app-shell">
+      <aside class="fa-sidebar">
+        <div class="fa-brand">
+          <div class="fa-brand-mark">UF</div>
+          <div>
+            <p class="fa-eyebrow">Field Operations</p>
+            <h1>Utsav Field App</h1>
+          </div>
+        </div>
+        <nav class="fa-nav">
+          <a href="./dashboard.html">Dashboard</a>
+          <a href="./visits.html">Visits</a>
+          <a class="is-active" href="./issues.html">Issues</a>
+        </nav>
+        <button class="fa-secondary-btn" type="button" data-field-logout>Logout</button>
+      </aside>
+
+      <main class="fa-content">
+        <header class="fa-page-head">
+          <div>
+            <p class="fa-eyebrow">Issue Queue</p>
+            <h2>Farmer requests aur photo reports</h2>
+          </div>
+        </header>
+
+        <section class="fa-section">
+          <div class="fa-section-head">
+            <div>
+              <p class="fa-eyebrow">Support Requests</p>
+              <h3>Farmer side requirement list</h3>
+            </div>
+          </div>
+          <div class="fa-list-card" id="field-requests"></div>
+        </section>
+
+        <section class="fa-section">
+          <div class="fa-section-head">
+            <div>
+              <p class="fa-eyebrow">Photo Issues</p>
+              <h3>Visual issues from farms</h3>
+            </div>
+          </div>
+          <div class="fa-list-card" id="field-photos"></div>
+        </section>
+      </main>
+    </div>
+    <nav class="fa-bottom-nav">
+      <a href="./dashboard.html">Home</a>
+      <a href="./visits.html">Visits</a>
+      <a class="is-active" href="./issues.html">Issues</a>
+    </nav>
+    <script src="/field-app/app.js?v=20260518"></script>
+  </body>
+</html>

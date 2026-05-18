@@ -1,0 +1,15 @@
+@import url("/farmer-app/styles.css?v=20260518");
+
+.field-body {
+  --fa-bg: #e8ecef;
+  --fa-surface: rgba(252, 253, 255, 0.96);
+  --fa-surface-soft: rgba(31, 68, 92, 0.09);
+  --fa-border: rgba(28, 53, 71, 0.12);
+  --fa-text: #10202a;
+  --fa-muted: #5c6d78;
+  --fa-primary: #355b73;
+  --fa-primary-dark: #172733;
+  --fa-accent: #8fbfd0;
+  --fa-accent-strong: #5f93a6;
+  --fa-shadow: 0 28px 70px rgba(14, 31, 43, 0.12);
+}
