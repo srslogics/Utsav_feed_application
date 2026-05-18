@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Utsav Owner Login</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Instrument+Sans:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/owner-app/styles.css?v=20260518" />
+  </head>
+  <body class="fa-body owner-body">
+    <main class="fa-login-shell">
+      <section class="fa-login-panel">
+        <div class="fa-brand">
+          <div class="fa-brand-mark">UF</div>
+          <div>
+            <p class="fa-eyebrow">Owner Workspace</p>
+            <h1>Utsav Owner App</h1>
+          </div>
+        </div>
+        <div class="fa-copy">
+          <p class="fa-eyebrow">Management Control</p>
+          <h2>Farms, field activity, issue queue aur financial uploads ek view mein.</h2>
+          <p>
+            Yeh app owner aur management ke liye hai jahan se running farms, live birds, feed,
+            support requests, field visits aur uploaded bills ko ek saath monitor kiya ja sakta hai.
+          </p>
+        </div>
+        <div class="fa-highlights">
+          <article class="fa-highlight-card">
+            <span>Farm Control</span>
+            <strong>All farms in one dashboard</strong>
+            <p>Grower farms, active batch, latest entries aur mortality visibility.</p>
+          </article>
+          <article class="fa-highlight-card">
+            <span>Operations Queue</span>
+            <strong>Requests, photos, field actions</strong>
+            <p>Farmer issues aur field officer updates ek centralized workflow me.</p>
+          </article>
+          <article class="fa-highlight-card">
+            <span>Finance Watch</span>
+            <strong>Bills and inward records</strong>
+            <p>Uploaded documents aur feed inward records for quick business review.</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="fa-auth-card">
+        <p class="fa-eyebrow">Secure Access</p>
+        <h3>Owner login</h3>
+        <form class="fa-form" data-owner-login>
+          <label>
+            Mobile Number
+            <input name="phone" type="tel" placeholder="+91 99XXXXXXXX" required />
+          </label>
+          <label>
+            Password
+            <input name="password" type="password" placeholder="Password daalein" required />
+          </label>
+          <button class="fa-primary-btn" type="submit">Open Owner App</button>
+        </form>
+        <p class="fa-form-note">Owner ya management login credentials ka use karein.</p>
+      </section>
+    </main>
+    <script src="/owner-app/app.js?v=20260518"></script>
+  </body>
+</html>

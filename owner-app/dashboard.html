@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Utsav Owner Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Instrument+Sans:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/owner-app/styles.css?v=20260518" />
+  </head>
+  <body class="fa-body owner-body" data-owner-page="dashboard">
+    <div class="fa-app-shell">
+      <aside class="fa-sidebar">
+        <div class="fa-brand">
+          <div class="fa-brand-mark">UF</div>
+          <div>
+            <p class="fa-eyebrow">Owner Workspace</p>
+            <h1>Utsav Owner</h1>
+          </div>
+        </div>
+        <nav class="fa-nav">
+          <a class="is-active" href="./dashboard.html">Dashboard</a>
+          <a href="./farms.html">Farms</a>
+          <a href="./operations.html">Operations</a>
+          <a href="./finance.html">Finance</a>
+        </nav>
+        <div class="fa-farm-strip">
+          <span data-owner-name>Utsav Admin</span>
+          <strong data-owner-title>Owner</strong>
+          <small data-owner-cluster>Korba Cluster</small>
+        </div>
+      </aside>
+
+      <main class="fa-content">
+        <header class="fa-page-head">
+          <div>
+            <p class="fa-eyebrow">Owner Dashboard</p>
+            <h2>Business aur operations ka live control panel</h2>
+            <p class="fa-page-intro">Running farms, field follow-up, issue load aur document flow ka consolidated decision view.</p>
+          </div>
+          <div class="fa-page-actions">
+            <button class="fa-secondary-btn" type="button" data-owner-logout>Logout</button>
+          </div>
+        </header>
+
+        <section class="owner-hero">
+          <div class="owner-hero-copy">
+            <p class="fa-eyebrow">Executive Snapshot</p>
+            <h3>Digitally managed poultry operations across the active farm network.</h3>
+            <p>
+              Yeh workspace aapko grower network, field activity, support pressure aur incoming
+              financial records ko ek structured view me dikhata hai.
+            </p>
+          </div>
+          <div class="owner-hero-rail">
+            <article>
+              <span>Management View</span>
+              <strong>Farms, ops, finance</strong>
+            </article>
+            <article>
+              <span>Decision Flow</span>
+              <strong>Priority-led monitoring</strong>
+            </article>
+          </div>
+        </section>
+
+        <section class="fa-kpi-grid fa-kpi-grid-six" id="owner-kpis"></section>
+
+        <section class="fa-section">
+          <div class="fa-section-head">
+            <div>
+              <p class="fa-eyebrow">Running Farms</p>
+              <h3>Grower network snapshot</h3>
+            </div>
+          </div>
+          <div class="fa-detail-grid" id="owner-farms"></div>
+        </section>
+
+        <section class="fa-section">
+          <div class="fa-section-head">
+            <div>
+              <p class="fa-eyebrow">Priority Queue</p>
+              <h3>Issues needing owner attention</h3>
+            </div>
+          </div>
+          <div class="fa-list-card" id="owner-priority"></div>
+        </section>
+
+        <section class="fa-section">
+          <div class="fa-section-head">
+            <div>
+              <p class="fa-eyebrow">Field Activity</p>
+              <h3>Recent field follow-up</h3>
+            </div>
+          </div>
+          <div class="fa-list-card" id="owner-field-activity"></div>
+        </section>
+
+        <section class="fa-section">
+          <div class="fa-section-head">
+            <div>
+              <p class="fa-eyebrow">Latest Uploads</p>
+              <h3>Bills and documents received</h3>
+            </div>
+          </div>
+          <div class="fa-list-card" id="owner-uploads"></div>
+        </section>
+      </main>
+    </div>
+    <nav class="fa-bottom-nav owner-bottom-nav">
+      <a class="is-active" href="./dashboard.html">Home</a>
+      <a href="./farms.html">Farms</a>
+      <a href="./operations.html">Ops</a>
+      <a href="./finance.html">Finance</a>
+    </nav>
+    <script src="/owner-app/app.js?v=20260518"></script>
+  </body>
+</html>

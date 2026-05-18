@@ -277,6 +277,7 @@ WEBSITE_FILES = {
 
 FARMER_APP_PUBLIC = {"index.html", "styles.css", "app.js"}
 FIELD_APP_PUBLIC = {"index.html", "styles.css", "app.js"}
+OWNER_APP_PUBLIC = {"index.html", "styles.css", "app.js"}
 
 
 class LoginPayload(BaseModel):
@@ -572,13 +573,27 @@ def latest_date_entries(entries: list[DailyEntry]) -> list[DailyEntry]:
 
 
 def seed_database_from_json() -> None:
+    seed_data = json.loads(DATA_FILE.read_text()) if DATA_FILE.exists() else {}
+    profile = seed_data.get("profile", {})
     with session_scope() as db:
         existing = db.scalar(select(func.count(User.id)))
         if existing:
+            owner_phone = os.getenv("OWNER_APP_DEFAULT_PHONE", "+91 9999999999")
+            owner = db.scalar(select(User).where(User.role == "owner"))
+            if not owner:
+                db.add(
+                    User(
+                        role="owner",
+                        name=os.getenv("OWNER_APP_DEFAULT_NAME", "Utsav Admin"),
+                        phone=owner_phone,
+                        password_hash=hash_password(os.getenv("OWNER_APP_DEFAULT_PASSWORD", "owner123")),
+                        cluster=profile.get("cluster", "Korba Cluster"),
+                        title="Owner",
+                    )
+                )
+                db.commit()
             return
 
-        seed_data = json.loads(DATA_FILE.read_text()) if DATA_FILE.exists() else {}
-        profile = seed_data.get("profile", {})
         farmer = User(
             role="farmer",
             name=profile.get("farmer_name", "Rakesh Verma"),
@@ -601,7 +616,15 @@ def seed_database_from_json() -> None:
             cluster=profile.get("cluster", "Korba Cluster"),
             title="Field Officer",
         )
-        db.add_all([farmer, officer])
+        owner = User(
+            role="owner",
+            name=os.getenv("OWNER_APP_DEFAULT_NAME", "Utsav Admin"),
+            phone=os.getenv("OWNER_APP_DEFAULT_PHONE", "+91 9999999999"),
+            password_hash=hash_password(os.getenv("OWNER_APP_DEFAULT_PASSWORD", "owner123")),
+            cluster=profile.get("cluster", "Korba Cluster"),
+            title="Owner",
+        )
+        db.add_all([farmer, officer, owner])
         db.flush()
 
         for item in seed_data.get("daily_entries", []):
@@ -691,7 +714,13 @@ def auth_login(payload: LoginPayload, request: Request):
             "success": True,
             "role": user.role,
             "user": serialize_profile(user),
-            "redirect": "/farmer-app/dashboard.html" if user.role == "farmer" else "/field-app/dashboard.html",
+            "redirect": (
+                "/farmer-app/dashboard.html"
+                if user.role == "farmer"
+                else "/field-app/dashboard.html"
+                if user.role == "field"
+                else "/owner-app/dashboard.html"
+            ),
         }
 
 
@@ -1060,6 +1089,158 @@ def field_issues(request: Request):
         }
 
 
+@app.get("/api/owner/profile")
+def owner_profile(request: Request):
+    user = get_current_user(request, "owner")
+    return serialize_profile(user)
+
+
+@app.get("/api/owner/dashboard")
+def owner_dashboard(request: Request):
+    user = get_current_user(request, "owner")
+    with session_scope() as db:
+        farmers = list(db.scalars(select(User).where(User.role == "farmer").order_by(User.farm_name)))
+        daily_entries = list(db.scalars(select(DailyEntry).order_by(DailyEntry.entry_date.desc(), DailyEntry.created_at.desc())))
+        support_requests = list(db.scalars(select(SupportRequest).order_by(SupportRequest.created_at.desc())))
+        issue_photos = list(db.scalars(select(IssuePhoto).order_by(IssuePhoto.created_at.desc())))
+        documents = list(db.scalars(select(DocumentUpload).order_by(DocumentUpload.created_at.desc())))
+        field_visits = list(db.scalars(select(FieldVisit).order_by(FieldVisit.visit_date.desc(), FieldVisit.created_at.desc())))
+        feed_stock = list(db.scalars(select(FeedStock)))
+
+    latest_entries = latest_entries_by_shed(daily_entries)
+    total_live_birds = sum(item.opening_birds - item.mortality - item.culls for item in latest_entries.values())
+    high_mortality_farms = len([item for item in latest_entries.values() if item.mortality >= 15])
+    pending_requests = len([item for item in support_requests if item.status != "Closed"])
+    pending_docs = len(documents[:10])
+    total_feed_bags = sum(item.bags for item in feed_stock)
+
+    return {
+        "profile": serialize_profile(user),
+        "kpis": [
+            {"label": "Running farms", "value": str(len(farmers)), "note": "Mapped grower farms"},
+            {"label": "Live birds", "value": f"{total_live_birds:,}", "note": "Latest submitted day across farms"},
+            {"label": "Feed stock", "value": f"{total_feed_bags} bags", "note": "Current visible farm stock"},
+            {"label": "Pending requests", "value": str(pending_requests), "note": "Farmer support queue"},
+            {"label": "High mortality farms", "value": str(high_mortality_farms), "note": "Need immediate review"},
+            {"label": "New documents", "value": str(pending_docs), "note": "Bills and uploads awaiting review"},
+        ],
+        "farms": [
+            {
+                "label": farm.farm_name or "-",
+                "value": farm.farmer_code or "-",
+                "note": f"{farm.name} • {farm.cluster or ''} • {farm.farm_capacity or '-'}",
+            }
+            for farm in farmers
+        ],
+        "priority": [
+            {"label": req.request_type, "value": req.priority, "note": req.details}
+            for req in support_requests[:5]
+        ] + [
+            {"label": photo.issue_type, "value": photo.priority, "note": f"{photo.shed} • {photo.notes}"}
+            for photo in issue_photos[:5]
+        ],
+        "field_activity": [
+            {
+                "label": f"{visit.visit_date} / {db.get(User, visit.farmer_id).farm_name if db.get(User, visit.farmer_id) else '-'}",
+                "value": visit.shed,
+                "note": f"Mortality {visit.mortality} • Avg wt {visit.avg_weight_g} g • {visit.issue_summary or 'No major issue'}",
+            }
+            for visit in field_visits[:6]
+        ],
+        "uploads": [
+            {
+                "label": f"{doc.entry_date} / {doc.doc_type}",
+                "value": doc.status,
+                "note": f"{doc.title} • {doc.amount or 'No amount'}",
+            }
+            for doc in documents[:6]
+        ],
+    }
+
+
+@app.get("/api/owner/farms")
+def owner_farms(request: Request):
+    user = get_current_user(request, "owner")
+    with session_scope() as db:
+        farmers = list(db.scalars(select(User).where(User.role == "farmer").order_by(User.farm_name)))
+        latest_entries = list(db.scalars(select(DailyEntry).order_by(DailyEntry.entry_date.desc(), DailyEntry.created_at.desc())))
+        latest_by_farmer: dict[int, DailyEntry] = {}
+        for entry in latest_entries:
+            if entry.farmer_id not in latest_by_farmer:
+                latest_by_farmer[entry.farmer_id] = entry
+
+    return {
+        "profile": serialize_profile(user),
+        "farms": [
+            {
+                "label": farm.farm_name or "-",
+                "value": farm.farmer_code or "-",
+                "note": (
+                    f"{farm.name} • Batch {farm.active_batch or '-'} • "
+                    f"{latest_by_farmer[farm.id].entry_date if farm.id in latest_by_farmer else 'No entry'}"
+                ),
+            }
+            for farm in farmers
+        ],
+    }
+
+
+@app.get("/api/owner/operations")
+def owner_operations(request: Request):
+    user = get_current_user(request, "owner")
+    with session_scope() as db:
+        requests = list(db.scalars(select(SupportRequest).order_by(SupportRequest.created_at.desc())))
+        photos = list(db.scalars(select(IssuePhoto).order_by(IssuePhoto.created_at.desc())))
+        visits = list(db.scalars(select(FieldVisit).order_by(FieldVisit.visit_date.desc(), FieldVisit.created_at.desc())))
+    return {
+        "profile": serialize_profile(user),
+        "requests": [
+            {"label": f"{item.entry_date} / {item.request_type}", "value": item.status, "note": f"{item.priority} • {item.details}"}
+            for item in requests
+        ],
+        "photos": [
+            {"label": f"{item.entry_date} / {item.issue_type}", "value": item.status, "note": f"{item.shed} • {item.notes}"}
+            for item in photos
+        ],
+        "visits": [
+            {"label": f"{item.visit_date} / {item.shed}", "value": f"{item.avg_weight_g} g", "note": item.action_taken or item.issue_summary or "No action note"}
+            for item in visits
+        ],
+    }
+
+
+@app.get("/api/owner/finance")
+def owner_finance(request: Request):
+    user = get_current_user(request, "owner")
+    with session_scope() as db:
+        documents = list(db.scalars(select(DocumentUpload).order_by(DocumentUpload.created_at.desc())))
+        feed_inward = list(db.scalars(select(FeedInward).order_by(FeedInward.inward_date.desc(), FeedInward.created_at.desc())))
+    total_doc_amount = 0
+    for doc in documents:
+        digits = re.sub(r"[^0-9.]", "", doc.amount or "")
+        if digits:
+            try:
+                total_doc_amount += float(digits)
+            except ValueError:
+                pass
+    return {
+        "profile": serialize_profile(user),
+        "kpis": [
+            {"label": "Uploaded bills", "value": str(len(documents)), "note": "Documents received from farms"},
+            {"label": "Reported amount", "value": f"Rs {total_doc_amount:,.0f}", "note": "Parsed from upload entries"},
+            {"label": "Feed inward entries", "value": str(len(feed_inward)), "note": "Recent inward records"},
+        ],
+        "documents": [
+            {"label": f"{doc.entry_date} / {doc.doc_type}", "value": doc.status, "note": f"{doc.title} • {doc.amount or 'No amount'}"}
+            for doc in documents
+        ],
+        "feed_inward": [
+            {"label": f"{item.inward_date} / {item.feed_type}", "value": f"{item.bags} bags", "note": item.shed}
+            for item in feed_inward[:10]
+        ],
+    }
+
+
 @app.get("/farmer-app")
 @app.get("/farmer-app/")
 def farmer_login_page():
@@ -1094,6 +1275,24 @@ def field_app_files(file_name: str, request: Request):
     except HTTPException:
         return RedirectResponse(url="/field-app/", status_code=302)
     return app_file_response("field-app", clean_name)
+
+
+@app.get("/owner-app")
+@app.get("/owner-app/")
+def owner_login_page():
+    return app_file_response("owner-app", "index.html")
+
+
+@app.get("/owner-app/{file_name:path}")
+def owner_app_files(file_name: str, request: Request):
+    clean_name = file_name or "index.html"
+    if clean_name in OWNER_APP_PUBLIC:
+        return app_file_response("owner-app", clean_name)
+    try:
+        get_current_user(request, "owner")
+    except HTTPException:
+        return RedirectResponse(url="/owner-app/", status_code=302)
+    return app_file_response("owner-app", clean_name)
 
 
 app.mount("/uploads", StaticFiles(directory=UPLOADS_DIR), name="uploads")

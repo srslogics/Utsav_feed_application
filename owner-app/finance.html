@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Utsav Owner Finance</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Instrument+Sans:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/owner-app/styles.css?v=20260518" />
+  </head>
+  <body class="fa-body owner-body" data-owner-page="finance">
+    <div class="fa-app-shell">
+      <aside class="fa-sidebar">
+        <div class="fa-brand">
+          <div class="fa-brand-mark">UF</div>
+          <div>
+            <p class="fa-eyebrow">Owner Workspace</p>
+            <h1>Utsav Owner</h1>
+          </div>
+        </div>
+        <nav class="fa-nav">
+          <a href="./dashboard.html">Dashboard</a>
+          <a href="./farms.html">Farms</a>
+          <a href="./operations.html">Operations</a>
+          <a class="is-active" href="./finance.html">Finance</a>
+        </nav>
+      </aside>
+
+      <main class="fa-content">
+        <header class="fa-page-head">
+          <div>
+            <p class="fa-eyebrow">Finance Watch</p>
+            <h2>Uploaded bills aur inward visibility</h2>
+            <p class="fa-page-intro">Farm-side uploads aur inward movement ko quick-review format me monitor karein.</p>
+          </div>
+          <div class="fa-page-actions">
+            <button class="fa-secondary-btn" type="button" data-owner-logout>Logout</button>
+          </div>
+        </header>
+
+        <section class="fa-kpi-grid" id="owner-finance-kpis"></section>
+
+        <section class="fa-section">
+          <div class="fa-section-head">
+            <div>
+              <p class="fa-eyebrow">Documents</p>
+              <h3>Bills and uploaded files</h3>
+            </div>
+          </div>
+          <div class="fa-list-card" id="owner-finance-documents"></div>
+        </section>
+
+        <section class="fa-section">
+          <div class="fa-section-head">
+            <div>
+              <p class="fa-eyebrow">Feed Inward</p>
+              <h3>Recent inward entries</h3>
+            </div>
+          </div>
+          <div class="fa-list-card" id="owner-finance-inward"></div>
+        </section>
+      </main>
+    </div>
+    <nav class="fa-bottom-nav owner-bottom-nav">
+      <a href="./dashboard.html">Home</a>
+      <a href="./farms.html">Farms</a>
+      <a href="./operations.html">Ops</a>
+      <a class="is-active" href="./finance.html">Finance</a>
+    </nav>
+    <script src="/owner-app/app.js?v=20260518"></script>
+  </body>
+</html>
