@@ -697,6 +697,10 @@ button {
     width: auto;
   }
 
+  .fa-nav {
+    display: none;
+  }
+
   .fa-highlights {
     grid-template-columns: 1fr;
   }
@@ -735,6 +739,14 @@ button {
   .fa-login-shell,
   .fa-app-shell {
     padding: 0.85rem;
+  }
+
+  .fa-login-panel {
+    order: 2;
+  }
+
+  .fa-auth-card {
+    order: 1;
   }
 
   .fa-copy h2 {
