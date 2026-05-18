@@ -14,8 +14,12 @@ This folder contains a lightweight Android wrapper for the live farmer app:
 
 ## Files included
 
-- `keystore.properties`: local signing config for APK builds
-- `keystore/utsavfarmerlite-release.jks`: local test keystore for release APK generation
+- `keystore.properties.example`: example signing config template
+
+Create your own local signing files before a release build:
+
+- `keystore.properties`
+- `keystore/<your-release-key>.jks`
 
 ## How to build the APK
 
@@ -45,4 +49,4 @@ Typical output paths:
 - Farmers usually will not need a new APK for normal UI/form updates.
 - If you change the live farmer app domain later, update `FARMER_APP_URL` in:
   - `app/src/main/java/com/utsavfarmer/lite/MainActivity.java`
-- The included keystore is only for direct field testing. For long-term production, generate a fresh owner-controlled keystore and store it safely.
+- Keep your real keystore and passwords out of Git. Use the example file as a local template only.

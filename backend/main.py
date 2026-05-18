@@ -41,6 +41,7 @@ WEBSITE_FILES = {
     "/website-platform.html": "website-platform.html",
     "/styles.css": "styles.css",
     "/app.js": "app.js",
+    "/downloads/UtsavFarmerLite-debug.apk": "UtsavFarmerLite-debug.apk",
 }
 
 

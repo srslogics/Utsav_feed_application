@@ -1,0 +1,10 @@
+android-sdk/
+android-sdk-download/
+
+android-lite/keystore.properties
+android-lite/keystore/
+
+backend/uploads/
+backend/__pycache__/
+
+.DS_Store
