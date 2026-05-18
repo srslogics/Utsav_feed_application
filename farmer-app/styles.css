@@ -673,20 +673,23 @@ button {
 @media (max-width: 980px) {
   .fa-login-shell,
   .fa-app-shell,
-  .fa-kpi-grid,
-  .fa-card-grid,
-  .fa-detail-grid,
   .fa-request-form,
   .fa-inline-form,
   .fa-multi-form,
-  .fa-kpi-grid-five,
   .fa-form-grid,
-  .fa-quick-grid,
-  .fa-quick-grid-three,
   .fa-info-strip,
   .fa-hero-card,
   .fa-hero-stats {
     grid-template-columns: 1fr;
+  }
+
+  .fa-kpi-grid,
+  .fa-card-grid,
+  .fa-detail-grid,
+  .fa-kpi-grid-five,
+  .fa-quick-grid,
+  .fa-quick-grid-three {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .fa-app-shell {
@@ -738,7 +741,7 @@ button {
 @media (max-width: 620px) {
   .fa-login-shell,
   .fa-app-shell {
-    padding: 0.85rem;
+    padding: 0.8rem;
   }
 
   .fa-login-panel {
@@ -760,20 +763,183 @@ button {
   }
 
   .fa-sidebar {
-    padding: 1rem;
+    width: auto;
+    padding: 0;
+    gap: 0;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+  }
+
+  .fa-sidebar-card,
+  .fa-farm-strip,
+  .fa-sidebar > .fa-secondary-btn {
+    display: none;
+  }
+
+  .fa-brand {
+    width: 100%;
+    padding: 0.35rem 0.15rem 0.1rem;
+  }
+
+  .fa-brand-mark {
+    width: 44px;
+    height: 44px;
+    border-radius: 14px;
+    font-size: 1rem;
+  }
+
+  .fa-brand h1 {
+    font-size: 1.62rem;
+    line-height: 1.05;
+  }
+
+  .fa-brand .fa-eyebrow {
+    font-size: 0.62rem;
+    letter-spacing: 0.12em;
   }
 
   .fa-section,
   .fa-hero-card {
-    padding: 1rem;
-    border-radius: 24px;
+    padding: 0.95rem;
+    border-radius: 22px;
   }
 
   .fa-content {
     padding-bottom: 0.35rem;
+    gap: 0.85rem;
   }
 
   .fa-form-block {
     padding: 0.9rem;
+  }
+
+  .fa-page-head h2 {
+    font-size: 1.58rem;
+    line-height: 1.08;
+  }
+
+  .fa-page-head {
+    padding: 0;
+    gap: 0.7rem;
+  }
+
+  .fa-page-intro {
+    display: none;
+  }
+
+  .fa-page-actions {
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  .fa-page-actions .fa-secondary-btn {
+    min-height: 42px;
+    padding: 0.72rem 1rem;
+  }
+
+  .fa-hero-card {
+    gap: 0.75rem;
+    padding: 1rem;
+  }
+
+  .fa-hero-card h3 {
+    font-size: 1.28rem;
+    margin: 0.2rem 0 0.4rem;
+  }
+
+  .fa-hero-card p {
+    font-size: 0.9rem;
+    line-height: 1.45;
+  }
+
+  .fa-hero-stats {
+    gap: 0.7rem;
+  }
+
+  .fa-hero-stats article,
+  .fa-info-strip article,
+  .fa-kpi-card,
+  .fa-detail-card,
+  .fa-quick-card,
+  .fa-highlight-card {
+    padding: 0.9rem;
+    border-radius: 18px;
+  }
+
+  .fa-kpi-card strong,
+  .fa-detail-card strong {
+    font-size: 1.05rem;
+  }
+
+  .fa-kpi-grid,
+  .fa-card-grid,
+  .fa-detail-grid,
+  .fa-kpi-grid-five,
+  .fa-quick-grid,
+  .fa-quick-grid-three {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.75rem;
+  }
+
+  .fa-info-strip,
+  .fa-form-grid,
+  .fa-request-form,
+  .fa-inline-form,
+  .fa-multi-form {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+  }
+
+  .fa-quick-card {
+    min-height: 132px;
+  }
+
+  .fa-quick-card strong {
+    margin-top: 0.72rem;
+    font-size: 0.95rem;
+  }
+
+  .fa-quick-card p,
+  .fa-kpi-card p,
+  .fa-detail-card p {
+    font-size: 0.86rem;
+    line-height: 1.42;
+  }
+
+  .fa-section-head h3 {
+    font-size: 1rem;
+  }
+
+  .fa-section-head .fa-eyebrow {
+    font-size: 0.64rem;
+  }
+
+  .fa-list-card {
+    padding: 0.1rem 0.85rem;
+  }
+
+  .fa-list-row {
+    padding: 0.68rem 0;
+    gap: 0.75rem;
+  }
+
+  .fa-list-row strong {
+    font-size: 0.95rem;
+  }
+
+  .fa-list-row p {
+    font-size: 0.84rem;
+    line-height: 1.4;
+  }
+
+  .fa-shortcut-row {
+    gap: 0.5rem;
+  }
+
+  .fa-shortcut-chip {
+    padding: 0.58rem 0.82rem;
+    font-size: 0.84rem;
   }
 }
