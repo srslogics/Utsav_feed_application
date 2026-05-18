@@ -15,6 +15,7 @@ android-owner-lite/local.properties
 android-owner-lite/keystore.properties
 android-owner-lite/keystore/
 *.apk
+!UtsavOwnerLite-debug.apk
 
 backend/uploads/
 backend/__pycache__/
