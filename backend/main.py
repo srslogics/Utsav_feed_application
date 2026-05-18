@@ -273,6 +273,7 @@ WEBSITE_FILES = {
     "/styles.css": "styles.css",
     "/app.js": "app.js",
     "/downloads/UtsavFarmerLite-debug.apk": "UtsavFarmerLite-debug.apk",
+    "/downloads/UtsavOwnerLite-debug.apk": "UtsavOwnerLite-debug.apk",
 }
 
 FARMER_APP_PUBLIC = {"index.html", "styles.css", "app.js"}

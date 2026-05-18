@@ -3,6 +3,18 @@ android-sdk-download/
 
 android-lite/keystore.properties
 android-lite/keystore/
+android-lite/app/build/
+
+android-owner-lite/.gradle/
+android-owner-lite/.gradle-home/
+android-owner-lite/.gradle-dist/
+android-owner-lite/.android-home/
+android-owner-lite/.jdks/
+android-owner-lite/app/build/
+android-owner-lite/local.properties
+android-owner-lite/keystore.properties
+android-owner-lite/keystore/
+*.apk
 
 backend/uploads/
 backend/__pycache__/
