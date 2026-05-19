@@ -912,7 +912,7 @@ def on_startup() -> None:
     init_database()
 
 
-@app.get("/api/health")
+@app.api_route("/api/health", methods=["GET", "HEAD"])
 def healthcheck():
     return {
         "status": "ok",
