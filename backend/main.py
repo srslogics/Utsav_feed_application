@@ -44,6 +44,27 @@ def hash_password(value: str) -> str:
     return hashlib.sha256(value.encode("utf-8")).hexdigest()
 
 
+def normalize_phone(value: str) -> str:
+    digits = re.sub(r"\D", "", (value or "").strip())
+    if not digits:
+        return ""
+    if digits.startswith("91") and len(digits) == 12:
+        return f"+{digits}"
+    if digits.startswith("0") and len(digits) == 11:
+        return f"+91{digits[1:]}"
+    if len(digits) == 10:
+        return f"+91{digits}"
+    return value.strip()
+
+
+def format_phone_display(value: str) -> str:
+    normalized = normalize_phone(value)
+    digits = re.sub(r"\D", "", normalized)
+    if digits.startswith("91") and len(digits) == 12:
+        return f"0{digits[2:]}"
+    return value
+
+
 def normalize_database_url() -> str:
     raw_url = os.getenv("DATABASE_URL", "").strip()
     if not raw_url:
@@ -382,7 +403,7 @@ def serialize_profile(user: User) -> dict:
         "cluster": user.cluster or "",
         "farm_name": user.farm_name or "",
         "farmer_code": user.farmer_code or "",
-        "phone": user.phone,
+        "phone": format_phone_display(user.phone),
         "active_batch": user.active_batch or "",
         "bird_age_days": user.bird_age_days or 0,
         "field_officer": user.field_officer or "",
@@ -731,7 +752,7 @@ def create_farmer_user(profile: dict) -> User:
     return User(
         role="farmer",
         name=profile.get("farmer_name", "Rakesh Verma"),
-        phone=profile.get("phone", "+91 9876543210"),
+        phone=normalize_phone(profile.get("phone", "+91 9876543210")),
         password_hash=hash_password(profile.get("password", os.getenv("FARMER_APP_DEFAULT_PASSWORD", "utsav123"))),
         cluster=profile.get("cluster", "Korba Cluster"),
         farm_name=profile.get("farm_name", "Utsav Partner Farm 12"),
@@ -751,7 +772,7 @@ def ensure_field_officer_by_values(
     officer_phone: str = "",
     officer_password: str = "",
 ) -> User:
-    officer_phone = officer_phone or os.getenv("FIELD_APP_DEFAULT_PHONE", "+91 9898989898")
+    officer_phone = normalize_phone(officer_phone or os.getenv("FIELD_APP_DEFAULT_PHONE", "+91 9898989898"))
     officer = db.scalar(select(User).where(User.role == "field", User.phone == officer_phone))
     if officer:
         return officer
@@ -844,7 +865,7 @@ def seed_database_from_json() -> None:
                     User(
                         role="owner",
                         name=os.getenv("OWNER_APP_DEFAULT_NAME", "Utsav Admin"),
-                        phone=owner_phone,
+                        phone=normalize_phone(owner_phone),
                         password_hash=hash_password(os.getenv("OWNER_APP_DEFAULT_PASSWORD", "owner123")),
                         cluster=profile.get("cluster", "Korba Cluster"),
                         title="Owner",
@@ -867,7 +888,7 @@ def seed_database_from_json() -> None:
         owner = User(
             role="owner",
             name=os.getenv("OWNER_APP_DEFAULT_NAME", "Utsav Admin"),
-            phone=os.getenv("OWNER_APP_DEFAULT_PHONE", "+91 9999999999"),
+            phone=normalize_phone(os.getenv("OWNER_APP_DEFAULT_PHONE", "+91 9999999999")),
             password_hash=hash_password(os.getenv("OWNER_APP_DEFAULT_PASSWORD", "owner123")),
             cluster=profile.get("cluster", "Korba Cluster"),
             title="Owner",
@@ -922,8 +943,9 @@ def healthcheck():
 
 @app.post("/api/auth/login")
 def auth_login(payload: LoginPayload, request: Request):
+    normalized_phone = normalize_phone(payload.phone)
     with session_scope() as db:
-        user = db.scalar(select(User).where(User.phone == payload.phone, User.role == payload.role))
+        user = db.scalar(select(User).where(User.phone == normalized_phone, User.role == payload.role))
         if not user or user.password_hash != hash_password(payload.password):
             raise HTTPException(status_code=401, detail="Invalid credentials.")
         request.session["user_id"] = user.id
@@ -1399,14 +1421,14 @@ def owner_farms(request: Request):
             {
                 "label": farm.farm_name or "-",
                 "value": farm.farmer_code or "-",
-                "note": f"{farm.name} • {farm.phone} • {farm.field_officer or 'No officer assigned'}",
+                "note": f"{farm.name} • {format_phone_display(farm.phone)} • {farm.field_officer or 'No officer assigned'}",
             }
             for farm in farmers
         ],
         "field_officers": [
             {
                 "label": officer.name,
-                "value": officer.phone,
+                "value": format_phone_display(officer.phone),
                 "note": officer.cluster or "",
             }
             for officer in field_officers
@@ -1418,7 +1440,9 @@ def owner_farms(request: Request):
 def owner_create_farmer(payload: OwnerFarmerCreatePayload, request: Request):
     get_current_user(request, "owner")
     with session_scope() as db:
-        existing_phone = db.scalar(select(User).where(User.phone == payload.phone))
+        normalized_phone = normalize_phone(payload.phone)
+        normalized_officer_phone = normalize_phone(payload.field_officer_phone) if payload.field_officer_phone else ""
+        existing_phone = db.scalar(select(User).where(User.phone == normalized_phone))
         if existing_phone:
             raise HTTPException(status_code=400, detail="Phone number already exists.")
         existing_code = db.scalar(select(User).where(User.role == "farmer", User.farmer_code == payload.farmer_code))
@@ -1429,12 +1453,12 @@ def owner_create_farmer(payload: OwnerFarmerCreatePayload, request: Request):
             db,
             officer_name=payload.field_officer,
             cluster=payload.cluster,
-            officer_phone=payload.field_officer_phone,
+            officer_phone=normalized_officer_phone,
         )
         farmer = User(
             role="farmer",
             name=payload.farmer_name,
-            phone=payload.phone,
+            phone=normalized_phone,
             password_hash=hash_password(payload.password),
             cluster=payload.cluster,
             farm_name=payload.farm_name,
@@ -1456,7 +1480,7 @@ def owner_create_farmer(payload: OwnerFarmerCreatePayload, request: Request):
             "farmer_name": farmer.name,
             "farm_name": farmer.farm_name,
             "farmer_code": farmer.farmer_code,
-            "phone": farmer.phone,
+            "phone": format_phone_display(farmer.phone),
             "field_officer": farmer.field_officer,
             "cluster": farmer.cluster,
         },
