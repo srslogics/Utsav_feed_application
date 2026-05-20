@@ -1,5 +1,6 @@
 import hashlib
 import json
+import logging
 import os
 import re
 from datetime import date
@@ -36,6 +37,9 @@ PROJECT_ROOT = BASE_DIR.parent
 DATA_FILE = BASE_DIR / "data.json"
 DB_FILE = BASE_DIR / "utsav.sqlite3"
 UPLOADS_DIR = BASE_DIR / "uploads"
+
+logger = logging.getLogger("utsav.auth")
+logging.basicConfig(level=logging.INFO)
 
 UPLOADS_DIR.mkdir(exist_ok=True)
 
@@ -946,7 +950,18 @@ def auth_login(payload: LoginPayload, request: Request):
     normalized_phone = normalize_phone(payload.phone)
     with session_scope() as db:
         user = db.scalar(select(User).where(User.phone == normalized_phone, User.role == payload.role))
-        if not user or user.password_hash != hash_password(payload.password):
+        password_ok = bool(user and user.password_hash == hash_password(payload.password))
+        logger.info(
+            "login_attempt role=%s input_phone=%s normalized_phone=%s user_found=%s user_id=%s stored_phone=%s password_ok=%s",
+            payload.role,
+            payload.phone,
+            normalized_phone,
+            bool(user),
+            user.id if user else None,
+            user.phone if user else None,
+            password_ok,
+        )
+        if not user or not password_ok:
             raise HTTPException(status_code=401, detail="Invalid credentials.")
         request.session["user_id"] = user.id
         request.session["role"] = user.role
