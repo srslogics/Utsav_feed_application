@@ -25,6 +25,7 @@ from sqlalchemy import Text
 from sqlalchemy import create_engine
 from sqlalchemy import func
 from sqlalchemy import select
+from sqlalchemy import text
 from sqlalchemy.orm import DeclarativeBase
 from sqlalchemy.orm import Mapped
 from sqlalchemy.orm import Session
@@ -122,6 +123,7 @@ class User(Base):
     farm_name: Mapped[str | None] = mapped_column(String(140), nullable=True)
     farmer_code: Mapped[str | None] = mapped_column(String(40), nullable=True)
     active_batch: Mapped[str | None] = mapped_column(String(40), nullable=True)
+    current_shed: Mapped[str | None] = mapped_column(String(40), nullable=True)
     bird_age_days: Mapped[int | None] = mapped_column(Integer, nullable=True)
     field_officer: Mapped[str | None] = mapped_column(String(120), nullable=True)
     farm_capacity: Mapped[str | None] = mapped_column(String(80), nullable=True)
@@ -409,6 +411,7 @@ class OwnerFarmerEnrollmentPayload(BaseModel):
 class OwnerBatchEntryPayload(BaseModel):
     farmer_code: str
     active_batch: str
+    current_shed: str = ""
     bird_age_days: int = Field(default=0, ge=0)
 
 
@@ -436,6 +439,7 @@ def serialize_profile(user: User) -> dict:
         "farmer_code": user.farmer_code or "",
         "phone": format_phone_display(user.phone),
         "active_batch": user.active_batch or "",
+        "current_shed": user.current_shed or "",
         "bird_age_days": user.bird_age_days or 0,
         "field_officer": user.field_officer or "",
         "farm_capacity": user.farm_capacity or "",
@@ -1083,6 +1087,13 @@ def purge_legacy_demo_data() -> None:
 
 def init_database() -> None:
     Base.metadata.create_all(engine)
+    with engine.begin() as connection:
+        if engine.dialect.name == "sqlite":
+            existing_columns = {row[1] for row in connection.execute(text("PRAGMA table_info(users)"))}
+            if "current_shed" not in existing_columns:
+                connection.execute(text("ALTER TABLE users ADD COLUMN current_shed VARCHAR(40)"))
+        else:
+            connection.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS current_shed VARCHAR(40)"))
     purge_legacy_demo_data()
     seed_database_from_json()
 
@@ -1621,6 +1632,7 @@ def owner_farms(request: Request):
                 "farm_name": farm.farm_name or "",
                 "cluster": farm.cluster or "",
                 "active_batch": farm.active_batch or "",
+                "current_shed": farm.current_shed or "",
                 "bird_age_days": farm.bird_age_days or 0,
             }
             for farm in farmers
@@ -1697,6 +1709,7 @@ def owner_update_farmer_batch(payload: OwnerBatchEntryPayload, request: Request)
             raise HTTPException(status_code=404, detail="Farmer not found.")
 
         farmer.active_batch = payload.active_batch.strip()
+        farmer.current_shed = payload.current_shed.strip()
         farmer.bird_age_days = payload.bird_age_days
         db.add(farmer)
         db.commit()
@@ -1710,6 +1723,7 @@ def owner_update_farmer_batch(payload: OwnerBatchEntryPayload, request: Request)
             "farm_name": farmer.farm_name,
             "farmer_code": farmer.farmer_code,
             "active_batch": farmer.active_batch or "",
+            "current_shed": farmer.current_shed or "",
             "bird_age_days": farmer.bird_age_days or 0,
         },
     }

@@ -96,8 +96,8 @@ function populateFarmerSelect(items) {
     `<option value="">Choose farmer</option>`,
     ...items.map(
       (item) =>
-        `<option value="${item.farmer_code || ""}" data-farm-name="${item.farm_name || ""}" data-batch="${item.active_batch || ""}" data-bird-age="${item.bird_age_days || 0}">
-          ${(item.farm_name || item.farmer_name || "").trim()}${item.farmer_code ? ` • ${item.farmer_code}` : ""}
+        `<option value="${item.farmer_code || ""}" data-farm-name="${item.farm_name || ""}" data-batch="${item.active_batch || ""}" data-current-shed="${item.current_shed || ""}" data-bird-age="${item.bird_age_days || 0}">
+          ${(item.farmer_name || item.farm_name || "").trim()}${item.farmer_code ? ` • ${item.farmer_code}` : ""}
         </option>`
     ),
   ];
@@ -109,11 +109,13 @@ function syncSelectedFarmerMeta() {
   const select = document.querySelector("[data-owner-farmer-select]");
   const farmNameInput = document.querySelector('input[name="farm_name_preview"]');
   const batchInput = document.querySelector('[data-owner-batch-entry] input[name="active_batch"]');
+  const shedInput = document.querySelector('[data-owner-batch-entry] input[name="current_shed"]');
   const ageInput = document.querySelector('[data-owner-batch-entry] input[name="bird_age_days"]');
-  if (!select || !farmNameInput || !batchInput || !ageInput) return;
+  if (!select || !farmNameInput || !batchInput || !shedInput || !ageInput) return;
   const selectedOption = select.options[select.selectedIndex];
   farmNameInput.value = selectedOption?.dataset.farmName || "";
   batchInput.value = selectedOption?.dataset.batch || "";
+  shedInput.value = selectedOption?.dataset.currentShed || "";
   ageInput.value = selectedOption?.dataset.birdAge === "0" ? "" : selectedOption?.dataset.birdAge || "";
 }
 
@@ -285,9 +287,14 @@ if (batchEntryForm) {
   batchEntryForm.addEventListener("submit", async (event) => {
     event.preventDefault();
     const formData = new FormData(batchEntryForm);
+    if (!formData.get("farmer_code")) {
+      setStatus(".owner-batch-note", "Farmer select karein, baaki fields optional hain.", true);
+      return;
+    }
     const payload = {
       farmer_code: formData.get("farmer_code"),
       active_batch: formData.get("active_batch"),
+      current_shed: formData.get("current_shed"),
       bird_age_days: Number(formData.get("bird_age_days") || 0),
     };
 
@@ -298,7 +305,7 @@ if (batchEntryForm) {
       });
       setStatus(
         ".owner-batch-note",
-        `Batch save ho gaya: ${result.farmer.farmer_name} • ${result.farmer.active_batch} • ${result.farmer.bird_age_days} days`
+        `Batch save ho gaya: ${result.farmer.farmer_name} • ${result.farmer.active_batch} • ${result.farmer.current_shed || "-"} • ${result.farmer.bird_age_days} days`
       );
       loadFarms().catch(console.error);
     } catch {
