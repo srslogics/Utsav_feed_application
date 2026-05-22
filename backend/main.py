@@ -15,9 +15,11 @@ from fastapi.responses import FileResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 from sqlalchemy import DateTime
+from sqlalchemy import delete
 from sqlalchemy import Float
 from sqlalchemy import ForeignKey
 from sqlalchemy import Integer
+from sqlalchemy import or_
 from sqlalchemy import String
 from sqlalchemy import Text
 from sqlalchemy import create_engine
@@ -42,6 +44,18 @@ logger = logging.getLogger("utsav.auth")
 logging.basicConfig(level=logging.INFO)
 
 UPLOADS_DIR.mkdir(exist_ok=True)
+
+LEGACY_DEMO_FARMER_PHONES = {
+    "+919876543210",
+    "+919876543211",
+}
+LEGACY_DEMO_FARMER_CODES = {
+    "UF-042",
+    "UF-057",
+}
+LEGACY_DEMO_FIELD_PHONES = {
+    "+919898989898",
+}
 
 
 def hash_password(value: str) -> str:
@@ -72,6 +86,10 @@ def format_phone_display(value: str) -> str:
 def slug_text(value: str) -> str:
     slug = re.sub(r"[^a-z0-9]+", "-", (value or "").strip().lower()).strip("-")
     return slug or "unassigned"
+
+
+def is_placeholder_field_phone(value: str) -> bool:
+    return (value or "").startswith("field::")
 
 
 def normalize_database_url() -> str:
@@ -620,9 +638,11 @@ def summarize_owner_latest_entries(entries: list[DailyEntry], db: Session) -> li
     items = []
     for farmer_id, entry in latest_by_farmer.items():
         farmer = db.get(User, farmer_id)
+        if not valid_farmer_user(farmer):
+            continue
         items.append(
             {
-                "label": f"{farmer.farm_name if farmer else '-'} / {entry.shed}",
+                "label": f"{farmer.farm_name} / {entry.shed}",
                 "value": f"{entry.entry_date}",
                 "note": (
                     f"Mortality {entry.mortality} • Feed {entry.feed_used_bags} bags • "
@@ -637,9 +657,11 @@ def summarize_owner_feed(records: list[FeedStock], db: Session) -> list[dict]:
     items = []
     for record in records:
         farmer = db.get(User, record.farmer_id)
+        if not valid_farmer_user(farmer):
+            continue
         items.append(
             {
-                "label": f"{farmer.farm_name if farmer else '-'} / {record.shed}",
+                "label": f"{farmer.farm_name} / {record.shed}",
                 "value": f"{record.bags} bags",
                 "note": record.feed_type,
             }
@@ -651,18 +673,22 @@ def summarize_owner_health(medicine_records: list[MedicineStock], vaccine_record
     items: list[dict] = []
     for record in medicine_records[:5]:
         farmer = db.get(User, record.farmer_id)
+        if not valid_farmer_user(farmer):
+            continue
         items.append(
             {
-                "label": f"{farmer.farm_name if farmer else '-'} / {record.name}",
+                "label": f"{farmer.farm_name} / {record.name}",
                 "value": record.status,
                 "note": f"{record.quantity} • {record.notes or 'No note'}",
             }
         )
     for record in vaccine_records[:5]:
         farmer = db.get(User, record.farmer_id)
+        if not valid_farmer_user(farmer):
+            continue
         items.append(
             {
-                "label": f"{farmer.farm_name if farmer else '-'} / {record.vaccine}",
+                "label": f"{farmer.farm_name} / {record.vaccine}",
                 "value": record.status,
                 "note": f"{record.shed} • {record.entry_date}",
             }
@@ -674,9 +700,11 @@ def summarize_owner_requests(requests: list[SupportRequest], db: Session) -> lis
     items: list[dict] = []
     for record in requests:
         farmer = db.get(User, record.farmer_id)
+        if not valid_farmer_user(farmer):
+            continue
         items.append(
             {
-                "label": f"{farmer.farm_name if farmer else '-'} / {record.request_type}",
+                "label": f"{farmer.farm_name} / {record.request_type}",
                 "value": record.status,
                 "note": f"{record.entry_date} • {record.priority} • {record.details}",
             }
@@ -688,9 +716,11 @@ def summarize_owner_issue_photos(records: list[IssuePhoto], db: Session) -> list
     items: list[dict] = []
     for record in records:
         farmer = db.get(User, record.farmer_id)
+        if not valid_farmer_user(farmer):
+            continue
         items.append(
             {
-                "label": f"{farmer.farm_name if farmer else '-'} / {record.issue_type}",
+                "label": f"{farmer.farm_name} / {record.issue_type}",
                 "value": record.status,
                 "note": f"{record.entry_date} • {record.shed} • {record.priority}",
             }
@@ -702,9 +732,11 @@ def summarize_owner_field_visits(records: list[FieldVisit], db: Session) -> list
     items: list[dict] = []
     for record in records:
         farmer = db.get(User, record.farmer_id)
+        if not valid_farmer_user(farmer):
+            continue
         items.append(
             {
-                "label": f"{farmer.farm_name if farmer else '-'} / {record.visit_date}",
+                "label": f"{farmer.farm_name} / {record.visit_date}",
                 "value": record.shed,
                 "note": (
                     f"Mortality {record.mortality} • Avg wt {record.avg_weight_g} g • "
@@ -719,9 +751,11 @@ def summarize_owner_documents(records: list[DocumentUpload], db: Session) -> lis
     items: list[dict] = []
     for record in records:
         farmer = db.get(User, record.farmer_id)
+        if not valid_farmer_user(farmer):
+            continue
         items.append(
             {
-                "label": f"{farmer.farm_name if farmer else '-'} / {record.doc_type}",
+                "label": f"{farmer.farm_name} / {record.doc_type}",
                 "value": record.status,
                 "note": f"{record.entry_date} • {record.title} • {record.amount or 'No amount'}",
             }
@@ -738,6 +772,18 @@ def latest_date_entries(entries: list[DailyEntry]) -> list[DailyEntry]:
         return []
     latest_date = entries[0].entry_date
     return [item for item in entries if item.entry_date == latest_date]
+
+
+def valid_farmer_user(user: User) -> bool:
+    return bool(user and user.role == "farmer" and user.phone and user.farmer_code and user.name and user.farm_name)
+
+
+def valid_field_user(user: User) -> bool:
+    return bool(user and user.role == "field" and user.phone and not is_placeholder_field_phone(user.phone) and user.name)
+
+
+def join_present(parts: list[str]) -> str:
+    return " • ".join([part for part in parts if part])
 
 
 def farmer_seed_bundles(seed_data: dict) -> list[dict]:
@@ -949,8 +995,95 @@ def seed_database_from_json() -> None:
         db.commit()
 
 
+def purge_legacy_demo_data() -> None:
+    with session_scope() as db:
+        demo_farmers = list(
+            db.scalars(
+                select(User).where(
+                    User.role == "farmer",
+                    or_(
+                        User.phone.in_(LEGACY_DEMO_FARMER_PHONES),
+                        User.farmer_code.in_(LEGACY_DEMO_FARMER_CODES),
+                        User.phone == "",
+                    ),
+                )
+            )
+        )
+        farmer_ids = [user.id for user in demo_farmers]
+        if farmer_ids:
+            db.execute(delete(DailyEntry).where(DailyEntry.farmer_id.in_(farmer_ids)))
+            db.execute(delete(FeedStock).where(FeedStock.farmer_id.in_(farmer_ids)))
+            db.execute(delete(FeedInward).where(FeedInward.farmer_id.in_(farmer_ids)))
+            db.execute(delete(MortalityLog).where(MortalityLog.farmer_id.in_(farmer_ids)))
+            db.execute(delete(MedicineStock).where(MedicineStock.farmer_id.in_(farmer_ids)))
+            db.execute(delete(MedicineLog).where(MedicineLog.farmer_id.in_(farmer_ids)))
+            db.execute(delete(VaccinationLog).where(VaccinationLog.farmer_id.in_(farmer_ids)))
+            db.execute(delete(SupportRequest).where(SupportRequest.farmer_id.in_(farmer_ids)))
+            db.execute(delete(DocumentUpload).where(DocumentUpload.farmer_id.in_(farmer_ids)))
+            db.execute(delete(IssuePhoto).where(IssuePhoto.farmer_id.in_(farmer_ids)))
+            db.execute(delete(FieldVisit).where(FieldVisit.farmer_id.in_(farmer_ids)))
+            db.execute(delete(User).where(User.id.in_(farmer_ids)))
+
+        invalid_farmers = [
+            user
+            for user in db.scalars(select(User).where(User.role == "farmer"))
+            if not valid_farmer_user(user)
+        ]
+        invalid_farmer_ids = [user.id for user in invalid_farmers]
+        if invalid_farmer_ids:
+            db.execute(delete(DailyEntry).where(DailyEntry.farmer_id.in_(invalid_farmer_ids)))
+            db.execute(delete(FeedStock).where(FeedStock.farmer_id.in_(invalid_farmer_ids)))
+            db.execute(delete(FeedInward).where(FeedInward.farmer_id.in_(invalid_farmer_ids)))
+            db.execute(delete(MortalityLog).where(MortalityLog.farmer_id.in_(invalid_farmer_ids)))
+            db.execute(delete(MedicineStock).where(MedicineStock.farmer_id.in_(invalid_farmer_ids)))
+            db.execute(delete(MedicineLog).where(MedicineLog.farmer_id.in_(invalid_farmer_ids)))
+            db.execute(delete(VaccinationLog).where(VaccinationLog.farmer_id.in_(invalid_farmer_ids)))
+            db.execute(delete(SupportRequest).where(SupportRequest.farmer_id.in_(invalid_farmer_ids)))
+            db.execute(delete(DocumentUpload).where(DocumentUpload.farmer_id.in_(invalid_farmer_ids)))
+            db.execute(delete(IssuePhoto).where(IssuePhoto.farmer_id.in_(invalid_farmer_ids)))
+            db.execute(delete(FieldVisit).where(FieldVisit.farmer_id.in_(invalid_farmer_ids)))
+            db.execute(delete(User).where(User.id.in_(invalid_farmer_ids)))
+
+        demo_field_officers = list(
+            db.scalars(
+                select(User).where(
+                    User.role == "field",
+                    or_(
+                        User.phone.in_(LEGACY_DEMO_FIELD_PHONES),
+                        User.phone == "",
+                    ),
+                )
+            )
+        )
+        field_ids = [user.id for user in demo_field_officers]
+        if field_ids:
+            db.execute(delete(FieldVisit).where(FieldVisit.officer_id.in_(field_ids)))
+            db.execute(delete(User).where(User.id.in_(field_ids)))
+
+        placeholder_field_users = list(
+            db.scalars(select(User).where(User.role == "field"))
+        )
+        placeholder_field_ids = [user.id for user in placeholder_field_users if is_placeholder_field_phone(user.phone)]
+        if placeholder_field_ids:
+            db.execute(delete(FieldVisit).where(FieldVisit.officer_id.in_(placeholder_field_ids)))
+            db.execute(delete(User).where(User.id.in_(placeholder_field_ids)))
+
+        invalid_field_users = [
+            user
+            for user in db.scalars(select(User).where(User.role == "field"))
+            if not valid_field_user(user)
+        ]
+        invalid_field_ids = [user.id for user in invalid_field_users]
+        if invalid_field_ids:
+            db.execute(delete(FieldVisit).where(FieldVisit.officer_id.in_(invalid_field_ids)))
+            db.execute(delete(User).where(User.id.in_(invalid_field_ids)))
+
+        db.commit()
+
+
 def init_database() -> None:
     Base.metadata.create_all(engine)
+    purge_legacy_demo_data()
     seed_database_from_json()
 
 
@@ -1395,15 +1528,16 @@ def owner_profile(request: Request):
 def owner_dashboard(request: Request):
     user = get_current_user(request, "owner")
     with session_scope() as db:
-        farmers = list(db.scalars(select(User).where(User.role == "farmer").order_by(User.farm_name)))
-        daily_entries = list(db.scalars(select(DailyEntry).order_by(DailyEntry.entry_date.desc(), DailyEntry.created_at.desc())))
-        support_requests = list(db.scalars(select(SupportRequest).order_by(SupportRequest.created_at.desc())))
-        issue_photos = list(db.scalars(select(IssuePhoto).order_by(IssuePhoto.created_at.desc())))
-        documents = list(db.scalars(select(DocumentUpload).order_by(DocumentUpload.created_at.desc())))
-        field_visits = list(db.scalars(select(FieldVisit).order_by(FieldVisit.visit_date.desc(), FieldVisit.created_at.desc())))
-        feed_stock = list(db.scalars(select(FeedStock)))
-        medicine_stock = list(db.scalars(select(MedicineStock).order_by(MedicineStock.created_at.desc())))
-        vaccine_log = list(db.scalars(select(VaccinationLog).order_by(VaccinationLog.entry_date.desc(), VaccinationLog.created_at.desc())))
+        farmers = [farm for farm in db.scalars(select(User).where(User.role == "farmer").order_by(User.farm_name)) if valid_farmer_user(farm)]
+        farmer_ids = [farm.id for farm in farmers]
+        daily_entries = list(db.scalars(select(DailyEntry).where(DailyEntry.farmer_id.in_(farmer_ids)).order_by(DailyEntry.entry_date.desc(), DailyEntry.created_at.desc()))) if farmer_ids else []
+        support_requests = list(db.scalars(select(SupportRequest).where(SupportRequest.farmer_id.in_(farmer_ids)).order_by(SupportRequest.created_at.desc()))) if farmer_ids else []
+        issue_photos = list(db.scalars(select(IssuePhoto).where(IssuePhoto.farmer_id.in_(farmer_ids)).order_by(IssuePhoto.created_at.desc()))) if farmer_ids else []
+        documents = list(db.scalars(select(DocumentUpload).where(DocumentUpload.farmer_id.in_(farmer_ids)).order_by(DocumentUpload.created_at.desc()))) if farmer_ids else []
+        field_visits = list(db.scalars(select(FieldVisit).where(FieldVisit.farmer_id.in_(farmer_ids)).order_by(FieldVisit.visit_date.desc(), FieldVisit.created_at.desc()))) if farmer_ids else []
+        feed_stock = list(db.scalars(select(FeedStock).where(FeedStock.farmer_id.in_(farmer_ids)))) if farmer_ids else []
+        medicine_stock = list(db.scalars(select(MedicineStock).where(MedicineStock.farmer_id.in_(farmer_ids)).order_by(MedicineStock.created_at.desc()))) if farmer_ids else []
+        vaccine_log = list(db.scalars(select(VaccinationLog).where(VaccinationLog.farmer_id.in_(farmer_ids)).order_by(VaccinationLog.entry_date.desc(), VaccinationLog.created_at.desc()))) if farmer_ids else []
 
         latest_entries = latest_entries_by_shed(daily_entries)
         total_live_birds = sum(item.opening_birds - item.mortality - item.culls for item in latest_entries.values())
@@ -1449,9 +1583,10 @@ def owner_dashboard(request: Request):
 def owner_farms(request: Request):
     user = get_current_user(request, "owner")
     with session_scope() as db:
-        farmers = list(db.scalars(select(User).where(User.role == "farmer").order_by(User.farm_name)))
-        latest_entries = list(db.scalars(select(DailyEntry).order_by(DailyEntry.entry_date.desc(), DailyEntry.created_at.desc())))
-        field_officers = list(db.scalars(select(User).where(User.role == "field").order_by(User.name)))
+        farmers = [farm for farm in db.scalars(select(User).where(User.role == "farmer").order_by(User.farm_name)) if valid_farmer_user(farm)]
+        farmer_ids = [farm.id for farm in farmers]
+        latest_entries = list(db.scalars(select(DailyEntry).where(DailyEntry.farmer_id.in_(farmer_ids)).order_by(DailyEntry.entry_date.desc(), DailyEntry.created_at.desc()))) if farmer_ids else []
+        field_officers = [officer for officer in db.scalars(select(User).where(User.role == "field").order_by(User.name)) if valid_field_user(officer)]
         latest_by_farmer: dict[int, DailyEntry] = {}
         for entry in latest_entries:
             if entry.farmer_id not in latest_by_farmer:
@@ -1464,9 +1599,12 @@ def owner_farms(request: Request):
             {
                 "label": farm.farm_name or "-",
                 "value": farm.farmer_code or "-",
-                "note": (
-                    f"{farm.name} • Batch {farm.active_batch or '-'} • "
-                    f"{latest_by_farmer[farm.id].entry_date if farm.id in latest_by_farmer else 'No entry'}"
+                "note": join_present(
+                    [
+                        farm.name,
+                        f"Batch {farm.active_batch}" if farm.active_batch else "",
+                        latest_by_farmer[farm.id].entry_date if farm.id in latest_by_farmer else "",
+                    ]
                 ),
             }
             for farm in farmers
@@ -1477,7 +1615,7 @@ def owner_farms(request: Request):
                 "id": farm.id,
                 "label": farm.farm_name or "-",
                 "value": farm.farmer_code or "-",
-                "note": f"{farm.name} • {format_phone_display(farm.phone)} • {farm.field_officer or 'No officer assigned'}",
+                "note": join_present([farm.name, format_phone_display(farm.phone), farm.field_officer or ""]),
                 "farmer_code": farm.farmer_code or "",
                 "farmer_name": farm.name,
                 "farm_name": farm.farm_name or "",
@@ -1581,10 +1719,12 @@ def owner_update_farmer_batch(payload: OwnerBatchEntryPayload, request: Request)
 def owner_operations(request: Request):
     user = get_current_user(request, "owner")
     with session_scope() as db:
-        requests = list(db.scalars(select(SupportRequest).order_by(SupportRequest.created_at.desc())))
-        photos = list(db.scalars(select(IssuePhoto).order_by(IssuePhoto.created_at.desc())))
-        visits = list(db.scalars(select(FieldVisit).order_by(FieldVisit.visit_date.desc(), FieldVisit.created_at.desc())))
-        daily_entries = list(db.scalars(select(DailyEntry).order_by(DailyEntry.entry_date.desc(), DailyEntry.created_at.desc())))
+        farmers = [farm for farm in db.scalars(select(User).where(User.role == "farmer").order_by(User.farm_name)) if valid_farmer_user(farm)]
+        farmer_ids = [farm.id for farm in farmers]
+        requests = list(db.scalars(select(SupportRequest).where(SupportRequest.farmer_id.in_(farmer_ids)).order_by(SupportRequest.created_at.desc()))) if farmer_ids else []
+        photos = list(db.scalars(select(IssuePhoto).where(IssuePhoto.farmer_id.in_(farmer_ids)).order_by(IssuePhoto.created_at.desc()))) if farmer_ids else []
+        visits = list(db.scalars(select(FieldVisit).where(FieldVisit.farmer_id.in_(farmer_ids)).order_by(FieldVisit.visit_date.desc(), FieldVisit.created_at.desc()))) if farmer_ids else []
+        daily_entries = list(db.scalars(select(DailyEntry).where(DailyEntry.farmer_id.in_(farmer_ids)).order_by(DailyEntry.entry_date.desc(), DailyEntry.created_at.desc()))) if farmer_ids else []
         daily_entry_list = summarize_owner_latest_entries(daily_entries, db)
         request_items = summarize_owner_requests(requests, db)
         photo_items = summarize_owner_issue_photos(photos, db)
@@ -1602,12 +1742,15 @@ def owner_operations(request: Request):
 def owner_finance(request: Request):
     user = get_current_user(request, "owner")
     with session_scope() as db:
-        documents = list(db.scalars(select(DocumentUpload).order_by(DocumentUpload.created_at.desc())))
-        feed_inward = list(db.scalars(select(FeedInward).order_by(FeedInward.inward_date.desc(), FeedInward.created_at.desc())))
+        farmers = [farm for farm in db.scalars(select(User).where(User.role == "farmer").order_by(User.farm_name)) if valid_farmer_user(farm)]
+        farmer_ids = [farm.id for farm in farmers]
+        farmer_map = {farm.id: farm for farm in farmers}
+        documents = list(db.scalars(select(DocumentUpload).where(DocumentUpload.farmer_id.in_(farmer_ids)).order_by(DocumentUpload.created_at.desc()))) if farmer_ids else []
+        feed_inward = list(db.scalars(select(FeedInward).where(FeedInward.farmer_id.in_(farmer_ids)).order_by(FeedInward.inward_date.desc(), FeedInward.created_at.desc()))) if farmer_ids else []
         document_items = summarize_owner_documents(documents, db)
         inward_items = [
             {
-                "label": f"{db.get(User, item.farmer_id).farm_name if db.get(User, item.farmer_id) else '-'} / {item.shed}",
+                "label": f"{farmer_map[item.farmer_id].farm_name if item.farmer_id in farmer_map else '-'} / {item.shed}",
                 "value": f"{item.bags} bags",
                 "note": f"{item.inward_date} • {item.feed_type}",
             }
