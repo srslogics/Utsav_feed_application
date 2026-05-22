@@ -787,7 +787,7 @@ button {
     bottom: 0;
     z-index: 30;
     display: grid;
-    grid-template-columns: repeat(5, minmax(0, 1fr));
+    grid-template-columns: repeat(6, minmax(0, 1fr));
     gap: 0.35rem;
     padding: 0.7rem 0.75rem calc(0.7rem + env(safe-area-inset-bottom));
     border-top: 1px solid var(--fa-border);
@@ -802,7 +802,7 @@ button {
     padding: 0.65rem 0.45rem;
     border-radius: 16px;
     color: var(--fa-muted);
-    font-size: 0.82rem;
+    font-size: 0.76rem;
     font-weight: 700;
   }
 

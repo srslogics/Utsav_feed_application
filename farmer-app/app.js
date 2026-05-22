@@ -211,6 +211,11 @@ async function loadRequests() {
   const data = await requestJson(`${farmerApiBase}/requests`);
   populateProfile(data.profile);
   renderList(document.querySelector("#request-history"), data.history);
+}
+
+async function loadUploads() {
+  const data = await requestJson(`${farmerApiBase}/requests`);
+  populateProfile(data.profile);
   renderList(document.querySelector("#document-history"), data.documents);
   renderList(document.querySelector("#issue-photo-history"), data.issue_photos);
 }
@@ -395,12 +400,12 @@ if (requestForm) {
 
 const documentUploadForm = document.querySelector("[data-document-upload-form]");
 if (documentUploadForm) {
-  handleUploadSubmit(documentUploadForm, `${farmerApiBase}/documents`, "[data-document-status]", loadRequests);
+  handleUploadSubmit(documentUploadForm, `${farmerApiBase}/documents`, "[data-document-status]", loadUploads);
 }
 
 const issuePhotoForm = document.querySelector("[data-issue-photo-form]");
 if (issuePhotoForm) {
-  handleUploadSubmit(issuePhotoForm, `${farmerApiBase}/issues/photo`, "[data-issue-photo-status]", loadRequests);
+  handleUploadSubmit(issuePhotoForm, `${farmerApiBase}/issues/photo`, "[data-issue-photo-status]", loadUploads);
 }
 
 const page = document.body.dataset.faPage;
@@ -413,4 +418,5 @@ if (page) {
   if (page === "feed") loadFeed().catch(handlePageError);
   if (page === "health") loadHealth().catch(handlePageError);
   if (page === "requests") loadRequests().catch(handlePageError);
+  if (page === "uploads") loadUploads().catch(handlePageError);
 }
