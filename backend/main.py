@@ -69,6 +69,11 @@ def format_phone_display(value: str) -> str:
     return value
 
 
+def slug_text(value: str) -> str:
+    slug = re.sub(r"[^a-z0-9]+", "-", (value or "").strip().lower()).strip("-")
+    return slug or "unassigned"
+
+
 def normalize_database_url() -> str:
     raw_url = os.getenv("DATABASE_URL", "").strip()
     if not raw_url:
@@ -777,12 +782,23 @@ def ensure_field_officer_by_values(
     officer_password: str = "",
 ) -> User:
     officer_phone = normalize_phone(officer_phone or os.getenv("FIELD_APP_DEFAULT_PHONE", ""))
-    officer = db.scalar(select(User).where(User.role == "field", User.phone == officer_phone))
-    if officer:
-        return officer
-    officer = db.scalar(select(User).where(User.role == "field", User.name == officer_name))
-    if officer:
-        return officer
+    if officer_phone:
+        officer = db.scalar(select(User).where(User.role == "field", User.phone == officer_phone))
+        if officer:
+            return officer
+    if officer_name:
+        officer = db.scalar(select(User).where(User.role == "field", User.name == officer_name))
+        if officer:
+            return officer
+
+    if not officer_phone:
+        base_identifier = f"field::{slug_text(officer_name)}::{slug_text(cluster)}"
+        officer_phone = base_identifier
+        suffix = 1
+        while db.scalar(select(User).where(User.role == "field", User.phone == officer_phone)):
+            suffix += 1
+            officer_phone = f"{base_identifier}-{suffix}"
+
     officer = User(
         role="field",
         name=officer_name or "Field Officer",
