@@ -67,6 +67,7 @@ function buildShedList(profile) {
 
 function populateShedOptions(profile) {
   const sheds = buildShedList(profile);
+  const currentShed = normalizeShedLabel(profile?.current_shed);
   document.querySelectorAll('select[name="shed"]').forEach((select) => {
     const currentValue = select.value;
     const options = ['<option value="">Select shed</option>'].concat(
@@ -75,6 +76,8 @@ function populateShedOptions(profile) {
     select.innerHTML = options.join("");
     if (currentValue && sheds.includes(currentValue)) {
       select.value = currentValue;
+    } else if (!currentValue && currentShed && sheds.includes(currentShed)) {
+      select.value = currentShed;
     } else if (!currentValue && sheds.length === 1) {
       select.value = sheds[0];
     }
@@ -327,30 +330,7 @@ logoutButtons.forEach((button) => {
 
 const dailyEntryForm = document.querySelector("[data-daily-entry-form]");
 if (dailyEntryForm) {
-  handleFormSubmit(
-    dailyEntryForm,
-    `${farmerApiBase}/daily-entry`,
-    "[data-daily-entry-status]",
-    (formData) => ({
-      entry_date: formData.get("entry_date"),
-      shed: formData.get("shed"),
-      opening_birds: Number(formData.get("opening_birds")),
-      mortality: Number(formData.get("mortality")),
-      culls: Number(formData.get("culls")),
-      feed_used_bags: Number(formData.get("feed_used_bags")),
-      water_liters: Number(formData.get("water_liters")),
-      avg_weight_g: Number(formData.get("avg_weight_g")),
-      temperature_c: Number(formData.get("temperature_c")),
-      humidity_pct: Number(formData.get("humidity_pct")),
-      litter_condition: formData.get("litter_condition"),
-      power_cut_hours: Number(formData.get("power_cut_hours")),
-      dg_hours: Number(formData.get("dg_hours")),
-      uniformity_pct: Number(formData.get("uniformity_pct")),
-      issues: formData.get("issues"),
-      remarks: formData.get("remarks"),
-    }),
-    loadDailyEntry
-  );
+  handleUploadSubmit(dailyEntryForm, `${farmerApiBase}/daily-entry`, "[data-daily-entry-status]", loadDailyEntry);
 }
 
 const feedBalanceForm = document.querySelector("[data-feed-balance-form]");

@@ -148,6 +148,9 @@ class DailyEntry(Base):
     temperature_c: Mapped[float] = mapped_column(Float)
     humidity_pct: Mapped[int] = mapped_column(Integer)
     litter_condition: Mapped[str] = mapped_column(String(40))
+    litter_notes: Mapped[str] = mapped_column(Text, default="")
+    litter_photo_name: Mapped[str | None] = mapped_column(String(200), nullable=True)
+    litter_photo_stored: Mapped[str | None] = mapped_column(String(240), nullable=True)
     power_cut_hours: Mapped[float] = mapped_column(Float)
     dg_hours: Mapped[float] = mapped_column(Float)
     uniformity_pct: Mapped[int] = mapped_column(Integer)
@@ -372,7 +375,7 @@ class DailyEntryPayload(BaseModel):
     culls: int = Field(ge=0)
     feed_used_bags: int = Field(ge=0)
     water_liters: int = Field(ge=0)
-    avg_weight_g: int = Field(gt=0)
+    avg_weight_g: int = Field(ge=0)
     temperature_c: float
     humidity_pct: int = Field(ge=0, le=100)
     litter_condition: str
@@ -550,7 +553,14 @@ def make_daily_entry_history(records: list[DailyEntry]) -> list[dict]:
         {
             "label": f"{record.entry_date} / {record.shed}",
             "value": f"{record.mortality} mortality • {record.feed_used_bags} feed bags",
-            "note": f"Water {record.water_liters} L • Avg wt {record.avg_weight_g} g • Temp {record.temperature_c} C",
+            "note": join_present(
+                [
+                    f"Litter {record.litter_condition}",
+                    record.litter_notes or "",
+                    "Photo attached" if record.litter_photo_name else "",
+                ]
+            )
+            or f"Water {record.water_liters} L • Avg wt {record.avg_weight_g} g • Temp {record.temperature_c} C",
         }
         for record in records
     ]
@@ -1092,8 +1102,18 @@ def init_database() -> None:
             existing_columns = {row[1] for row in connection.execute(text("PRAGMA table_info(users)"))}
             if "current_shed" not in existing_columns:
                 connection.execute(text("ALTER TABLE users ADD COLUMN current_shed VARCHAR(40)"))
+            daily_entry_columns = {row[1] for row in connection.execute(text("PRAGMA table_info(daily_entries)"))}
+            if "litter_notes" not in daily_entry_columns:
+                connection.execute(text("ALTER TABLE daily_entries ADD COLUMN litter_notes TEXT DEFAULT ''"))
+            if "litter_photo_name" not in daily_entry_columns:
+                connection.execute(text("ALTER TABLE daily_entries ADD COLUMN litter_photo_name VARCHAR(200)"))
+            if "litter_photo_stored" not in daily_entry_columns:
+                connection.execute(text("ALTER TABLE daily_entries ADD COLUMN litter_photo_stored VARCHAR(240)"))
         else:
             connection.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS current_shed VARCHAR(40)"))
+            connection.execute(text("ALTER TABLE daily_entries ADD COLUMN IF NOT EXISTS litter_notes TEXT DEFAULT ''"))
+            connection.execute(text("ALTER TABLE daily_entries ADD COLUMN IF NOT EXISTS litter_photo_name VARCHAR(200)"))
+            connection.execute(text("ALTER TABLE daily_entries ADD COLUMN IF NOT EXISTS litter_photo_stored VARCHAR(240)"))
     purge_legacy_demo_data()
     seed_database_from_json()
 
@@ -1267,30 +1287,64 @@ def farmer_daily_entry(request: Request):
 
 
 @app.post("/api/farmer/daily-entry")
-def add_daily_entry(payload: DailyEntryPayload, request: Request):
+async def add_daily_entry(
+    request: Request,
+    entry_date: str = Form(...),
+    shed: str = Form(...),
+    opening_birds: int = Form(...),
+    mortality: int = Form(0),
+    culls: int = Form(0),
+    feed_used_bags: int = Form(0),
+    water_liters: int = Form(0),
+    avg_weight_g: int = Form(0),
+    temperature_c: float = Form(0),
+    humidity_pct: int = Form(0),
+    litter_condition: str = Form(...),
+    litter_notes: str = Form(""),
+    litter_photo: UploadFile | None = File(None),
+    power_cut_hours: float = Form(0),
+    dg_hours: float = Form(0),
+    uniformity_pct: int = Form(0),
+    issues: str = Form(""),
+    remarks: str = Form(""),
+):
     user = get_current_user(request, "farmer")
+    litter_photo_name = None
+    litter_photo_stored = None
+    if litter_photo and litter_photo.filename:
+        timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
+        original_name = litter_photo.filename
+        suffix = Path(original_name).suffix or ".bin"
+        stored_name = f"{timestamp}-{safe_slug(f'litter-{shed}-{entry_date}')}{suffix}"
+        destination = UPLOADS_DIR / stored_name
+        destination.write_bytes(await litter_photo.read())
+        litter_photo_name = original_name
+        litter_photo_stored = stored_name
     with session_scope() as db:
         record = DailyEntry(
             farmer_id=user.id,
-            entry_date=payload.entry_date,
-            shed=payload.shed,
-            opening_birds=payload.opening_birds,
-            mortality=payload.mortality,
-            culls=payload.culls,
-            feed_used_bags=payload.feed_used_bags,
-            water_liters=payload.water_liters,
-            avg_weight_g=payload.avg_weight_g,
-            temperature_c=payload.temperature_c,
-            humidity_pct=payload.humidity_pct,
-            litter_condition=payload.litter_condition,
-            power_cut_hours=payload.power_cut_hours,
-            dg_hours=payload.dg_hours,
-            uniformity_pct=payload.uniformity_pct,
-            issues=payload.issues,
-            remarks=payload.remarks,
+            entry_date=entry_date,
+            shed=shed,
+            opening_birds=opening_birds,
+            mortality=mortality,
+            culls=culls,
+            feed_used_bags=feed_used_bags,
+            water_liters=water_liters,
+            avg_weight_g=avg_weight_g,
+            temperature_c=temperature_c,
+            humidity_pct=humidity_pct,
+            litter_condition=litter_condition,
+            litter_notes=litter_notes,
+            litter_photo_name=litter_photo_name,
+            litter_photo_stored=litter_photo_stored,
+            power_cut_hours=power_cut_hours,
+            dg_hours=dg_hours,
+            uniformity_pct=uniformity_pct,
+            issues=issues,
+            remarks=remarks,
         )
         db.add(record)
-        db.add(MortalityLog(farmer_id=user.id, entry_date=payload.entry_date, shed=payload.shed, birds=payload.mortality, notes=payload.issues or "Daily entry"))
+        db.add(MortalityLog(farmer_id=user.id, entry_date=entry_date, shed=shed, birds=mortality, notes=issues or "Daily entry"))
         db.commit()
         db.refresh(record)
     return {"success": True, "record": {"id": record.id}}
