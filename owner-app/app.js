@@ -320,7 +320,7 @@ if (page) {
     if (!user) return;
     if (page === "dashboard") loadDashboard().catch(handlePageError);
     if (page === "farms") loadFarms().catch(handlePageError);
-    if (page === "operations") loadOperations().catch(handlePageError);
+    if (page === "operations" || page.startsWith("operations-")) loadOperations().catch(handlePageError);
     if (page === "finance") loadFinance().catch(handlePageError);
   });
 }

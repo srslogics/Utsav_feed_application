@@ -3,11 +3,11 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Utsav Owner Requests</title>
+    <title>Utsav Owner Field Visits</title>
     <link rel="stylesheet" href="/farmer-app/styles.css?v=20260524" />
     <link rel="stylesheet" href="/owner-app/styles.css?v=20260525" />
   </head>
-  <body class="fa-body owner-body" data-owner-page="operations-requests">
+  <body class="fa-body owner-body" data-owner-page="operations-visits">
     <div class="fa-app-shell">
       <aside class="fa-sidebar">
         <div class="fa-brand">
@@ -23,9 +23,9 @@
           <a class="is-active" href="./operations-daily.html">Operations</a>
           <div class="owner-subnav" aria-label="Operations sections">
             <a href="./operations-daily.html">Daily Entries</a>
-            <a class="is-active" href="./operations.html">Requests</a>
+            <a href="./operations.html">Requests</a>
             <a href="./operations-photos.html">Issue Photos</a>
-            <a href="./operations-visits.html">Field Visits</a>
+            <a class="is-active" href="./operations-visits.html">Field Visits</a>
           </div>
           <a href="./finance.html">Finance</a>
         </nav>
@@ -35,21 +35,21 @@
         <header class="fa-page-head">
           <div>
             <p class="fa-eyebrow">Operations Control</p>
-            <h2>Requests</h2>
+            <h2>Field visits</h2>
           </div>
           <div class="fa-page-actions">
             <button class="fa-secondary-btn" type="button" data-owner-logout>Logout</button>
           </div>
         </header>
 
-        <section class="fa-section" id="operations-requests">
+        <section class="fa-section" id="operations-visits">
           <div class="fa-section-head">
             <div>
-              <p class="fa-eyebrow">Support Requests</p>
-              <h3>Requests</h3>
+              <p class="fa-eyebrow">Field Visits</p>
+              <h3>Field visits</h3>
             </div>
           </div>
-          <div class="fa-list-card" id="owner-operations-requests"></div>
+          <div class="fa-list-card" id="owner-operations-visits"></div>
         </section>
       </main>
     </div>
