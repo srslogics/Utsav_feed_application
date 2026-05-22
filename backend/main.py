@@ -755,17 +755,17 @@ def farmer_seed_bundles(seed_data: dict) -> list[dict]:
 def create_farmer_user(profile: dict) -> User:
     return User(
         role="farmer",
-        name=profile.get("farmer_name", "Rakesh Verma"),
-        phone=normalize_phone(profile.get("phone", "+91 9876543210")),
-        password_hash=hash_password(profile.get("password", os.getenv("FARMER_APP_DEFAULT_PASSWORD", "utsav123"))),
-        cluster=profile.get("cluster", "Korba Cluster"),
-        farm_name=profile.get("farm_name", "Utsav Partner Farm 12"),
-        farmer_code=profile.get("farmer_code", "UF-042"),
-        active_batch=profile.get("active_batch", "B-2405"),
-        bird_age_days=profile.get("bird_age_days", 24),
-        field_officer=profile.get("field_officer", "Anil Sahu"),
-        farm_capacity=profile.get("farm_capacity", "32,000 birds"),
-        active_sheds=profile.get("active_sheds", 2),
+        name=profile.get("farmer_name", "Farmer"),
+        phone=normalize_phone(profile.get("phone", "")),
+        password_hash=hash_password(profile.get("password", os.getenv("FARMER_APP_DEFAULT_PASSWORD", "changeme"))),
+        cluster=profile.get("cluster", ""),
+        farm_name=profile.get("farm_name", ""),
+        farmer_code=profile.get("farmer_code", ""),
+        active_batch=profile.get("active_batch", ""),
+        bird_age_days=profile.get("bird_age_days", 0),
+        field_officer=profile.get("field_officer", ""),
+        farm_capacity=profile.get("farm_capacity", ""),
+        active_sheds=profile.get("active_sheds", 1),
     )
 
 
@@ -776,7 +776,7 @@ def ensure_field_officer_by_values(
     officer_phone: str = "",
     officer_password: str = "",
 ) -> User:
-    officer_phone = normalize_phone(officer_phone or os.getenv("FIELD_APP_DEFAULT_PHONE", "+91 9898989898"))
+    officer_phone = normalize_phone(officer_phone or os.getenv("FIELD_APP_DEFAULT_PHONE", ""))
     officer = db.scalar(select(User).where(User.role == "field", User.phone == officer_phone))
     if officer:
         return officer
@@ -785,10 +785,10 @@ def ensure_field_officer_by_values(
         return officer
     officer = User(
         role="field",
-        name=officer_name,
+        name=officer_name or "Field Officer",
         phone=officer_phone,
-        password_hash=hash_password(officer_password or os.getenv("FIELD_APP_DEFAULT_PASSWORD", "field123")),
-        cluster=cluster or "Korba Cluster",
+        password_hash=hash_password(officer_password or os.getenv("FIELD_APP_DEFAULT_PASSWORD", "changeme")),
+        cluster=cluster or "",
         title="Field Officer",
     )
     db.add(officer)
@@ -799,8 +799,8 @@ def ensure_field_officer_by_values(
 def ensure_field_officer(db: Session, profile: dict) -> User:
     return ensure_field_officer_by_values(
         db,
-        officer_name=profile.get("field_officer", "Anil Sahu"),
-        cluster=profile.get("cluster", "Korba Cluster"),
+        officer_name=profile.get("field_officer", ""),
+        cluster=profile.get("cluster", ""),
         officer_phone=profile.get("field_officer_phone", ""),
         officer_password=profile.get("field_officer_password", ""),
     )
@@ -859,19 +859,21 @@ def seed_database_from_json() -> None:
     seed_data = json.loads(DATA_FILE.read_text()) if DATA_FILE.exists() else {}
     bundles = farmer_seed_bundles(seed_data)
     profile = bundles[0].get("profile", {}) if bundles else {}
+    owner_phone_value = normalize_phone(os.getenv("OWNER_APP_DEFAULT_PHONE", ""))
+    owner_name_value = os.getenv("OWNER_APP_DEFAULT_NAME", "").strip()
+    owner_password_value = os.getenv("OWNER_APP_DEFAULT_PASSWORD", "").strip()
     with session_scope() as db:
         existing = db.scalar(select(func.count(User.id)))
         if existing:
-            owner_phone = os.getenv("OWNER_APP_DEFAULT_PHONE", "+91 9999999999")
             owner = db.scalar(select(User).where(User.role == "owner"))
-            if not owner:
+            if not owner and owner_phone_value and owner_password_value:
                 db.add(
                     User(
                         role="owner",
-                        name=os.getenv("OWNER_APP_DEFAULT_NAME", "Utsav Admin"),
-                        phone=normalize_phone(owner_phone),
-                        password_hash=hash_password(os.getenv("OWNER_APP_DEFAULT_PASSWORD", "owner123")),
-                        cluster=profile.get("cluster", "Korba Cluster"),
+                        name=owner_name_value or "Owner",
+                        phone=owner_phone_value,
+                        password_hash=hash_password(owner_password_value),
+                        cluster=profile.get("cluster", ""),
                         title="Owner",
                     )
                 )
@@ -889,12 +891,16 @@ def seed_database_from_json() -> None:
             db.commit()
             return
 
+        if not owner_phone_value or not owner_password_value:
+            db.commit()
+            return
+
         owner = User(
             role="owner",
-            name=os.getenv("OWNER_APP_DEFAULT_NAME", "Utsav Admin"),
-            phone=normalize_phone(os.getenv("OWNER_APP_DEFAULT_PHONE", "+91 9999999999")),
-            password_hash=hash_password(os.getenv("OWNER_APP_DEFAULT_PASSWORD", "owner123")),
-            cluster=profile.get("cluster", "Korba Cluster"),
+            name=owner_name_value or "Owner",
+            phone=owner_phone_value,
+            password_hash=hash_password(owner_password_value),
+            cluster=profile.get("cluster", ""),
             title="Owner",
         )
         db.add(owner)
