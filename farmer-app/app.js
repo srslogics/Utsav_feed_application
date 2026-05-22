@@ -84,6 +84,26 @@ function populateShedOptions(profile) {
   });
 }
 
+function applyShedDefault(entryData) {
+  const shedSelect = document.querySelector('[data-daily-entry-form] select[name="shed"]');
+  const openingInput = document.querySelector('[data-daily-entry-form] input[name="opening_birds"]');
+  const note = document.querySelector("[data-opening-birds-note]");
+  if (!shedSelect || !openingInput || !note) return;
+  const selectedShed = shedSelect.value;
+  const defaults = entryData?.shed_defaults || [];
+  const matched = defaults.find((item) => item.shed === selectedShed);
+  if (matched) {
+    openingInput.value = matched.live_birds;
+    note.textContent = `${selectedShed} ka live bird count ${matched.entry_date} ki pichhli entry se auto-filled hai. Zarurat ho to badal sakte hain.`;
+  } else if (selectedShed) {
+    openingInput.value = "";
+    note.textContent = `${selectedShed} ke liye pehli entry lag rahi hai. Yahan current live bird count daalein.`;
+  } else {
+    openingInput.value = "";
+    note.textContent = "";
+  }
+}
+
 function hydrateCachedProfile() {
   try {
     const cached = sessionStorage.getItem("utsavFarmerProfile");
@@ -227,6 +247,12 @@ async function loadDailyEntry() {
   populateProfile(data.profile);
   renderList(document.querySelector("#daily-entry-history"), data.entry_history);
   renderList(document.querySelector("#daily-vaccine-history"), data.vaccine_history);
+  const shedSelect = document.querySelector('[data-daily-entry-form] select[name="shed"]');
+  if (shedSelect && !shedSelect.dataset.boundDefault) {
+    shedSelect.addEventListener("change", () => applyShedDefault(data));
+    shedSelect.dataset.boundDefault = "true";
+  }
+  applyShedDefault(data);
 }
 
 async function loadFeed() {

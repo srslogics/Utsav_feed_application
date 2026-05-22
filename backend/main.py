@@ -484,6 +484,21 @@ def latest_entries_by_shed(entries: list[DailyEntry]) -> dict[str, DailyEntry]:
     return result
 
 
+def make_shed_defaults(entries: list[DailyEntry]) -> list[dict]:
+    latest_by_shed = latest_entries_by_shed(entries)
+    items: list[dict] = []
+    for shed, entry in latest_by_shed.items():
+        live_birds = max(int(entry.opening_birds) - int(entry.mortality) - int(entry.culls), 0)
+        items.append(
+            {
+                "shed": shed,
+                "live_birds": live_birds,
+                "entry_date": entry.entry_date,
+            }
+        )
+    return sorted(items, key=lambda item: item["shed"])
+
+
 def make_feed_balances(records: list[FeedStock]) -> list[dict]:
     totals: dict[str, int] = {}
     type_map: dict[str, list[str]] = {}
@@ -1281,6 +1296,7 @@ def farmer_daily_entry(request: Request):
         vaccines = list(db.scalars(select(VaccinationLog).where(VaccinationLog.farmer_id == user.id).order_by(VaccinationLog.entry_date.desc(), VaccinationLog.created_at.desc())))
     return {
         "profile": serialize_profile(user),
+        "shed_defaults": make_shed_defaults(entries),
         "entry_history": make_daily_entry_history(entries),
         "vaccine_history": make_vaccine_history(vaccines),
     }
