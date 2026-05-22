@@ -26,20 +26,20 @@
       <section class="fa-auth-card">
         <p class="fa-eyebrow">Secure Access</p>
         <h3>Owner login</h3>
-        <form class="fa-form" data-owner-login>
+        <form class="fa-form" data-owner-login autocomplete="off">
           <label>
             Mobile Number
-            <input name="phone" type="tel" inputmode="numeric" placeholder="09999999999" required />
+            <input name="phone" type="tel" inputmode="numeric" placeholder="Enter mobile number" autocomplete="off" required />
           </label>
           <label>
             Password
-            <input name="password" type="password" placeholder="Password daalein" required />
+            <input name="password" type="password" placeholder="Enter password" autocomplete="new-password" required />
           </label>
           <button class="fa-primary-btn" type="submit">Open Owner App</button>
         </form>
         <p class="fa-form-note">Registered mobile number ko `0` ke saath daalein.</p>
       </section>
     </main>
-    <script src="/owner-app/app.js?v=20260524"></script>
+    <script src="/owner-app/app.js?v=20260529"></script>
   </body>
 </html>

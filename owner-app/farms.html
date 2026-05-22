@@ -64,50 +64,50 @@
                 <h3>Enroll farmer</h3>
               </div>
             </div>
-            <form class="fa-form owner-form-grid" data-owner-enroll-farmer>
+            <form class="fa-form owner-form-grid" data-owner-enroll-farmer autocomplete="off">
               <label>
                 Farmer Name
-                <input name="farmer_name" type="text" placeholder="Farmer ka naam" required />
+                <input name="farmer_name" type="text" placeholder="Enter farmer name" autocomplete="off" required />
               </label>
               <label>
                 Mobile Number
-                <input name="phone" type="tel" inputmode="numeric" placeholder="09876543210" required />
+                <input name="phone" type="tel" inputmode="numeric" placeholder="Enter mobile number" autocomplete="off" required />
               </label>
               <label>
                 Password
-                <input name="password" type="text" placeholder="Temporary password" required />
+                <input name="password" type="text" placeholder="Create password" autocomplete="new-password" required />
               </label>
               <label>
                 Cluster
-                <input name="cluster" type="text" placeholder="Cluster name" />
+                <input name="cluster" type="text" placeholder="Enter cluster" autocomplete="off" />
               </label>
               <label>
                 Farm Name
-                <input name="farm_name" type="text" placeholder="Farm name" required />
+                <input name="farm_name" type="text" placeholder="Enter farm name" autocomplete="off" required />
               </label>
               <label>
                 Farmer Code
-                <input name="farmer_code" type="text" placeholder="Farmer code" required />
+                <input name="farmer_code" type="text" placeholder="Enter farmer code" autocomplete="off" required />
               </label>
               <label>
                 Field Officer
-                <input name="field_officer" type="text" placeholder="Field officer name" />
+                <input name="field_officer" type="text" placeholder="Enter field officer name" autocomplete="off" />
               </label>
               <label>
                 Officer Phone
-                <input name="field_officer_phone" type="tel" inputmode="numeric" placeholder="09876543210" />
+                <input name="field_officer_phone" type="tel" inputmode="numeric" placeholder="Enter officer phone" autocomplete="off" />
               </label>
               <label>
                 Farm Capacity
-                <input name="farm_capacity" type="text" placeholder="Farm capacity" />
+                <input name="farm_capacity" type="text" placeholder="Enter farm capacity" autocomplete="off" />
               </label>
               <label>
                 Active Sheds
-                <input name="active_sheds" type="number" min="1" value="1" />
+                <input name="active_sheds" type="number" min="1" placeholder="Enter shed count" />
               </label>
               <button class="fa-primary-btn" type="submit">Create Enrollment</button>
             </form>
-            <p class="fa-form-note owner-create-note">Farmer profile and login will be created here.</p>
+            <p class="fa-form-note owner-create-note"></p>
           </section>
 
           <section class="fa-section">
@@ -117,28 +117,28 @@
                 <h3>Assign batch</h3>
               </div>
             </div>
-            <form class="fa-form owner-form-grid" data-owner-batch-entry>
+            <form class="fa-form owner-form-grid" data-owner-batch-entry autocomplete="off">
               <label>
                 Farmer
                 <select name="farmer_code" data-owner-farmer-select required>
-                  <option value="">Select farmer</option>
+                  <option value="">Choose farmer</option>
                 </select>
               </label>
               <label>
                 Farm Name
-                <input name="farm_name_preview" type="text" placeholder="Will fill automatically" readonly />
+                <input name="farm_name_preview" type="text" placeholder="" readonly />
               </label>
               <label>
                 Current Batch
-                <input name="active_batch" type="text" placeholder="Batch code" />
+                <input name="active_batch" type="text" placeholder="Enter batch code" autocomplete="off" />
               </label>
               <label>
                 Bird Age (days)
-                <input name="bird_age_days" type="number" min="0" placeholder="0" />
+                <input name="bird_age_days" type="number" min="0" placeholder="Enter bird age" />
               </label>
               <button class="fa-primary-btn" type="submit">Save Batch Entry</button>
             </form>
-            <p class="fa-form-note owner-batch-note">Batch details will update against the selected farmer.</p>
+            <p class="fa-form-note owner-batch-note"></p>
 
             <div class="fa-section-head owner-subhead">
               <div>
@@ -164,6 +164,6 @@
       <a href="./operations.html">Ops</a>
       <a href="./finance.html">Finance</a>
     </nav>
-    <script src="/owner-app/app.js?v=20260526"></script>
+    <script src="/owner-app/app.js?v=20260529"></script>
   </body>
 </html>

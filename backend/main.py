@@ -765,9 +765,12 @@ def create_farmer_user(profile: dict) -> User:
     normalized_phone = normalize_phone(profile.get("phone", ""))
     if not normalized_phone:
         raise ValueError("Farmer seed profile requires a phone number.")
+    farmer_name = (profile.get("farmer_name", "") or "").strip()
+    if not farmer_name:
+        raise ValueError("Farmer seed profile requires a farmer name.")
     return User(
         role="farmer",
-        name=profile.get("farmer_name", "Farmer"),
+        name=farmer_name,
         phone=normalized_phone,
         password_hash=hash_password(profile.get("password", os.getenv("FARMER_APP_DEFAULT_PASSWORD", "changeme"))),
         cluster=profile.get("cluster", ""),
@@ -787,8 +790,11 @@ def ensure_field_officer_by_values(
     cluster: str,
     officer_phone: str = "",
     officer_password: str = "",
-) -> User:
+) -> User | None:
+    officer_name = (officer_name or "").strip()
     officer_phone = normalize_phone(officer_phone or os.getenv("FIELD_APP_DEFAULT_PHONE", ""))
+    if not officer_name and not officer_phone:
+        return None
     if officer_phone:
         officer = db.scalar(select(User).where(User.role == "field", User.phone == officer_phone))
         if officer:
@@ -808,7 +814,7 @@ def ensure_field_officer_by_values(
 
     officer = User(
         role="field",
-        name=officer_name or "Field Officer",
+        name=officer_name or officer_phone,
         phone=officer_phone,
         password_hash=hash_password(officer_password or os.getenv("FIELD_APP_DEFAULT_PASSWORD", "changeme")),
         cluster=cluster or "",
@@ -819,7 +825,7 @@ def ensure_field_officer_by_values(
     return officer
 
 
-def ensure_field_officer(db: Session, profile: dict) -> User:
+def ensure_field_officer(db: Session, profile: dict) -> User | None:
     return ensure_field_officer_by_values(
         db,
         officer_name=profile.get("field_officer", ""),
@@ -829,7 +835,7 @@ def ensure_field_officer(db: Session, profile: dict) -> User:
     )
 
 
-def seed_farmer_records(db: Session, farmer: User, officer: User, bundle: dict) -> None:
+def seed_farmer_records(db: Session, farmer: User, officer: User | None, bundle: dict) -> None:
     if not db.scalar(select(func.count(DailyEntry.id)).where(DailyEntry.farmer_id == farmer.id)):
         for item in bundle.get("daily_entries", []):
             db.add(DailyEntry(farmer_id=farmer.id, entry_date=item["date"], shed=item["shed"], opening_birds=item["opening_birds"], mortality=item["mortality"], culls=item["culls"], feed_used_bags=item["feed_used_bags"], water_liters=item["water_liters"], avg_weight_g=item["avg_weight_g"], temperature_c=item["temperature_c"], humidity_pct=item["humidity_pct"], litter_condition=item["litter_condition"], power_cut_hours=item["power_cut_hours"], dg_hours=item["dg_hours"], uniformity_pct=item["uniformity_pct"], issues=item.get("issues", ""), remarks=item.get("remarks", "")))
@@ -860,7 +866,7 @@ def seed_farmer_records(db: Session, farmer: User, officer: User, bundle: dict) 
     if not db.scalar(select(func.count(IssuePhoto.id)).where(IssuePhoto.farmer_id == farmer.id)):
         for item in bundle.get("issue_photos", []):
             db.add(IssuePhoto(farmer_id=farmer.id, entry_date=item["date"], issue_type=item["issue_type"], shed=item["shed"], priority=item["priority"], notes=item.get("notes", ""), file_name=item["file_name"], stored_name=item.get("stored_name", ""), status=item["status"]))
-    if not db.scalar(select(func.count(FieldVisit.id)).where(FieldVisit.farmer_id == farmer.id)):
+    if officer and not db.scalar(select(func.count(FieldVisit.id)).where(FieldVisit.farmer_id == farmer.id)):
         for item in bundle.get("field_visits", []):
             db.add(
                 FieldVisit(
@@ -1521,7 +1527,7 @@ def owner_create_farmer(payload: OwnerFarmerEnrollmentPayload, request: Request)
             farmer_code=payload.farmer_code,
             active_batch="",
             bird_age_days=0,
-            field_officer=officer.name,
+            field_officer=officer.name if officer else "",
             farm_capacity=payload.farm_capacity,
             active_sheds=payload.active_sheds,
         )

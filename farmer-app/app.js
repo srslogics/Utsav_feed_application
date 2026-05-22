@@ -42,9 +42,9 @@ function populateProfile(profile) {
   document.querySelectorAll("[data-profile-name]").forEach((el) => (el.textContent = profile.farmer_name || profile.name || ""));
   document.querySelectorAll("[data-profile-cluster]").forEach((el) => (el.textContent = profile.cluster || ""));
   document.querySelectorAll("[data-profile-farm]").forEach((el) => (el.textContent = profile.farm_name || ""));
-  document.querySelectorAll("[data-profile-batch]").forEach((el) => (el.textContent = `Batch ${profile.active_batch || "-"}`));
-  document.querySelectorAll("[data-profile-capacity]").forEach((el) => (el.textContent = profile.farm_capacity || "-"));
-  document.querySelectorAll("[data-profile-officer]").forEach((el) => (el.textContent = profile.field_officer || "-"));
+  document.querySelectorAll("[data-profile-batch]").forEach((el) => (el.textContent = profile.active_batch ? `Batch ${profile.active_batch}` : ""));
+  document.querySelectorAll("[data-profile-capacity]").forEach((el) => (el.textContent = profile.farm_capacity || ""));
+  document.querySelectorAll("[data-profile-officer]").forEach((el) => (el.textContent = profile.field_officer || ""));
 }
 
 function hydrateCachedProfile() {

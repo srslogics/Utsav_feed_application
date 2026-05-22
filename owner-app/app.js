@@ -33,7 +33,7 @@ function setStatus(selector, message, isError = false) {
 
 function populateProfile(profile) {
   document.querySelectorAll("[data-owner-name]").forEach((el) => (el.textContent = profile.name || ""));
-  document.querySelectorAll("[data-owner-title]").forEach((el) => (el.textContent = profile.title || "Owner"));
+  document.querySelectorAll("[data-owner-title]").forEach((el) => (el.textContent = profile.title || ""));
   document.querySelectorAll("[data-owner-cluster]").forEach((el) => (el.textContent = profile.cluster || ""));
 }
 
@@ -93,11 +93,11 @@ function populateFarmerSelect(items) {
   if (!select) return;
   const currentValue = select.value;
   const options = [
-    `<option value="">Select farmer</option>`,
+    `<option value="">Choose farmer</option>`,
     ...items.map(
       (item) =>
         `<option value="${item.farmer_code || ""}" data-farm-name="${item.farm_name || ""}" data-batch="${item.active_batch || ""}" data-bird-age="${item.bird_age_days || 0}">
-          ${(item.farm_name || item.farmer_name || "Farmer").trim()}${item.farmer_code ? ` • ${item.farmer_code}` : ""}
+          ${(item.farm_name || item.farmer_name || "").trim()}${item.farmer_code ? ` • ${item.farmer_code}` : ""}
         </option>`
     ),
   ];
@@ -114,7 +114,7 @@ function syncSelectedFarmerMeta() {
   const selectedOption = select.options[select.selectedIndex];
   farmNameInput.value = selectedOption?.dataset.farmName || "";
   batchInput.value = selectedOption?.dataset.batch || "";
-  ageInput.value = selectedOption?.dataset.birdAge || "";
+  ageInput.value = selectedOption?.dataset.birdAge === "0" ? "" : selectedOption?.dataset.birdAge || "";
 }
 
 async function requireOwnerSession({ allowLoginPage = false } = {}) {

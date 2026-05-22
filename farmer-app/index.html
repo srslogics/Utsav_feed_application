@@ -25,14 +25,14 @@
       <section class="fa-auth-card">
         <p class="fa-eyebrow">Secure Access | सुरक्षित लॉगिन</p>
         <h3>Login</h3>
-        <form class="fa-form" data-farmer-login>
+        <form class="fa-form" data-farmer-login autocomplete="off">
           <label>
             Mobile Number | मोबाइल नंबर
-            <input name="phone" type="tel" inputmode="numeric" placeholder="09876543210" required />
+            <input name="phone" type="tel" inputmode="numeric" placeholder="Enter mobile number" autocomplete="off" required />
           </label>
           <label>
             Password | पासवर्ड
-            <input name="password" type="password" placeholder="Apna password daalein" required />
+            <input name="password" type="password" placeholder="Enter password" autocomplete="new-password" required />
           </label>
           <button class="fa-primary-btn" type="submit">Login Karein | ऐप खोलें</button>
         </form>
@@ -41,6 +41,6 @@
         </div>
       </section>
     </main>
-    <script src="/farmer-app/app.js?v=20260525"></script>
+    <script src="/farmer-app/app.js?v=20260528"></script>
   </body>
 </html>
