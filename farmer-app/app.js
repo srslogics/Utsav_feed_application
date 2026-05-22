@@ -2,6 +2,11 @@ const apiOrigin = window.location.protocol === "file:" ? "http://127.0.0.1:8000"
 const farmerApiBase = `${apiOrigin}/api/farmer`;
 const authApiBase = `${apiOrigin}/api/auth`;
 
+function navigate(url) {
+  if (window.location.pathname === url) return;
+  window.location.replace(url);
+}
+
 async function requestJson(url, options = {}) {
   const response = await fetch(url, {
     credentials: "include",
@@ -112,18 +117,17 @@ async function requireFarmerSession({ allowLoginPage = false } = {}) {
   try {
     const session = await requestJson(`${authApiBase}/session`);
     if (session.role !== "farmer") {
-      window.location.href = "/farmer-app/";
+      navigate("/farmer-app/");
       return null;
     }
     populateProfile(session.user);
     if (allowLoginPage) {
-      window.location.href = "/farmer-app/dashboard.html";
-      return null;
+      return session.user;
     }
     return session.user;
   } catch {
     if (!allowLoginPage) {
-      window.location.href = "/farmer-app/";
+      navigate("/farmer-app/");
     }
     return null;
   }
@@ -134,7 +138,28 @@ async function logoutUser() {
   try {
     sessionStorage.removeItem("utsavFarmerProfile");
   } catch {}
-  window.location.href = "/farmer-app/";
+  navigate("/farmer-app/");
+}
+
+function goToFarmerDashboard() {
+  navigate("/farmer-app/dashboard.html");
+}
+
+function showAlreadyLoggedInAction() {
+  const loginForm = document.querySelector("[data-farmer-login]");
+  const note = document.querySelector(".fa-form-note");
+  if (!loginForm || !note) return;
+  note.textContent = "Aap pehle se login hain. Dashboard kholne ke liye neeche button dabayein.";
+  note.classList.remove("is-error");
+  let quickButton = document.querySelector("[data-farmer-open-dashboard]");
+  if (quickButton) return;
+  quickButton = document.createElement("button");
+  quickButton.type = "button";
+  quickButton.className = "fa-secondary-btn";
+  quickButton.setAttribute("data-farmer-open-dashboard", "true");
+  quickButton.textContent = "Open Dashboard";
+  quickButton.addEventListener("click", goToFarmerDashboard);
+  loginForm.appendChild(quickButton);
 }
 
 function handlePageError(error) {
@@ -142,7 +167,7 @@ function handlePageError(error) {
     try {
       sessionStorage.removeItem("utsavFarmerProfile");
     } catch {}
-    window.location.href = "/farmer-app/";
+    navigate("/farmer-app/");
     return;
   }
   console.error(error);
@@ -230,7 +255,9 @@ async function handleUploadSubmit(form, url, selector, afterSuccess) {
 
 const loginForm = document.querySelector("[data-farmer-login]");
 if (loginForm) {
-  requireFarmerSession({ allowLoginPage: true });
+  requireFarmerSession({ allowLoginPage: true }).then((user) => {
+    if (user) showAlreadyLoggedInAction();
+  });
   loginForm.addEventListener("submit", async (event) => {
     event.preventDefault();
     const formData = new FormData(loginForm);
@@ -243,7 +270,7 @@ if (loginForm) {
           role: "farmer",
         }),
       });
-      window.location.href = result.redirect || "/farmer-app/dashboard.html";
+      navigate(result.redirect || "/farmer-app/dashboard.html");
     } catch {
       setStatus(".fa-form-note", "Login nahi ho paaya. Mobile number aur password dobara check karein.", true);
     }
@@ -254,7 +281,7 @@ const logoutButtons = document.querySelectorAll("[data-logout]");
 logoutButtons.forEach((button) => {
   button.addEventListener("click", () => {
     logoutUser().catch(() => {
-      window.location.href = "/farmer-app/";
+      navigate("/farmer-app/");
     });
   });
 });
