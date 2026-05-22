@@ -60,11 +60,11 @@
           <section class="fa-section">
             <div class="fa-section-head">
               <div>
-                <p class="fa-eyebrow">Create Farmer Account</p>
-                <h3>Create farmer</h3>
+                <p class="fa-eyebrow">Farmer Enrollment</p>
+                <h3>Enroll farmer</h3>
               </div>
             </div>
-            <form class="fa-form owner-form-grid" data-owner-create-farmer>
+            <form class="fa-form owner-form-grid" data-owner-enroll-farmer>
               <label>
                 Farmer Name
                 <input name="farmer_name" type="text" placeholder="Farmer ka naam" required />
@@ -79,7 +79,7 @@
               </label>
               <label>
                 Cluster
-                <input name="cluster" type="text" placeholder="Cluster name" required />
+                <input name="cluster" type="text" placeholder="Cluster name" />
               </label>
               <label>
                 Farm Name
@@ -90,16 +90,8 @@
                 <input name="farmer_code" type="text" placeholder="Farmer code" required />
               </label>
               <label>
-                Active Batch
-                <input name="active_batch" type="text" placeholder="Batch code" />
-              </label>
-              <label>
-                Bird Age (days)
-                <input name="bird_age_days" type="number" min="0" placeholder="0" />
-              </label>
-              <label>
                 Field Officer
-                <input name="field_officer" type="text" placeholder="Field officer name" required />
+                <input name="field_officer" type="text" placeholder="Field officer name" />
               </label>
               <label>
                 Officer Phone
@@ -111,15 +103,44 @@
               </label>
               <label>
                 Active Sheds
-                <input name="active_sheds" type="number" min="1" value="1" required />
+                <input name="active_sheds" type="number" min="1" value="1" />
               </label>
-              <button class="fa-primary-btn" type="submit">Create Farmer Account</button>
+              <button class="fa-primary-btn" type="submit">Create Enrollment</button>
             </form>
-            <p class="fa-form-note owner-create-note">New farmer login.</p>
+            <p class="fa-form-note owner-create-note">Farmer profile and login will be created here.</p>
           </section>
 
           <section class="fa-section">
             <div class="fa-section-head">
+              <div>
+                <p class="fa-eyebrow">Batch Entry</p>
+                <h3>Assign batch</h3>
+              </div>
+            </div>
+            <form class="fa-form owner-form-grid" data-owner-batch-entry>
+              <label>
+                Farmer
+                <select name="farmer_code" data-owner-farmer-select required>
+                  <option value="">Select farmer</option>
+                </select>
+              </label>
+              <label>
+                Farm Name
+                <input name="farm_name_preview" type="text" placeholder="Will fill automatically" readonly />
+              </label>
+              <label>
+                Current Batch
+                <input name="active_batch" type="text" placeholder="Batch code" />
+              </label>
+              <label>
+                Bird Age (days)
+                <input name="bird_age_days" type="number" min="0" placeholder="0" />
+              </label>
+              <button class="fa-primary-btn" type="submit">Save Batch Entry</button>
+            </form>
+            <p class="fa-form-note owner-batch-note">Batch details will update against the selected farmer.</p>
+
+            <div class="fa-section-head owner-subhead">
               <div>
                 <p class="fa-eyebrow">Farmer Accounts</p>
                 <h3>Farmer accounts</h3>
@@ -143,6 +164,6 @@
       <a href="./operations.html">Ops</a>
       <a href="./finance.html">Finance</a>
     </nav>
-    <script src="/owner-app/app.js?v=20260524"></script>
+    <script src="/owner-app/app.js?v=20260526"></script>
   </body>
 </html>

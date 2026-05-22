@@ -88,6 +88,35 @@ function renderList(container, items) {
     .join("");
 }
 
+function populateFarmerSelect(items) {
+  const select = document.querySelector("[data-owner-farmer-select]");
+  if (!select) return;
+  const currentValue = select.value;
+  const options = [
+    `<option value="">Select farmer</option>`,
+    ...items.map(
+      (item) =>
+        `<option value="${item.farmer_code || ""}" data-farm-name="${item.farm_name || ""}" data-batch="${item.active_batch || ""}" data-bird-age="${item.bird_age_days || 0}">
+          ${(item.farm_name || item.farmer_name || "Farmer").trim()}${item.farmer_code ? ` • ${item.farmer_code}` : ""}
+        </option>`
+    ),
+  ];
+  select.innerHTML = options.join("");
+  if (currentValue) select.value = currentValue;
+}
+
+function syncSelectedFarmerMeta() {
+  const select = document.querySelector("[data-owner-farmer-select]");
+  const farmNameInput = document.querySelector('input[name="farm_name_preview"]');
+  const batchInput = document.querySelector('[data-owner-batch-entry] input[name="active_batch"]');
+  const ageInput = document.querySelector('[data-owner-batch-entry] input[name="bird_age_days"]');
+  if (!select || !farmNameInput || !batchInput || !ageInput) return;
+  const selectedOption = select.options[select.selectedIndex];
+  farmNameInput.value = selectedOption?.dataset.farmName || "";
+  batchInput.value = selectedOption?.dataset.batch || "";
+  ageInput.value = selectedOption?.dataset.birdAge || "";
+}
+
 async function requireOwnerSession({ allowLoginPage = false } = {}) {
   try {
     const session = await requestJson(`${authApiBase}/session`);
@@ -167,6 +196,8 @@ async function loadFarms() {
   renderList(document.querySelector("#owner-farms-latest-entries"), data.latest_entries);
   renderList(document.querySelector("#owner-farmer-accounts"), data.farmer_accounts || []);
   renderList(document.querySelector("#owner-field-officers"), data.field_officers || []);
+  populateFarmerSelect(data.farmer_accounts || []);
+  syncSelectedFarmerMeta();
 }
 
 async function loadOperations() {
@@ -210,11 +241,11 @@ if (loginForm) {
   });
 }
 
-const createFarmerForm = document.querySelector("[data-owner-create-farmer]");
-if (createFarmerForm) {
-  createFarmerForm.addEventListener("submit", async (event) => {
+const enrollFarmerForm = document.querySelector("[data-owner-enroll-farmer]");
+if (enrollFarmerForm) {
+  enrollFarmerForm.addEventListener("submit", async (event) => {
     event.preventDefault();
-    const formData = new FormData(createFarmerForm);
+    const formData = new FormData(enrollFarmerForm);
     const payload = {
       farmer_name: formData.get("farmer_name"),
       phone: formData.get("phone"),
@@ -222,8 +253,6 @@ if (createFarmerForm) {
       cluster: formData.get("cluster"),
       farm_name: formData.get("farm_name"),
       farmer_code: formData.get("farmer_code"),
-      active_batch: formData.get("active_batch"),
-      bird_age_days: Number(formData.get("bird_age_days") || 0),
       field_officer: formData.get("field_officer"),
       field_officer_phone: formData.get("field_officer_phone"),
       farm_capacity: formData.get("farm_capacity"),
@@ -239,12 +268,41 @@ if (createFarmerForm) {
         ".owner-create-note",
         `Farmer account create ho gaya: ${result.farmer.farmer_name} • ${result.farmer.phone} • Password ${result.login_password}`
       );
-      createFarmerForm.reset();
-      const shedsInput = createFarmerForm.querySelector('input[name="active_sheds"]');
+      enrollFarmerForm.reset();
+      const shedsInput = enrollFarmerForm.querySelector('input[name="active_sheds"]');
       if (shedsInput) shedsInput.value = "1";
       loadFarms().catch(console.error);
     } catch (error) {
       setStatus(".owner-create-note", "Farmer create nahi ho paaya. Phone ya farmer code dobara check karein.", true);
+    }
+  });
+}
+
+const batchEntryForm = document.querySelector("[data-owner-batch-entry]");
+if (batchEntryForm) {
+  const farmerSelect = batchEntryForm.querySelector("[data-owner-farmer-select]");
+  farmerSelect?.addEventListener("change", syncSelectedFarmerMeta);
+  batchEntryForm.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    const formData = new FormData(batchEntryForm);
+    const payload = {
+      farmer_code: formData.get("farmer_code"),
+      active_batch: formData.get("active_batch"),
+      bird_age_days: Number(formData.get("bird_age_days") || 0),
+    };
+
+    try {
+      const result = await requestJson(`${ownerApiBase}/farmers/batch`, {
+        method: "POST",
+        body: JSON.stringify(payload),
+      });
+      setStatus(
+        ".owner-batch-note",
+        `Batch save ho gaya: ${result.farmer.farmer_name} • ${result.farmer.active_batch} • ${result.farmer.bird_age_days} days`
+      );
+      loadFarms().catch(console.error);
+    } catch {
+      setStatus(".owner-batch-note", "Batch entry save nahi ho paaya. Farmer aur batch details dobara check karein.", true);
     }
   });
 }

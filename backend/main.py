@@ -375,19 +375,23 @@ class FieldVisitPayload(BaseModel):
     action_taken: str = ""
 
 
-class OwnerFarmerCreatePayload(BaseModel):
+class OwnerFarmerEnrollmentPayload(BaseModel):
     farmer_name: str
     phone: str
     password: str
     cluster: str
     farm_name: str
     farmer_code: str
-    active_batch: str = ""
-    bird_age_days: int = Field(default=0, ge=0)
     field_officer: str
     field_officer_phone: str = ""
     farm_capacity: str = ""
     active_sheds: int = Field(default=1, ge=1)
+
+
+class OwnerBatchEntryPayload(BaseModel):
+    farmer_code: str
+    active_batch: str
+    bird_age_days: int = Field(default=0, ge=0)
 
 
 def safe_slug(value: str) -> str:
@@ -1464,9 +1468,16 @@ def owner_farms(request: Request):
         "latest_entries": latest_entry_list,
         "farmer_accounts": [
             {
+                "id": farm.id,
                 "label": farm.farm_name or "-",
                 "value": farm.farmer_code or "-",
                 "note": f"{farm.name} • {format_phone_display(farm.phone)} • {farm.field_officer or 'No officer assigned'}",
+                "farmer_code": farm.farmer_code or "",
+                "farmer_name": farm.name,
+                "farm_name": farm.farm_name or "",
+                "cluster": farm.cluster or "",
+                "active_batch": farm.active_batch or "",
+                "bird_age_days": farm.bird_age_days or 0,
             }
             for farm in farmers
         ],
@@ -1482,7 +1493,7 @@ def owner_farms(request: Request):
 
 
 @app.post("/api/owner/farmers")
-def owner_create_farmer(payload: OwnerFarmerCreatePayload, request: Request):
+def owner_create_farmer(payload: OwnerFarmerEnrollmentPayload, request: Request):
     get_current_user(request, "owner")
     with session_scope() as db:
         normalized_phone = normalize_phone(payload.phone)
@@ -1508,8 +1519,8 @@ def owner_create_farmer(payload: OwnerFarmerCreatePayload, request: Request):
             cluster=payload.cluster,
             farm_name=payload.farm_name,
             farmer_code=payload.farmer_code,
-            active_batch=payload.active_batch,
-            bird_age_days=payload.bird_age_days,
+            active_batch="",
+            bird_age_days=0,
             field_officer=officer.name,
             farm_capacity=payload.farm_capacity,
             active_sheds=payload.active_sheds,
@@ -1530,6 +1541,33 @@ def owner_create_farmer(payload: OwnerFarmerCreatePayload, request: Request):
             "cluster": farmer.cluster,
         },
         "login_password": payload.password,
+    }
+
+
+@app.post("/api/owner/farmers/batch")
+def owner_update_farmer_batch(payload: OwnerBatchEntryPayload, request: Request):
+    get_current_user(request, "owner")
+    with session_scope() as db:
+        farmer = db.scalar(select(User).where(User.role == "farmer", User.farmer_code == payload.farmer_code))
+        if not farmer:
+            raise HTTPException(status_code=404, detail="Farmer not found.")
+
+        farmer.active_batch = payload.active_batch.strip()
+        farmer.bird_age_days = payload.bird_age_days
+        db.add(farmer)
+        db.commit()
+        db.refresh(farmer)
+
+    return {
+        "success": True,
+        "message": "Batch updated successfully.",
+        "farmer": {
+            "farmer_name": farmer.name,
+            "farm_name": farmer.farm_name,
+            "farmer_code": farmer.farmer_code,
+            "active_batch": farmer.active_batch or "",
+            "bird_age_days": farmer.bird_age_days or 0,
+        },
     }
 
 
