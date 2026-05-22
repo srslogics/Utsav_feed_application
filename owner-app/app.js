@@ -105,42 +105,74 @@ function renderList(container, items) {
 }
 
 function renderDailyEntryHierarchy(container, farms) {
+  const summary = document.querySelector("#owner-operations-daily-summary");
   if (!container) return;
   if (!farms?.length) {
+    if (summary) summary.innerHTML = "";
     container.innerHTML = `<div class="fa-empty-state">Abhi koi record available nahi hai.</div>`;
     return;
   }
 
+  const totalFarms = farms.length;
+  const totalSheds = farms.reduce((count, farm) => count + (farm.sheds?.length || 0), 0);
+  const totalEntries = farms.reduce(
+    (count, farm) => count + (farm.sheds || []).reduce((shedCount, shed) => shedCount + (shed.entry_count || 0), 0),
+    0
+  );
+  const activeBatches = farms.filter((farm) => farm.current_batch).length;
+
+  if (summary) {
+    summary.innerHTML = `
+      <article>
+        <span>Farms</span>
+        <strong>${totalFarms}</strong>
+      </article>
+      <article>
+        <span>Sheds</span>
+        <strong>${totalSheds}</strong>
+      </article>
+      <article>
+        <span>Daily entries</span>
+        <strong>${totalEntries}</strong>
+      </article>
+      <article>
+        <span>Active batches</span>
+        <strong>${activeBatches}</strong>
+      </article>
+    `;
+  }
+
   container.innerHTML = farms
     .map(
-      (farm) => `
-        <article class="owner-hierarchy-farm">
-          <header class="owner-hierarchy-farm-head">
-            <div>
+      (farm, farmIndex) => `
+        <details class="owner-hierarchy-farm" ${farmIndex === 0 ? "open" : ""}>
+          <summary class="owner-hierarchy-farm-head">
+            <div class="owner-hierarchy-title">
               <span>Farm</span>
               <h4>${farm.farm_name || "-"}</h4>
               <p>${[farm.farmer_name, farm.farmer_code, farm.cluster].filter(Boolean).join(" • ")}</p>
             </div>
-            <div class="owner-hierarchy-meta">
-              <strong>${farm.current_batch ? `Batch ${farm.current_batch}` : "No batch"}</strong>
-              <small>${farm.latest_entry_date ? `Latest ${farm.latest_entry_date}` : "No daily entry yet"}</small>
+            <div class="owner-hierarchy-chip-row">
+              <span class="owner-hierarchy-chip">${farm.current_batch ? `Batch ${farm.current_batch}` : "No batch"}</span>
+              <span class="owner-hierarchy-chip">${farm.bird_age_days || 0} days</span>
+              <span class="owner-hierarchy-chip owner-hierarchy-chip-muted">${farm.latest_entry_date ? `Latest ${farm.latest_entry_date}` : "No entry yet"}</span>
             </div>
-          </header>
+          </summary>
           <div class="owner-hierarchy-sheds">
             ${farm.sheds
               .map(
-                (shed) => `
-                  <section class="owner-hierarchy-shed">
-                    <div class="owner-hierarchy-shed-head">
-                      <div>
+                (shed, shedIndex) => `
+                  <details class="owner-hierarchy-shed" ${farmIndex === 0 && shedIndex === 0 && shed.entry_count ? "open" : ""}>
+                    <summary class="owner-hierarchy-shed-head">
+                      <div class="owner-hierarchy-title">
                         <span>Shed</span>
                         <h5>${shed.shed_name}</h5>
                       </div>
-                      <div class="owner-hierarchy-meta">
-                        <strong>${shed.entry_count} entries</strong>
-                        <small>${shed.latest_entry_date ? `Latest ${shed.latest_entry_date}` : "No entry yet"}</small>
+                      <div class="owner-hierarchy-chip-row">
+                        <span class="owner-hierarchy-chip">${shed.entry_count} entries</span>
+                        <span class="owner-hierarchy-chip owner-hierarchy-chip-muted">${shed.latest_entry_date ? `Latest ${shed.latest_entry_date}` : "No entry yet"}</span>
                       </div>
-                    </div>
+                    </summary>
                     <div class="owner-hierarchy-entry-list">
                       ${
                         shed.entries.length
@@ -150,20 +182,20 @@ function renderDailyEntryHierarchy(container, farms) {
                                   <article class="owner-hierarchy-entry">
                                     <div class="owner-hierarchy-entry-head">
                                       <strong>${entry.entry_date}</strong>
-                                      <span>${entry.litter_condition || "-"}</span>
+                                      <span class="owner-hierarchy-status">${entry.litter_condition || "-"}</span>
                                     </div>
                                     <div class="owner-hierarchy-entry-grid">
-                                      <span>Mortality: ${entry.mortality}</span>
-                                      <span>Culls: ${entry.culls}</span>
-                                      <span>Feed: ${entry.feed_used_bags} bags</span>
-                                      <span>Water: ${entry.water_liters} L</span>
-                                      <span>Weight: ${entry.avg_weight_g} g</span>
-                                      <span>Temp: ${entry.temperature_c} C</span>
-                                      <span>Humidity: ${entry.humidity_pct}%</span>
+                                      <span><label>Mortality</label><strong>${entry.mortality}</strong></span>
+                                      <span><label>Culls</label><strong>${entry.culls}</strong></span>
+                                      <span><label>Feed</label><strong>${entry.feed_used_bags} bags</strong></span>
+                                      <span><label>Water</label><strong>${entry.water_liters} L</strong></span>
+                                      <span><label>Weight</label><strong>${entry.avg_weight_g} g</strong></span>
+                                      <span><label>Temp</label><strong>${entry.temperature_c} C</strong></span>
+                                      <span><label>Humidity</label><strong>${entry.humidity_pct}%</strong></span>
                                     </div>
                                     ${
                                       entry.issues || entry.remarks
-                                        ? `<p>${[entry.issues, entry.remarks].filter(Boolean).join(" • ")}</p>`
+                                        ? `<p class="owner-hierarchy-entry-note">${[entry.issues, entry.remarks].filter(Boolean).join(" • ")}</p>`
                                         : ""
                                     }
                                   </article>
@@ -173,12 +205,12 @@ function renderDailyEntryHierarchy(container, farms) {
                           : `<div class="fa-empty-state">Is shed ke liye abhi koi daily entry nahi hai.</div>`
                       }
                     </div>
-                  </section>
+                  </details>
                 `
               )
               .join("")}
           </div>
-        </article>
+        </details>
       `
     )
     .join("");

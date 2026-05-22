@@ -544,18 +544,29 @@ def get_outside_weather(user: User) -> dict | None:
     payload = fetch_json(
         "https://api.open-meteo.com/v1/forecast"
         f'?latitude={location["latitude"]}&longitude={location["longitude"]}'
-        "&current=temperature_2m,relative_humidity_2m&timezone=auto&forecast_days=1"
+        "&current=temperature_2m,relative_humidity_2m"
+        "&daily=temperature_2m_max,temperature_2m_min,relative_humidity_2m_max,relative_humidity_2m_min"
+        "&timezone=auto&forecast_days=1"
     )
     current = (payload or {}).get("current") or {}
+    daily = (payload or {}).get("daily") or {}
     temperature = current.get("temperature_2m")
     humidity = current.get("relative_humidity_2m")
     if temperature is None or humidity is None:
         return None
 
+    def first_daily_value(key: str):
+        values = daily.get(key) or []
+        return values[0] if values else None
+
     value = {
         "location_label": location["label"],
         "temperature_c": temperature,
         "humidity_pct": humidity,
+        "temperature_high_c": first_daily_value("temperature_2m_max"),
+        "temperature_low_c": first_daily_value("temperature_2m_min"),
+        "humidity_high_pct": first_daily_value("relative_humidity_2m_max"),
+        "humidity_low_pct": first_daily_value("relative_humidity_2m_min"),
         "observed_at": current.get("time", ""),
         "source_note": "Outside weather reference. Shed sensor data nahi hai.",
     }

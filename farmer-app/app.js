@@ -134,12 +134,26 @@ function renderOutsideWeather(weather) {
   const tempEl = container.querySelector("[data-weather-temperature]");
   const humidityEl = container.querySelector("[data-weather-humidity]");
   const timeEl = container.querySelector("[data-weather-time]");
+  const tempRangeEl = container.querySelector("[data-weather-temp-range]");
+  const humidityRangeEl = container.querySelector("[data-weather-humidity-range]");
 
   if (locationEl) locationEl.textContent = weather.location_label || "";
   if (noteEl) noteEl.textContent = weather.source_note || "";
   if (tempEl) tempEl.textContent = `${weather.temperature_c} C`;
   if (humidityEl) humidityEl.textContent = `${weather.humidity_pct}%`;
   if (timeEl) timeEl.textContent = weather.observed_at ? `Updated ${weather.observed_at}` : "Latest outside reading";
+  if (tempRangeEl) {
+    tempRangeEl.textContent =
+      weather.temperature_high_c != null && weather.temperature_low_c != null
+        ? `${weather.temperature_high_c} C / ${weather.temperature_low_c} C`
+        : "-";
+  }
+  if (humidityRangeEl) {
+    humidityRangeEl.textContent =
+      weather.humidity_high_pct != null && weather.humidity_low_pct != null
+        ? `${weather.humidity_high_pct}% / ${weather.humidity_low_pct}%`
+        : "-";
+  }
 
   const tempInput = document.querySelector('[data-daily-entry-form] input[name="temperature_c"]');
   const humidityInput = document.querySelector('[data-daily-entry-form] input[name="humidity_pct"]');
