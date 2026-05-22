@@ -12,7 +12,9 @@ async function requestJson(url, options = {}) {
     ...options,
   });
   if (!response.ok) {
-    throw new Error(await response.text());
+    const error = new Error((await response.text()) || `Request failed: ${response.status}`);
+    error.status = response.status;
+    throw error;
   }
   return response.json();
 }
@@ -25,9 +27,19 @@ function setStatus(selector, message, isError = false) {
 }
 
 function populateProfile(profile) {
+  try {
+    sessionStorage.setItem("utsavOwnerProfile", JSON.stringify(profile));
+  } catch {}
   document.querySelectorAll("[data-owner-name]").forEach((el) => (el.textContent = profile.name || ""));
   document.querySelectorAll("[data-owner-title]").forEach((el) => (el.textContent = profile.title || "Owner"));
   document.querySelectorAll("[data-owner-cluster]").forEach((el) => (el.textContent = profile.cluster || ""));
+}
+
+function hydrateCachedProfile() {
+  try {
+    const cached = sessionStorage.getItem("utsavOwnerProfile");
+    if (cached) populateProfile(JSON.parse(cached));
+  } catch {}
 }
 
 function renderKpis(container, items) {
@@ -100,6 +112,17 @@ async function requireOwnerSession({ allowLoginPage = false } = {}) {
     }
     return null;
   }
+}
+
+function handlePageError(error) {
+  if (error?.status === 401) {
+    try {
+      sessionStorage.removeItem("utsavOwnerProfile");
+    } catch {}
+    window.location.href = "/owner-app/";
+    return;
+  }
+  console.error(error);
 }
 
 async function loadDashboard() {
@@ -205,17 +228,18 @@ if (createFarmerForm) {
 document.querySelectorAll("[data-owner-logout]").forEach((button) => {
   button.addEventListener("click", async () => {
     await requestJson(`${authApiBase}/logout`, { method: "POST" });
+    try {
+      sessionStorage.removeItem("utsavOwnerProfile");
+    } catch {}
     window.location.href = "/owner-app/";
   });
 });
 
 const page = document.body.dataset.ownerPage;
 if (page) {
-  requireOwnerSession().then((user) => {
-    if (!user) return;
-    if (page === "dashboard") loadDashboard().catch(console.error);
-    if (page === "farms") loadFarms().catch(console.error);
-    if (page === "operations") loadOperations().catch(console.error);
-    if (page === "finance") loadFinance().catch(console.error);
-  });
+  hydrateCachedProfile();
+  if (page === "dashboard") loadDashboard().catch(handlePageError);
+  if (page === "farms") loadFarms().catch(handlePageError);
+  if (page === "operations") loadOperations().catch(handlePageError);
+  if (page === "finance") loadFinance().catch(handlePageError);
 }

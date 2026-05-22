@@ -14,7 +14,9 @@ async function requestJson(url, options = {}) {
 
   if (!response.ok) {
     const errorBody = await response.text();
-    throw new Error(errorBody || `Request failed: ${response.status}`);
+    const error = new Error(errorBody || `Request failed: ${response.status}`);
+    error.status = response.status;
+    throw error;
   }
 
   return response.json();
@@ -29,12 +31,22 @@ function setStatus(selector, message, isError = false) {
 
 function populateProfile(profile) {
   if (!profile) return;
+  try {
+    sessionStorage.setItem("utsavFarmerProfile", JSON.stringify(profile));
+  } catch {}
   document.querySelectorAll("[data-profile-name]").forEach((el) => (el.textContent = profile.farmer_name || profile.name || ""));
   document.querySelectorAll("[data-profile-cluster]").forEach((el) => (el.textContent = profile.cluster || ""));
   document.querySelectorAll("[data-profile-farm]").forEach((el) => (el.textContent = profile.farm_name || ""));
   document.querySelectorAll("[data-profile-batch]").forEach((el) => (el.textContent = `Batch ${profile.active_batch || "-"}`));
   document.querySelectorAll("[data-profile-capacity]").forEach((el) => (el.textContent = profile.farm_capacity || "-"));
   document.querySelectorAll("[data-profile-officer]").forEach((el) => (el.textContent = profile.field_officer || "-"));
+}
+
+function hydrateCachedProfile() {
+  try {
+    const cached = sessionStorage.getItem("utsavFarmerProfile");
+    if (cached) populateProfile(JSON.parse(cached));
+  } catch {}
 }
 
 function setDefaultDates() {
@@ -119,7 +131,21 @@ async function requireFarmerSession({ allowLoginPage = false } = {}) {
 
 async function logoutUser() {
   await requestJson(`${authApiBase}/logout`, { method: "POST" });
+  try {
+    sessionStorage.removeItem("utsavFarmerProfile");
+  } catch {}
   window.location.href = "/farmer-app/";
+}
+
+function handlePageError(error) {
+  if (error?.status === 401) {
+    try {
+      sessionStorage.removeItem("utsavFarmerProfile");
+    } catch {}
+    window.location.href = "/farmer-app/";
+    return;
+  }
+  console.error(error);
 }
 
 async function loadDashboard() {
@@ -354,12 +380,10 @@ const page = document.body.dataset.faPage;
 setDefaultDates();
 
 if (page) {
-  requireFarmerSession().then((user) => {
-    if (!user) return;
-    if (page === "dashboard") loadDashboard().catch(console.error);
-    if (page === "daily-entry") loadDailyEntry().catch(console.error);
-    if (page === "feed") loadFeed().catch(console.error);
-    if (page === "health") loadHealth().catch(console.error);
-    if (page === "requests") loadRequests().catch(console.error);
-  });
+  hydrateCachedProfile();
+  if (page === "dashboard") loadDashboard().catch(handlePageError);
+  if (page === "daily-entry") loadDailyEntry().catch(handlePageError);
+  if (page === "feed") loadFeed().catch(handlePageError);
+  if (page === "health") loadHealth().catch(handlePageError);
+  if (page === "requests") loadRequests().catch(handlePageError);
 }
