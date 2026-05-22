@@ -1,6 +1,7 @@
 const apiOrigin = window.location.protocol === "file:" ? "http://127.0.0.1:8000" : "";
 const ownerApiBase = `${apiOrigin}/api/owner`;
 const authApiBase = `${apiOrigin}/api/auth`;
+const ownerCachePrefix = "utsavOwnerPage:";
 
 function navigate(url) {
   if (window.location.pathname === url) return;
@@ -29,6 +30,21 @@ function setStatus(selector, message, isError = false) {
   if (!element) return;
   element.textContent = message;
   element.classList.toggle("is-error", isError);
+}
+
+function writeCache(key, value) {
+  try {
+    sessionStorage.setItem(`${ownerCachePrefix}${key}`, JSON.stringify(value));
+  } catch {}
+}
+
+function readCache(key) {
+  try {
+    const raw = sessionStorage.getItem(`${ownerCachePrefix}${key}`);
+    return raw ? JSON.parse(raw) : null;
+  } catch {
+    return null;
+  }
 }
 
 function populateProfile(profile) {
@@ -86,6 +102,128 @@ function renderList(container, items) {
       `
     )
     .join("");
+}
+
+function renderDailyEntryHierarchy(container, farms) {
+  if (!container) return;
+  if (!farms?.length) {
+    container.innerHTML = `<div class="fa-empty-state">Abhi koi record available nahi hai.</div>`;
+    return;
+  }
+
+  container.innerHTML = farms
+    .map(
+      (farm) => `
+        <article class="owner-hierarchy-farm">
+          <header class="owner-hierarchy-farm-head">
+            <div>
+              <span>Farm</span>
+              <h4>${farm.farm_name || "-"}</h4>
+              <p>${[farm.farmer_name, farm.farmer_code, farm.cluster].filter(Boolean).join(" • ")}</p>
+            </div>
+            <div class="owner-hierarchy-meta">
+              <strong>${farm.current_batch ? `Batch ${farm.current_batch}` : "No batch"}</strong>
+              <small>${farm.latest_entry_date ? `Latest ${farm.latest_entry_date}` : "No daily entry yet"}</small>
+            </div>
+          </header>
+          <div class="owner-hierarchy-sheds">
+            ${farm.sheds
+              .map(
+                (shed) => `
+                  <section class="owner-hierarchy-shed">
+                    <div class="owner-hierarchy-shed-head">
+                      <div>
+                        <span>Shed</span>
+                        <h5>${shed.shed_name}</h5>
+                      </div>
+                      <div class="owner-hierarchy-meta">
+                        <strong>${shed.entry_count} entries</strong>
+                        <small>${shed.latest_entry_date ? `Latest ${shed.latest_entry_date}` : "No entry yet"}</small>
+                      </div>
+                    </div>
+                    <div class="owner-hierarchy-entry-list">
+                      ${
+                        shed.entries.length
+                          ? shed.entries
+                              .map(
+                                (entry) => `
+                                  <article class="owner-hierarchy-entry">
+                                    <div class="owner-hierarchy-entry-head">
+                                      <strong>${entry.entry_date}</strong>
+                                      <span>${entry.litter_condition || "-"}</span>
+                                    </div>
+                                    <div class="owner-hierarchy-entry-grid">
+                                      <span>Mortality: ${entry.mortality}</span>
+                                      <span>Culls: ${entry.culls}</span>
+                                      <span>Feed: ${entry.feed_used_bags} bags</span>
+                                      <span>Water: ${entry.water_liters} L</span>
+                                      <span>Weight: ${entry.avg_weight_g} g</span>
+                                      <span>Temp: ${entry.temperature_c} C</span>
+                                      <span>Humidity: ${entry.humidity_pct}%</span>
+                                    </div>
+                                    ${
+                                      entry.issues || entry.remarks
+                                        ? `<p>${[entry.issues, entry.remarks].filter(Boolean).join(" • ")}</p>`
+                                        : ""
+                                    }
+                                  </article>
+                                `
+                              )
+                              .join("")
+                          : `<div class="fa-empty-state">Is shed ke liye abhi koi daily entry nahi hai.</div>`
+                      }
+                    </div>
+                  </section>
+                `
+              )
+              .join("")}
+          </div>
+        </article>
+      `
+    )
+    .join("");
+}
+
+function renderDashboardData(data) {
+  if (!data) return;
+  populateProfile(data.profile);
+  renderKpis(document.querySelector("#owner-kpis"), data.kpis);
+  renderGrid(document.querySelector("#owner-farms"), data.farms);
+  renderList(document.querySelector("#owner-priority"), data.priority);
+  renderList(document.querySelector("#owner-field-activity"), data.field_activity);
+  renderList(document.querySelector("#owner-latest-reporting"), data.latest_reporting);
+  renderList(document.querySelector("#owner-feed-visibility"), data.feed_visibility);
+  renderList(document.querySelector("#owner-health-watch"), data.health_watch);
+  renderList(document.querySelector("#owner-uploads"), data.uploads);
+}
+
+function renderFarmsData(data) {
+  if (!data) return;
+  populateProfile(data.profile);
+  renderGrid(document.querySelector("#owner-farms-directory"), data.farms);
+  renderList(document.querySelector("#owner-farms-latest-entries"), data.latest_entries);
+  renderList(document.querySelector("#owner-farmer-accounts"), data.farmer_accounts || []);
+  renderList(document.querySelector("#owner-field-officers"), data.field_officers || []);
+  populateFarmerSelect(data.farmer_accounts || []);
+  syncSelectedFarmerMeta();
+}
+
+function renderOperationsData(data) {
+  if (!data) return;
+  populateProfile(data.profile);
+  renderList(document.querySelector("#owner-operations-requests"), data.requests);
+  renderList(document.querySelector("#owner-operations-photos"), data.photos);
+  renderList(document.querySelector("#owner-operations-visits"), data.visits);
+  renderList(document.querySelector("#owner-operations-daily-entries"), data.daily_entries);
+  renderDailyEntryHierarchy(document.querySelector("#owner-operations-daily-hierarchy"), data.daily_entry_hierarchy);
+}
+
+function renderFinanceData(data) {
+  if (!data) return;
+  populateProfile(data.profile);
+  renderKpis(document.querySelector("#owner-finance-kpis"), data.kpis);
+  renderList(document.querySelector("#owner-finance-documents"), data.documents);
+  renderList(document.querySelector("#owner-finance-inward"), data.feed_inward);
 }
 
 function populateFarmerSelect(items) {
@@ -171,7 +309,7 @@ function showAlreadyLoggedInAction() {
 }
 
 function handlePageError(error) {
-  if (error?.status === 401) {
+  if (error?.status === 401 || error?.status === 403) {
     goToOwnerLogin();
     return;
   }
@@ -180,43 +318,26 @@ function handlePageError(error) {
 
 async function loadDashboard() {
   const data = await requestJson(`${ownerApiBase}/dashboard`);
-  populateProfile(data.profile);
-  renderKpis(document.querySelector("#owner-kpis"), data.kpis);
-  renderGrid(document.querySelector("#owner-farms"), data.farms);
-  renderList(document.querySelector("#owner-priority"), data.priority);
-  renderList(document.querySelector("#owner-field-activity"), data.field_activity);
-  renderList(document.querySelector("#owner-latest-reporting"), data.latest_reporting);
-  renderList(document.querySelector("#owner-feed-visibility"), data.feed_visibility);
-  renderList(document.querySelector("#owner-health-watch"), data.health_watch);
-  renderList(document.querySelector("#owner-uploads"), data.uploads);
+  writeCache("dashboard", data);
+  renderDashboardData(data);
 }
 
 async function loadFarms() {
   const data = await requestJson(`${ownerApiBase}/farms`);
-  populateProfile(data.profile);
-  renderGrid(document.querySelector("#owner-farms-directory"), data.farms);
-  renderList(document.querySelector("#owner-farms-latest-entries"), data.latest_entries);
-  renderList(document.querySelector("#owner-farmer-accounts"), data.farmer_accounts || []);
-  renderList(document.querySelector("#owner-field-officers"), data.field_officers || []);
-  populateFarmerSelect(data.farmer_accounts || []);
-  syncSelectedFarmerMeta();
+  writeCache("farms", data);
+  renderFarmsData(data);
 }
 
 async function loadOperations() {
   const data = await requestJson(`${ownerApiBase}/operations`);
-  populateProfile(data.profile);
-  renderList(document.querySelector("#owner-operations-requests"), data.requests);
-  renderList(document.querySelector("#owner-operations-photos"), data.photos);
-  renderList(document.querySelector("#owner-operations-visits"), data.visits);
-  renderList(document.querySelector("#owner-operations-daily-entries"), data.daily_entries);
+  writeCache("operations", data);
+  renderOperationsData(data);
 }
 
 async function loadFinance() {
   const data = await requestJson(`${ownerApiBase}/finance`);
-  populateProfile(data.profile);
-  renderKpis(document.querySelector("#owner-finance-kpis"), data.kpis);
-  renderList(document.querySelector("#owner-finance-documents"), data.documents);
-  renderList(document.querySelector("#owner-finance-inward"), data.feed_inward);
+  writeCache("finance", data);
+  renderFinanceData(data);
 }
 
 const loginForm = document.querySelector("[data-owner-login]");
@@ -323,11 +444,20 @@ document.querySelectorAll("[data-owner-logout]").forEach((button) => {
 
 const page = document.body.dataset.ownerPage;
 if (page) {
-  ensureOwnerPage().then((user) => {
-    if (!user) return;
-    if (page === "dashboard") loadDashboard().catch(handlePageError);
-    if (page === "farms") loadFarms().catch(handlePageError);
-    if (page === "operations" || page.startsWith("operations-")) loadOperations().catch(handlePageError);
-    if (page === "finance") loadFinance().catch(handlePageError);
-  });
+  if (page === "dashboard") {
+    renderDashboardData(readCache("dashboard"));
+    loadDashboard().catch(handlePageError);
+  }
+  if (page === "farms") {
+    renderFarmsData(readCache("farms"));
+    loadFarms().catch(handlePageError);
+  }
+  if (page === "operations" || page.startsWith("operations-")) {
+    renderOperationsData(readCache("operations"));
+    loadOperations().catch(handlePageError);
+  }
+  if (page === "finance") {
+    renderFinanceData(readCache("finance"));
+    loadFinance().catch(handlePageError);
+  }
 }

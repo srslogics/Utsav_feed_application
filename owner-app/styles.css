@@ -97,6 +97,16 @@
   box-shadow: 0 18px 38px rgba(20, 20, 27, 0.07);
 }
 
+.owner-body .fa-section {
+  content-visibility: auto;
+  contain-intrinsic-size: 420px;
+}
+
+.owner-body .fa-list-card {
+  content-visibility: auto;
+  contain-intrinsic-size: 180px;
+}
+
 .owner-body .fa-kpi-card {
   position: relative;
   overflow: hidden;
@@ -232,6 +242,105 @@
   box-shadow: 0 0 0 4px rgba(163, 125, 73, 0.12);
 }
 
+.owner-hierarchy-card {
+  display: grid;
+  gap: 1rem;
+}
+
+.owner-hierarchy-farm {
+  padding: 1.1rem;
+  border-radius: 26px;
+  border: 1px solid var(--fa-border);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.99), rgba(248, 245, 240, 0.97));
+  box-shadow: 0 16px 36px rgba(20, 20, 27, 0.06);
+}
+
+.owner-hierarchy-farm-head,
+.owner-hierarchy-shed-head,
+.owner-hierarchy-entry-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.owner-hierarchy-farm-head span,
+.owner-hierarchy-shed-head span {
+  display: block;
+  font-size: 0.76rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--fa-muted);
+}
+
+.owner-hierarchy-farm-head h4,
+.owner-hierarchy-shed-head h5 {
+  margin: 0.28rem 0 0.2rem;
+  font-family: var(--fa-font-display);
+  font-size: 1.15rem;
+}
+
+.owner-hierarchy-farm-head p,
+.owner-hierarchy-entry p {
+  margin: 0.35rem 0 0;
+  color: var(--fa-muted);
+  line-height: 1.5;
+}
+
+.owner-hierarchy-meta {
+  text-align: right;
+}
+
+.owner-hierarchy-meta strong,
+.owner-hierarchy-meta small {
+  display: block;
+}
+
+.owner-hierarchy-meta small {
+  margin-top: 0.28rem;
+  color: var(--fa-muted);
+}
+
+.owner-hierarchy-sheds {
+  display: grid;
+  gap: 0.85rem;
+  margin-top: 1rem;
+}
+
+.owner-hierarchy-shed {
+  padding: 1rem;
+  border-radius: 20px;
+  border: 1px solid var(--fa-border);
+  background: rgba(246, 242, 236, 0.72);
+}
+
+.owner-hierarchy-entry-list {
+  display: grid;
+  gap: 0.75rem;
+  margin-top: 0.85rem;
+}
+
+.owner-hierarchy-entry {
+  padding: 0.95rem 1rem;
+  border-radius: 18px;
+  border: 1px solid rgba(49, 54, 66, 0.08);
+  background: rgba(255, 255, 255, 0.82);
+}
+
+.owner-hierarchy-entry-head span {
+  color: var(--fa-accent-strong);
+  font-weight: 600;
+}
+
+.owner-hierarchy-entry-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.45rem 0.8rem;
+  margin-top: 0.7rem;
+  color: var(--fa-text);
+  font-size: 0.95rem;
+}
+
 @media (max-width: 980px) {
   .fa-kpi-grid-six {
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -252,6 +361,10 @@
   .owner-subnav {
     margin-left: 0.5rem;
     padding-left: 0.8rem;
+  }
+
+  .owner-hierarchy-entry-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
@@ -281,5 +394,23 @@
 
   .owner-subnav {
     display: none;
+  }
+
+  .owner-hierarchy-farm-head,
+  .owner-hierarchy-shed-head,
+  .owner-hierarchy-entry-head {
+    flex-direction: column;
+  }
+
+  .owner-hierarchy-meta {
+    text-align: left;
+  }
+
+  .owner-body .fa-section,
+  .owner-body .fa-kpi-card,
+  .owner-body .fa-detail-card,
+  .owner-body .fa-list-card,
+  .owner-body .fa-sidebar {
+    box-shadow: 0 8px 18px rgba(20, 20, 27, 0.05);
   }
 }

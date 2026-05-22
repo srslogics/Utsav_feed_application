@@ -7,7 +7,10 @@ from datetime import date
 from datetime import datetime
 from pathlib import Path
 from typing import Callable
+from urllib.error import URLError
+from urllib.parse import quote
 from urllib.parse import urlparse
+from urllib.request import urlopen
 
 from fastapi import FastAPI, File, Form, HTTPException, Request, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
@@ -57,6 +60,19 @@ LEGACY_DEMO_FARMER_CODES = {
 LEGACY_DEMO_FIELD_PHONES = {
     "+919898989898",
 }
+WEATHER_CACHE_TTL_SECONDS = 900
+GEOCODE_CACHE_TTL_SECONDS = 86400
+LOCATION_COORDINATE_OVERRIDES = {
+    "korba-cluster": {"latitude": 22.3595, "longitude": 82.7501, "label": "Korba"},
+    "korba": {"latitude": 22.3595, "longitude": 82.7501, "label": "Korba"},
+    "champa": {"latitude": 22.0354, "longitude": 82.6421, "label": "Champa"},
+    "jaijaipur": {"latitude": 21.8472, "longitude": 82.8173, "label": "Jaijaipur"},
+    "bilaspur-cluster": {"latitude": 22.0797, "longitude": 82.1409, "label": "Bilaspur"},
+    "bilaspur": {"latitude": 22.0797, "longitude": 82.1409, "label": "Bilaspur"},
+    "nagpur": {"latitude": 21.1458, "longitude": 79.0882, "label": "Nagpur"},
+}
+_weather_cache: dict[str, dict] = {}
+_geocode_cache: dict[str, dict] = {}
 
 
 def hash_password(value: str) -> str:
@@ -87,6 +103,23 @@ def format_phone_display(value: str) -> str:
 def slug_text(value: str) -> str:
     slug = re.sub(r"[^a-z0-9]+", "-", (value or "").strip().lower()).strip("-")
     return slug or "unassigned"
+
+
+def cache_get(store: dict[str, dict], key: str):
+    entry = store.get(key)
+    if not entry:
+        return None
+    if entry["expires_at"] <= datetime.utcnow().timestamp():
+        store.pop(key, None)
+        return None
+    return entry["value"]
+
+
+def cache_set(store: dict[str, dict], key: str, value, ttl_seconds: int):
+    store[key] = {
+        "value": value,
+        "expires_at": datetime.utcnow().timestamp() + ttl_seconds,
+    }
 
 
 def is_placeholder_field_phone(value: str) -> bool:
@@ -451,6 +484,85 @@ def serialize_profile(user: User) -> dict:
     }
 
 
+def fetch_json(url: str) -> dict | None:
+    try:
+        with urlopen(url, timeout=3) as response:
+            return json.loads(response.read().decode("utf-8"))
+    except (URLError, TimeoutError, ValueError) as exc:
+        logger.info("weather_fetch_failed url=%s error=%s", url, exc)
+        return None
+
+
+def resolve_location_coordinates(user: User) -> dict | None:
+    cluster_slug = slug_text(user.cluster or "")
+    override = LOCATION_COORDINATE_OVERRIDES.get(cluster_slug)
+    if override:
+        return {
+            "latitude": override["latitude"],
+            "longitude": override["longitude"],
+            "label": override["label"],
+        }
+
+    query = (user.cluster or user.farm_name or "").strip()
+    if not query:
+        return None
+
+    cache_key = slug_text(query)
+    cached = cache_get(_geocode_cache, cache_key)
+    if cached:
+        return cached
+
+    payload = fetch_json(
+        f"https://geocoding-api.open-meteo.com/v1/search?name={quote(query)}&count=1&language=en&format=json"
+    )
+    results = (payload or {}).get("results") or []
+    if not results:
+        return None
+
+    first = results[0]
+    value = {
+        "latitude": first.get("latitude"),
+        "longitude": first.get("longitude"),
+        "label": first.get("name") or query,
+    }
+    if value["latitude"] is None or value["longitude"] is None:
+        return None
+    cache_set(_geocode_cache, cache_key, value, GEOCODE_CACHE_TTL_SECONDS)
+    return value
+
+
+def get_outside_weather(user: User) -> dict | None:
+    location = resolve_location_coordinates(user)
+    if not location:
+        return None
+
+    cache_key = f'{location["latitude"]:.4f},{location["longitude"]:.4f}'
+    cached = cache_get(_weather_cache, cache_key)
+    if cached:
+        return cached
+
+    payload = fetch_json(
+        "https://api.open-meteo.com/v1/forecast"
+        f'?latitude={location["latitude"]}&longitude={location["longitude"]}'
+        "&current=temperature_2m,relative_humidity_2m&timezone=auto&forecast_days=1"
+    )
+    current = (payload or {}).get("current") or {}
+    temperature = current.get("temperature_2m")
+    humidity = current.get("relative_humidity_2m")
+    if temperature is None or humidity is None:
+        return None
+
+    value = {
+        "location_label": location["label"],
+        "temperature_c": temperature,
+        "humidity_pct": humidity,
+        "observed_at": current.get("time", ""),
+        "source_note": "Outside weather reference. Shed sensor data nahi hai.",
+    }
+    cache_set(_weather_cache, cache_key, value, WEATHER_CACHE_TTL_SECONDS)
+    return value
+
+
 def get_current_user(request: Request, role: str | None = None) -> User:
     user_id = request.session.get("user_id")
     user_role = request.session.get("role")
@@ -680,6 +792,74 @@ def summarize_owner_latest_entries(entries: list[DailyEntry], db: Session) -> li
             }
         )
     return items[:8]
+
+
+def build_owner_daily_entry_hierarchy(farmers: list[User], entries: list[DailyEntry]) -> list[dict]:
+    entries_by_farmer: dict[int, list[DailyEntry]] = {}
+    for entry in entries:
+        entries_by_farmer.setdefault(entry.farmer_id, []).append(entry)
+
+    hierarchy: list[dict] = []
+    for farmer in farmers:
+        farmer_entries = entries_by_farmer.get(farmer.id, [])
+        entry_count = len(farmer_entries)
+        latest_entry_date = farmer_entries[0].entry_date if farmer_entries else ""
+        shed_map: dict[str, list[DailyEntry]] = {}
+        for record in farmer_entries:
+            shed_key = record.shed or farmer.current_shed or "Unassigned shed"
+            shed_map.setdefault(shed_key, []).append(record)
+
+        active_sheds = int(farmer.active_sheds or 0)
+        for index in range(1, active_sheds + 1):
+            shed_name = f"Shed {index}"
+            shed_map.setdefault(shed_name, [])
+
+        current_shed = (farmer.current_shed or "").strip()
+        if current_shed:
+            shed_map.setdefault(current_shed, [])
+
+        sheds: list[dict] = []
+        for shed_name in sorted(shed_map.keys()):
+            shed_entries = shed_map[shed_name]
+            latest = shed_entries[0] if shed_entries else None
+            sheds.append(
+                {
+                    "shed_name": shed_name,
+                    "entry_count": len(shed_entries),
+                    "latest_entry_date": latest.entry_date if latest else "",
+                    "entries": [
+                        {
+                            "entry_date": record.entry_date,
+                            "mortality": record.mortality,
+                            "culls": record.culls,
+                            "feed_used_bags": record.feed_used_bags,
+                            "water_liters": record.water_liters,
+                            "avg_weight_g": record.avg_weight_g,
+                            "temperature_c": record.temperature_c,
+                            "humidity_pct": record.humidity_pct,
+                            "litter_condition": record.litter_condition,
+                            "issues": record.issues or "",
+                            "remarks": record.remarks or "",
+                        }
+                        for record in shed_entries[:10]
+                    ],
+                }
+            )
+
+        hierarchy.append(
+            {
+                "farm_name": farmer.farm_name or "",
+                "farmer_name": farmer.name or "",
+                "farmer_code": farmer.farmer_code or "",
+                "current_batch": farmer.active_batch or "",
+                "bird_age_days": farmer.bird_age_days or 0,
+                "cluster": farmer.cluster or "",
+                "entry_count": entry_count,
+                "latest_entry_date": latest_entry_date,
+                "sheds": sheds,
+            }
+        )
+    return hierarchy
 
 
 def summarize_owner_feed(records: list[FeedStock], db: Session) -> list[dict]:
@@ -1296,6 +1476,7 @@ def farmer_daily_entry(request: Request):
         vaccines = list(db.scalars(select(VaccinationLog).where(VaccinationLog.farmer_id == user.id).order_by(VaccinationLog.entry_date.desc(), VaccinationLog.created_at.desc())))
     return {
         "profile": serialize_profile(user),
+        "outside_weather": get_outside_weather(user),
         "shed_defaults": make_shed_defaults(entries),
         "entry_history": make_daily_entry_history(entries),
         "vaccine_history": make_vaccine_history(vaccines),
@@ -1810,6 +1991,7 @@ def owner_operations(request: Request):
         visits = list(db.scalars(select(FieldVisit).where(FieldVisit.farmer_id.in_(farmer_ids)).order_by(FieldVisit.visit_date.desc(), FieldVisit.created_at.desc()))) if farmer_ids else []
         daily_entries = list(db.scalars(select(DailyEntry).where(DailyEntry.farmer_id.in_(farmer_ids)).order_by(DailyEntry.entry_date.desc(), DailyEntry.created_at.desc()))) if farmer_ids else []
         daily_entry_list = summarize_owner_latest_entries(daily_entries, db)
+        daily_entry_hierarchy = build_owner_daily_entry_hierarchy(farmers, daily_entries)
         request_items = summarize_owner_requests(requests, db)
         photo_items = summarize_owner_issue_photos(photos, db)
         visit_items = summarize_owner_field_visits(visits, db)
@@ -1819,6 +2001,7 @@ def owner_operations(request: Request):
         "photos": photo_items,
         "visits": visit_items,
         "daily_entries": daily_entry_list,
+        "daily_entry_hierarchy": daily_entry_hierarchy,
     }
 
 

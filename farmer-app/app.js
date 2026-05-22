@@ -1,6 +1,7 @@
 const apiOrigin = window.location.protocol === "file:" ? "http://127.0.0.1:8000" : "";
 const farmerApiBase = `${apiOrigin}/api/farmer`;
 const authApiBase = `${apiOrigin}/api/auth`;
+const farmerCachePrefix = "utsavFarmerPage:";
 
 function navigate(url) {
   if (window.location.pathname === url) return;
@@ -32,6 +33,21 @@ function setStatus(selector, message, isError = false) {
   if (!element) return;
   element.textContent = message;
   element.classList.toggle("is-error", isError);
+}
+
+function writeCache(key, value) {
+  try {
+    sessionStorage.setItem(`${farmerCachePrefix}${key}`, JSON.stringify(value));
+  } catch {}
+}
+
+function readCache(key) {
+  try {
+    const raw = sessionStorage.getItem(`${farmerCachePrefix}${key}`);
+    return raw ? JSON.parse(raw) : null;
+  } catch {
+    return null;
+  }
 }
 
 function populateProfile(profile) {
@@ -104,6 +120,33 @@ function applyShedDefault(entryData) {
   }
 }
 
+function renderOutsideWeather(weather) {
+  const container = document.querySelector("[data-outside-weather]");
+  if (!container) return;
+  if (!weather) {
+    container.hidden = true;
+    return;
+  }
+
+  container.hidden = false;
+  const locationEl = container.querySelector("[data-weather-location]");
+  const noteEl = container.querySelector("[data-weather-note]");
+  const tempEl = container.querySelector("[data-weather-temperature]");
+  const humidityEl = container.querySelector("[data-weather-humidity]");
+  const timeEl = container.querySelector("[data-weather-time]");
+
+  if (locationEl) locationEl.textContent = weather.location_label || "";
+  if (noteEl) noteEl.textContent = weather.source_note || "";
+  if (tempEl) tempEl.textContent = `${weather.temperature_c} C`;
+  if (humidityEl) humidityEl.textContent = `${weather.humidity_pct}%`;
+  if (timeEl) timeEl.textContent = weather.observed_at ? `Updated ${weather.observed_at}` : "Latest outside reading";
+
+  const tempInput = document.querySelector('[data-daily-entry-form] input[name="temperature_c"]');
+  const humidityInput = document.querySelector('[data-daily-entry-form] input[name="humidity_pct"]');
+  if (tempInput && !tempInput.value) tempInput.value = weather.temperature_c;
+  if (humidityInput && !humidityInput.value) humidityInput.value = weather.humidity_pct;
+}
+
 function hydrateCachedProfile() {
   try {
     const cached = sessionStorage.getItem("utsavFarmerProfile");
@@ -170,6 +213,60 @@ function renderList(container, items) {
     .join("");
 }
 
+function renderDashboardData(data) {
+  if (!data) return;
+  populateProfile(data.profile);
+  renderKpis(document.querySelector("#dashboard-kpis"), data.kpis);
+  renderKpis(document.querySelector("#dashboard-performance"), data.performance_metrics);
+  renderKeyValueGrid(document.querySelector("#dashboard-batch"), data.batch_summary);
+  renderList(document.querySelector("#dashboard-alerts"), data.owner_alerts);
+  renderKeyValueGrid(document.querySelector("#dashboard-latest-entry"), data.latest_daily_entry);
+  renderList(document.querySelector("#dashboard-tasks"), data.tasks);
+  renderList(document.querySelector("#dashboard-mortality-log"), data.mortality_history);
+}
+
+function renderDailyEntryData(data) {
+  if (!data) return;
+  populateProfile(data.profile);
+  renderOutsideWeather(data.outside_weather);
+  renderList(document.querySelector("#daily-entry-history"), data.entry_history);
+  renderList(document.querySelector("#daily-vaccine-history"), data.vaccine_history);
+  const shedSelect = document.querySelector('[data-daily-entry-form] select[name="shed"]');
+  if (shedSelect && !shedSelect.dataset.boundDefault) {
+    shedSelect.addEventListener("change", () => applyShedDefault(data));
+    shedSelect.dataset.boundDefault = "true";
+  }
+  applyShedDefault(data);
+}
+
+function renderFeedData(data) {
+  if (!data) return;
+  populateProfile(data.profile);
+  renderKeyValueGrid(document.querySelector("#feed-balance"), data.shed_balances);
+  renderList(document.querySelector("#feed-history"), data.inward_history);
+}
+
+function renderHealthData(data) {
+  if (!data) return;
+  populateProfile(data.profile);
+  renderKeyValueGrid(document.querySelector("#health-summary"), data.summary);
+  renderList(document.querySelector("#health-log"), data.log);
+  renderList(document.querySelector("#health-vaccines"), data.vaccines);
+}
+
+function renderRequestsData(data) {
+  if (!data) return;
+  populateProfile(data.profile);
+  renderList(document.querySelector("#request-history"), data.history);
+}
+
+function renderUploadsData(data) {
+  if (!data) return;
+  populateProfile(data.profile);
+  renderList(document.querySelector("#document-history"), data.documents);
+  renderList(document.querySelector("#issue-photo-history"), data.issue_photos);
+}
+
 async function requireFarmerSession({ allowLoginPage = false } = {}) {
   try {
     const session = await requestJson(`${authApiBase}/session`);
@@ -220,7 +317,7 @@ function showAlreadyLoggedInAction() {
 }
 
 function handlePageError(error) {
-  if (error?.status === 401) {
+  if (error?.status === 401 || error?.status === 403) {
     try {
       sessionStorage.removeItem("utsavFarmerProfile");
     } catch {}
@@ -232,55 +329,38 @@ function handlePageError(error) {
 
 async function loadDashboard() {
   const data = await requestJson(`${farmerApiBase}/dashboard`);
-  populateProfile(data.profile);
-  renderKpis(document.querySelector("#dashboard-kpis"), data.kpis);
-  renderKpis(document.querySelector("#dashboard-performance"), data.performance_metrics);
-  renderKeyValueGrid(document.querySelector("#dashboard-batch"), data.batch_summary);
-  renderList(document.querySelector("#dashboard-alerts"), data.owner_alerts);
-  renderKeyValueGrid(document.querySelector("#dashboard-latest-entry"), data.latest_daily_entry);
-  renderList(document.querySelector("#dashboard-tasks"), data.tasks);
-  renderList(document.querySelector("#dashboard-mortality-log"), data.mortality_history);
+  writeCache("dashboard", data);
+  renderDashboardData(data);
 }
 
 async function loadDailyEntry() {
   const data = await requestJson(`${farmerApiBase}/daily-entry`);
-  populateProfile(data.profile);
-  renderList(document.querySelector("#daily-entry-history"), data.entry_history);
-  renderList(document.querySelector("#daily-vaccine-history"), data.vaccine_history);
-  const shedSelect = document.querySelector('[data-daily-entry-form] select[name="shed"]');
-  if (shedSelect && !shedSelect.dataset.boundDefault) {
-    shedSelect.addEventListener("change", () => applyShedDefault(data));
-    shedSelect.dataset.boundDefault = "true";
-  }
-  applyShedDefault(data);
+  writeCache("daily-entry", data);
+  renderDailyEntryData(data);
 }
 
 async function loadFeed() {
   const data = await requestJson(`${farmerApiBase}/feed`);
-  populateProfile(data.profile);
-  renderKeyValueGrid(document.querySelector("#feed-balance"), data.shed_balances);
-  renderList(document.querySelector("#feed-history"), data.inward_history);
+  writeCache("feed", data);
+  renderFeedData(data);
 }
 
 async function loadHealth() {
   const data = await requestJson(`${farmerApiBase}/health`);
-  populateProfile(data.profile);
-  renderKeyValueGrid(document.querySelector("#health-summary"), data.summary);
-  renderList(document.querySelector("#health-log"), data.log);
-  renderList(document.querySelector("#health-vaccines"), data.vaccines);
+  writeCache("health", data);
+  renderHealthData(data);
 }
 
 async function loadRequests() {
   const data = await requestJson(`${farmerApiBase}/requests`);
-  populateProfile(data.profile);
-  renderList(document.querySelector("#request-history"), data.history);
+  writeCache("requests", data);
+  renderRequestsData(data);
 }
 
 async function loadUploads() {
   const data = await requestJson(`${farmerApiBase}/requests`);
-  populateProfile(data.profile);
-  renderList(document.querySelector("#document-history"), data.documents);
-  renderList(document.querySelector("#issue-photo-history"), data.issue_photos);
+  writeCache("uploads", data);
+  renderUploadsData(data);
 }
 
 async function handleFormSubmit(form, url, selector, makePayload, afterSuccess) {
@@ -453,10 +533,28 @@ setDefaultDates();
 
 if (page) {
   hydrateCachedProfile();
-  if (page === "dashboard") loadDashboard().catch(handlePageError);
-  if (page === "daily-entry") loadDailyEntry().catch(handlePageError);
-  if (page === "feed") loadFeed().catch(handlePageError);
-  if (page === "health") loadHealth().catch(handlePageError);
-  if (page === "requests") loadRequests().catch(handlePageError);
-  if (page === "uploads") loadUploads().catch(handlePageError);
+  if (page === "dashboard") {
+    renderDashboardData(readCache("dashboard"));
+    loadDashboard().catch(handlePageError);
+  }
+  if (page === "daily-entry") {
+    renderDailyEntryData(readCache("daily-entry"));
+    loadDailyEntry().catch(handlePageError);
+  }
+  if (page === "feed") {
+    renderFeedData(readCache("feed"));
+    loadFeed().catch(handlePageError);
+  }
+  if (page === "health") {
+    renderHealthData(readCache("health"));
+    loadHealth().catch(handlePageError);
+  }
+  if (page === "requests") {
+    renderRequestsData(readCache("requests"));
+    loadRequests().catch(handlePageError);
+  }
+  if (page === "uploads") {
+    renderUploadsData(readCache("uploads"));
+    loadUploads().catch(handlePageError);
+  }
 }
