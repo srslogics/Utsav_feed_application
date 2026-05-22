@@ -227,6 +227,30 @@ function renderList(container, items) {
     .join("");
 }
 
+function renderDailyEntryRecords(container, records) {
+  if (!container) return;
+  if (!records?.length) {
+    container.innerHTML = `<div class="fa-empty-state">Abhi koi record available nahi hai.</div>`;
+    return;
+  }
+  container.innerHTML = records
+    .map(
+      (record) => `
+        <div class="fa-list-row">
+          <div>
+            <span>${record.entry_date} / ${record.shed}</span>
+            <p>Mortality ${record.mortality} • Feed ${record.feed_used_bags} bags • Litter ${record.litter_condition}</p>
+          </div>
+          <div class="fa-form-actions">
+            <strong>${record.avg_weight_g} g</strong>
+            <button class="fa-secondary-btn" type="button" data-edit-daily-entry="${record.id}">Edit</button>
+          </div>
+        </div>
+      `
+    )
+    .join("");
+}
+
 function renderDashboardData(data) {
   if (!data) return;
   populateProfile(data.profile);
@@ -243,7 +267,7 @@ function renderDailyEntryData(data) {
   if (!data) return;
   populateProfile(data.profile);
   renderOutsideWeather(data.outside_weather);
-  renderList(document.querySelector("#daily-entry-history"), data.entry_history);
+  renderDailyEntryRecords(document.querySelector("#daily-entry-history"), data.entry_records);
   renderList(document.querySelector("#daily-vaccine-history"), data.vaccine_history);
   const shedSelect = document.querySelector('[data-daily-entry-form] select[name="shed"]');
   if (shedSelect && !shedSelect.dataset.boundDefault) {
@@ -251,6 +275,43 @@ function renderDailyEntryData(data) {
     shedSelect.dataset.boundDefault = "true";
   }
   applyShedDefault(data);
+  const history = document.querySelector("#daily-entry-history");
+  if (history && !history.dataset.boundEdit) {
+    history.addEventListener("click", (event) => {
+      const button = event.target.closest("[data-edit-daily-entry]");
+      if (!button) return;
+      const entryId = Number(button.getAttribute("data-edit-daily-entry"));
+      const match = (data.entry_records || []).find((item) => item.id === entryId);
+      if (!match) return;
+      const form = document.querySelector("[data-daily-entry-form]");
+      if (!form) return;
+      form.querySelector('input[name="editing_entry_id"]').value = match.id;
+      form.querySelector('input[name="entry_date"]').value = match.entry_date;
+      form.querySelector('select[name="shed"]').value = match.shed;
+      form.querySelector('input[name="opening_birds"]').value = match.opening_birds;
+      form.querySelector('input[name="mortality"]').value = match.mortality;
+      form.querySelector('input[name="culls"]').value = match.culls;
+      form.querySelector('input[name="feed_used_bags"]').value = match.feed_used_bags;
+      form.querySelector('input[name="water_liters"]').value = match.water_liters;
+      form.querySelector('input[name="avg_weight_g"]').value = match.avg_weight_g;
+      form.querySelector('input[name="temperature_c"]').value = match.temperature_c;
+      form.querySelector('input[name="humidity_pct"]').value = match.humidity_pct;
+      form.querySelector('select[name="litter_condition"]').value = match.litter_condition;
+      form.querySelector('textarea[name="litter_notes"]').value = match.litter_notes || "";
+      form.querySelector('input[name="power_cut_hours"]').value = match.power_cut_hours;
+      form.querySelector('input[name="dg_hours"]').value = match.dg_hours;
+      form.querySelector('input[name="uniformity_pct"]').value = match.uniformity_pct;
+      form.querySelector('input[name="issues"]').value = match.issues || "";
+      form.querySelector('textarea[name="remarks"]').value = match.remarks || "";
+      const submitBtn = form.querySelector("[data-daily-submit-btn]");
+      const cancelBtn = form.querySelector("[data-daily-cancel-edit]");
+      if (submitBtn) submitBtn.textContent = "Entry update karein";
+      if (cancelBtn) cancelBtn.hidden = false;
+      setStatus("[data-daily-entry-status]", `${match.entry_date} / ${match.shed} edit mode mein hai.`);
+      form.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+    history.dataset.boundEdit = "true";
+  }
 }
 
 function renderFeedData(data) {
@@ -339,6 +400,17 @@ function handlePageError(error) {
     return;
   }
   console.error(error);
+}
+
+function resetDailyEntryFormState() {
+  const form = document.querySelector("[data-daily-entry-form]");
+  if (!form) return;
+  const editingInput = form.querySelector('input[name="editing_entry_id"]');
+  const submitBtn = form.querySelector("[data-daily-submit-btn]");
+  const cancelBtn = form.querySelector("[data-daily-cancel-edit]");
+  if (editingInput) editingInput.value = "";
+  if (submitBtn) submitBtn.textContent = "Aaj ki report bhejein";
+  if (cancelBtn) cancelBtn.hidden = true;
 }
 
 async function loadDashboard() {
@@ -450,7 +522,32 @@ logoutButtons.forEach((button) => {
 
 const dailyEntryForm = document.querySelector("[data-daily-entry-form]");
 if (dailyEntryForm) {
-  handleUploadSubmit(dailyEntryForm, `${farmerApiBase}/daily-entry`, "[data-daily-entry-status]", loadDailyEntry);
+  const cancelEditButton = dailyEntryForm.querySelector("[data-daily-cancel-edit]");
+  cancelEditButton?.addEventListener("click", () => {
+    dailyEntryForm.reset();
+    setDefaultDates();
+    resetDailyEntryFormState();
+    setStatus("[data-daily-entry-status]", "");
+  });
+
+  dailyEntryForm.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    const formData = new FormData(dailyEntryForm);
+    const editingEntryId = formData.get("editing_entry_id");
+    try {
+      await requestJson(editingEntryId ? `${farmerApiBase}/daily-entry/${editingEntryId}` : `${farmerApiBase}/daily-entry`, {
+        method: editingEntryId ? "PUT" : "POST",
+        body: formData,
+      });
+      dailyEntryForm.reset();
+      setDefaultDates();
+      resetDailyEntryFormState();
+      await loadDailyEntry();
+      setStatus("[data-daily-entry-status]", editingEntryId ? "Daily entry update ho gayi." : "Safalta se save ho gaya.");
+    } catch {
+      setStatus("[data-daily-entry-status]", editingEntryId ? "Daily entry update nahi ho paayi. Dobara koshish karein." : "Abhi save nahi ho paaya. Kripya dobara koshish karein.", true);
+    }
+  });
 }
 
 const feedBalanceForm = document.querySelector("[data-feed-balance-form]");

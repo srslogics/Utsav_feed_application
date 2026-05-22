@@ -444,6 +444,19 @@ class OwnerFarmerEnrollmentPayload(BaseModel):
     active_sheds: int = Field(default=1, ge=1)
 
 
+class OwnerFarmerUpdatePayload(BaseModel):
+    farmer_name: str
+    phone: str
+    password: str = ""
+    cluster: str = ""
+    farm_name: str
+    farmer_code: str
+    field_officer: str = ""
+    field_officer_phone: str = ""
+    farm_capacity: str = ""
+    active_sheds: int = Field(default=1, ge=1)
+
+
 class OwnerBatchEntryPayload(BaseModel):
     farmer_code: str
     active_batch: str
@@ -702,6 +715,30 @@ def make_daily_entry_history(records: list[DailyEntry]) -> list[dict]:
         }
         for record in records
     ]
+
+
+def serialize_daily_entry_record(record: DailyEntry) -> dict:
+    return {
+        "id": record.id,
+        "entry_date": record.entry_date,
+        "shed": record.shed,
+        "opening_birds": record.opening_birds,
+        "mortality": record.mortality,
+        "culls": record.culls,
+        "feed_used_bags": record.feed_used_bags,
+        "water_liters": record.water_liters,
+        "avg_weight_g": record.avg_weight_g,
+        "temperature_c": record.temperature_c,
+        "humidity_pct": record.humidity_pct,
+        "litter_condition": record.litter_condition,
+        "litter_notes": record.litter_notes or "",
+        "litter_photo_name": record.litter_photo_name or "",
+        "power_cut_hours": record.power_cut_hours,
+        "dg_hours": record.dg_hours,
+        "uniformity_pct": record.uniformity_pct,
+        "issues": record.issues or "",
+        "remarks": record.remarks or "",
+    }
 
 
 def make_vaccine_history(records: list[VaccinationLog]) -> list[dict]:
@@ -1490,6 +1527,7 @@ def farmer_daily_entry(request: Request):
         "outside_weather": get_outside_weather(user),
         "shed_defaults": make_shed_defaults(entries),
         "entry_history": make_daily_entry_history(entries),
+        "entry_records": [serialize_daily_entry_record(entry) for entry in entries[:12]],
         "vaccine_history": make_vaccine_history(vaccines),
     }
 
@@ -1553,6 +1591,82 @@ async def add_daily_entry(
         )
         db.add(record)
         db.add(MortalityLog(farmer_id=user.id, entry_date=entry_date, shed=shed, birds=mortality, notes=issues or "Daily entry"))
+        db.commit()
+        db.refresh(record)
+    return {"success": True, "record": {"id": record.id}}
+
+
+@app.put("/api/farmer/daily-entry/{entry_id}")
+async def update_daily_entry(
+    entry_id: int,
+    request: Request,
+    entry_date: str = Form(...),
+    shed: str = Form(...),
+    opening_birds: int = Form(...),
+    mortality: int = Form(0),
+    culls: int = Form(0),
+    feed_used_bags: int = Form(0),
+    water_liters: int = Form(0),
+    avg_weight_g: int = Form(0),
+    temperature_c: float = Form(0),
+    humidity_pct: int = Form(0),
+    litter_condition: str = Form(...),
+    litter_notes: str = Form(""),
+    litter_photo: UploadFile | None = File(None),
+    power_cut_hours: float = Form(0),
+    dg_hours: float = Form(0),
+    uniformity_pct: int = Form(0),
+    issues: str = Form(""),
+    remarks: str = Form(""),
+):
+    user = get_current_user(request, "farmer")
+    with session_scope() as db:
+        record = db.scalar(select(DailyEntry).where(DailyEntry.id == entry_id, DailyEntry.farmer_id == user.id))
+        if not record:
+            raise HTTPException(status_code=404, detail="Daily entry not found.")
+
+        if litter_photo and litter_photo.filename:
+            timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
+            original_name = litter_photo.filename
+            suffix = Path(original_name).suffix or ".bin"
+            stored_name = f"{timestamp}-{safe_slug(f'litter-{shed}-{entry_date}')}{suffix}"
+            destination = UPLOADS_DIR / stored_name
+            destination.write_bytes(await litter_photo.read())
+            record.litter_photo_name = original_name
+            record.litter_photo_stored = stored_name
+
+        record.entry_date = entry_date
+        record.shed = shed
+        record.opening_birds = opening_birds
+        record.mortality = mortality
+        record.culls = culls
+        record.feed_used_bags = feed_used_bags
+        record.water_liters = water_liters
+        record.avg_weight_g = avg_weight_g
+        record.temperature_c = temperature_c
+        record.humidity_pct = humidity_pct
+        record.litter_condition = litter_condition
+        record.litter_notes = litter_notes
+        record.power_cut_hours = power_cut_hours
+        record.dg_hours = dg_hours
+        record.uniformity_pct = uniformity_pct
+        record.issues = issues
+        record.remarks = remarks
+
+        mortality_log = db.scalar(
+            select(MortalityLog)
+            .where(
+                MortalityLog.farmer_id == user.id,
+                MortalityLog.entry_date == record.entry_date,
+                MortalityLog.shed == record.shed,
+            )
+            .order_by(MortalityLog.created_at.desc())
+        )
+        if mortality_log:
+            mortality_log.birds = mortality
+            mortality_log.notes = issues or "Daily entry"
+
+        db.add(record)
         db.commit()
         db.refresh(record)
     return {"success": True, "record": {"id": record.id}}
@@ -1891,8 +2005,13 @@ def owner_farms(request: Request):
                 "note": join_present([farm.name, format_phone_display(farm.phone), farm.field_officer or ""]),
                 "farmer_code": farm.farmer_code or "",
                 "farmer_name": farm.name,
+                "phone": format_phone_display(farm.phone),
                 "farm_name": farm.farm_name or "",
                 "cluster": farm.cluster or "",
+                "field_officer": farm.field_officer or "",
+                "field_officer_phone": "",
+                "farm_capacity": farm.farm_capacity or "",
+                "active_sheds": farm.active_sheds or 1,
                 "active_batch": farm.active_batch or "",
                 "current_shed": farm.current_shed or "",
                 "bird_age_days": farm.bird_age_days or 0,
@@ -1959,6 +2078,62 @@ def owner_create_farmer(payload: OwnerFarmerEnrollmentPayload, request: Request)
             "cluster": farmer.cluster,
         },
         "login_password": payload.password,
+    }
+
+
+@app.put("/api/owner/farmers/{farmer_code}")
+def owner_update_farmer_account(farmer_code: str, payload: OwnerFarmerUpdatePayload, request: Request):
+    get_current_user(request, "owner")
+    with session_scope() as db:
+        farmer = db.scalar(select(User).where(User.role == "farmer", User.farmer_code == farmer_code))
+        if not farmer:
+            raise HTTPException(status_code=404, detail="Farmer not found.")
+
+        normalized_phone = normalize_phone(payload.phone)
+        normalized_officer_phone = normalize_phone(payload.field_officer_phone) if payload.field_officer_phone else ""
+
+        existing_phone = db.scalar(select(User).where(User.phone == normalized_phone, User.id != farmer.id))
+        if existing_phone:
+            raise HTTPException(status_code=400, detail="Phone number already exists.")
+
+        existing_code = db.scalar(select(User).where(User.role == "farmer", User.farmer_code == payload.farmer_code, User.id != farmer.id))
+        if existing_code:
+            raise HTTPException(status_code=400, detail="Farmer code already exists.")
+
+        officer = ensure_field_officer_by_values(
+            db,
+            officer_name=payload.field_officer,
+            cluster=payload.cluster,
+            officer_phone=normalized_officer_phone,
+        )
+
+        farmer.name = payload.farmer_name
+        farmer.phone = normalized_phone
+        if payload.password.strip():
+            farmer.password_hash = hash_password(payload.password)
+        farmer.cluster = payload.cluster
+        farmer.farm_name = payload.farm_name
+        farmer.farmer_code = payload.farmer_code
+        farmer.field_officer = officer.name if officer else ""
+        farmer.farm_capacity = payload.farm_capacity
+        farmer.active_sheds = payload.active_sheds
+        db.add(farmer)
+        db.commit()
+        db.refresh(farmer)
+
+    return {
+        "success": True,
+        "message": "Farmer account updated successfully.",
+        "farmer": {
+            "farmer_name": farmer.name,
+            "farm_name": farmer.farm_name,
+            "farmer_code": farmer.farmer_code,
+            "phone": format_phone_display(farmer.phone),
+            "field_officer": farmer.field_officer,
+            "cluster": farmer.cluster,
+            "farm_capacity": farmer.farm_capacity or "",
+            "active_sheds": farmer.active_sheds or 1,
+        },
     }
 
 

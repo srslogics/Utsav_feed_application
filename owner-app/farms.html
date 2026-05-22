@@ -4,8 +4,8 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Utsav Owner Farms</title>
-    <link rel="stylesheet" href="/farmer-app/styles.css?v=20260533" />
-    <link rel="stylesheet" href="/owner-app/styles.css?v=20260530" />
+    <link rel="stylesheet" href="/farmer-app/styles.css?v=20260534" />
+    <link rel="stylesheet" href="/owner-app/styles.css?v=20260531" />
   </head>
   <body class="fa-body owner-body" data-owner-page="farms">
     <div class="fa-app-shell">
@@ -65,6 +65,7 @@
               </div>
             </div>
             <form class="fa-form owner-form-grid" data-owner-enroll-farmer autocomplete="off">
+              <input name="editing_farmer_code" type="hidden" />
               <label>
                 Farmer Name
                 <input name="farmer_name" type="text" placeholder="Enter farmer name" autocomplete="off" required />
@@ -105,7 +106,10 @@
                 Active Sheds
                 <input name="active_sheds" type="number" min="1" placeholder="Enter shed count" />
               </label>
-              <button class="fa-primary-btn" type="submit">Create Enrollment</button>
+              <div class="owner-form-actions full">
+                <button class="fa-primary-btn" type="submit" data-owner-enroll-submit>Create Enrollment</button>
+                <button class="fa-secondary-btn" type="button" data-owner-enroll-cancel hidden>Cancel Edit</button>
+              </div>
             </form>
             <p class="fa-form-note owner-create-note"></p>
           </section>
@@ -168,6 +172,6 @@
       <a href="./operations-daily.html">Ops</a>
       <a href="./finance.html">Finance</a>
     </nav>
-    <script src="/owner-app/app.js?v=20260536"></script>
+    <script src="/owner-app/app.js?v=20260538"></script>
   </body>
 </html>

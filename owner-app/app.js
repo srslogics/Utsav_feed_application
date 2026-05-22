@@ -104,6 +104,30 @@ function renderList(container, items) {
     .join("");
 }
 
+function renderOwnerFarmerAccounts(container, items) {
+  if (!container) return;
+  if (!items.length) {
+    container.innerHTML = `<div class="fa-empty-state">Abhi koi record available nahi hai.</div>`;
+    return;
+  }
+  container.innerHTML = items
+    .map(
+      (item) => `
+        <div class="fa-list-row">
+          <div>
+            <span>${item.label}</span>
+            <p>${item.note || ""}</p>
+          </div>
+          <div class="fa-form-actions">
+            <strong>${item.value}</strong>
+            <button class="fa-secondary-btn" type="button" data-owner-edit-farmer="${encodeURIComponent(JSON.stringify(item))}">Edit</button>
+          </div>
+        </div>
+      `
+    )
+    .join("");
+}
+
 function renderDailyEntryHierarchy(container, farms) {
   const summary = document.querySelector("#owner-operations-daily-summary");
   if (!container) return;
@@ -234,7 +258,7 @@ function renderFarmsData(data) {
   populateProfile(data.profile);
   renderGrid(document.querySelector("#owner-farms-directory"), data.farms);
   renderList(document.querySelector("#owner-farms-latest-entries"), data.latest_entries);
-  renderList(document.querySelector("#owner-farmer-accounts"), data.farmer_accounts || []);
+  renderOwnerFarmerAccounts(document.querySelector("#owner-farmer-accounts"), data.farmer_accounts || []);
   renderList(document.querySelector("#owner-field-officers"), data.field_officers || []);
   populateFarmerSelect(data.farmer_accounts || []);
   syncSelectedFarmerMeta();
@@ -287,6 +311,40 @@ function syncSelectedFarmerMeta() {
   batchInput.value = selectedOption?.dataset.batch || "";
   shedInput.value = selectedOption?.dataset.currentShed || "";
   ageInput.value = selectedOption?.dataset.birdAge === "0" ? "" : selectedOption?.dataset.birdAge || "";
+}
+
+function resetOwnerEnrollmentForm() {
+  const form = document.querySelector("[data-owner-enroll-farmer]");
+  if (!form) return;
+  form.reset();
+  const hiddenCode = form.querySelector('input[name="editing_farmer_code"]');
+  const submitButton = form.querySelector("[data-owner-enroll-submit]");
+  const cancelButton = form.querySelector("[data-owner-enroll-cancel]");
+  if (hiddenCode) hiddenCode.value = "";
+  if (submitButton) submitButton.textContent = "Create Enrollment";
+  if (cancelButton) cancelButton.hidden = true;
+}
+
+function startOwnerFarmerEdit(item) {
+  const form = document.querySelector("[data-owner-enroll-farmer]");
+  if (!form || !item) return;
+  form.querySelector('input[name="editing_farmer_code"]').value = item.farmer_code || "";
+  form.querySelector('input[name="farmer_name"]').value = item.farmer_name || "";
+  form.querySelector('input[name="phone"]').value = item.phone || "";
+  form.querySelector('input[name="password"]').value = "";
+  form.querySelector('input[name="cluster"]').value = item.cluster || "";
+  form.querySelector('input[name="farm_name"]').value = item.farm_name || "";
+  form.querySelector('input[name="farmer_code"]').value = item.farmer_code || "";
+  form.querySelector('input[name="field_officer"]').value = item.field_officer || "";
+  form.querySelector('input[name="field_officer_phone"]').value = item.field_officer_phone || "";
+  form.querySelector('input[name="farm_capacity"]').value = item.farm_capacity || "";
+  form.querySelector('input[name="active_sheds"]').value = item.active_sheds || 1;
+  const submitButton = form.querySelector("[data-owner-enroll-submit]");
+  const cancelButton = form.querySelector("[data-owner-enroll-cancel]");
+  if (submitButton) submitButton.textContent = "Save Changes";
+  if (cancelButton) cancelButton.hidden = false;
+  setStatus(".owner-create-note", `Editing ${item.farmer_name || item.farm_name || "farmer"} account.`);
+  form.scrollIntoView({ behavior: "smooth", block: "start" });
 }
 
 async function requireOwnerSession({ allowLoginPage = false } = {}) {
@@ -398,9 +456,26 @@ if (loginForm) {
 
 const enrollFarmerForm = document.querySelector("[data-owner-enroll-farmer]");
 if (enrollFarmerForm) {
+  const cancelEditButton = enrollFarmerForm.querySelector("[data-owner-enroll-cancel]");
+  cancelEditButton?.addEventListener("click", () => {
+    resetOwnerEnrollmentForm();
+    setStatus(".owner-create-note", "");
+  });
+
+  document.addEventListener("click", (event) => {
+    const trigger = event.target.closest("[data-owner-edit-farmer]");
+    if (!trigger) return;
+    try {
+      startOwnerFarmerEdit(JSON.parse(decodeURIComponent(trigger.getAttribute("data-owner-edit-farmer"))));
+    } catch (error) {
+      console.error(error);
+    }
+  });
+
   enrollFarmerForm.addEventListener("submit", async (event) => {
     event.preventDefault();
     const formData = new FormData(enrollFarmerForm);
+    const editingFarmerCode = formData.get("editing_farmer_code");
     const payload = {
       farmer_name: formData.get("farmer_name"),
       phone: formData.get("phone"),
@@ -415,20 +490,21 @@ if (enrollFarmerForm) {
     };
 
     try {
-      const result = await requestJson(`${ownerApiBase}/farmers`, {
-        method: "POST",
+      const result = await requestJson(editingFarmerCode ? `${ownerApiBase}/farmers/${editingFarmerCode}` : `${ownerApiBase}/farmers`, {
+        method: editingFarmerCode ? "PUT" : "POST",
         body: JSON.stringify(payload),
       });
-      setStatus(
-        ".owner-create-note",
-        `Farmer account create ho gaya: ${result.farmer.farmer_name} • ${result.farmer.phone} • Password ${result.login_password}`
-      );
-      enrollFarmerForm.reset();
+      setStatus(".owner-create-note", editingFarmerCode
+        ? `Farmer account update ho gaya: ${result.farmer.farmer_name} • ${result.farmer.phone}`
+        : `Farmer account create ho gaya: ${result.farmer.farmer_name} • ${result.farmer.phone} • Password ${result.login_password}`);
+      resetOwnerEnrollmentForm();
       const shedsInput = enrollFarmerForm.querySelector('input[name="active_sheds"]');
       if (shedsInput) shedsInput.value = "1";
       loadFarms().catch(console.error);
     } catch (error) {
-      setStatus(".owner-create-note", "Farmer create nahi ho paaya. Phone ya farmer code dobara check karein.", true);
+      setStatus(".owner-create-note", editingFarmerCode
+        ? "Farmer update nahi ho paaya. Details dobara check karein."
+        : "Farmer create nahi ho paaya. Phone ya farmer code dobara check karein.", true);
     }
   });
 }

@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Utsav Farmer Daily Entry | दैनिक एंट्री</title>
-    <link rel="stylesheet" href="/farmer-app/styles.css?v=20260533" />
+    <link rel="stylesheet" href="/farmer-app/styles.css?v=20260534" />
   </head>
   <body class="fa-body" data-fa-page="daily-entry">
     <div class="fa-app-shell">
@@ -78,6 +78,7 @@
             </article>
           </div>
           <form class="fa-form fa-multi-form" data-daily-entry-form enctype="multipart/form-data">
+            <input name="editing_entry_id" type="hidden" />
             <div class="fa-form-block full">
               <div class="fa-form-block-head">
                 <p class="fa-eyebrow">Basic Detail</p>
@@ -193,7 +194,10 @@
                 </label>
               </div>
             </div>
-            <button class="fa-primary-btn" type="submit">Aaj ki report bhejein</button>
+            <div class="fa-form-actions full">
+              <button class="fa-primary-btn" type="submit" data-daily-submit-btn>Aaj ki report bhejein</button>
+              <button class="fa-secondary-btn" type="button" data-daily-cancel-edit hidden>Edit cancel karein</button>
+            </div>
           </form>
           <p class="fa-status-message" data-daily-entry-status></p>
         </section>
@@ -227,6 +231,6 @@
       <a href="./requests.html">Requests</a>
       <a href="./uploads.html">Uploads</a>
     </nav>
-    <script src="/farmer-app/app.js?v=20260535"></script>
+    <script src="/farmer-app/app.js?v=20260536"></script>
   </body>
 </html>
