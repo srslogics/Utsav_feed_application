@@ -2,6 +2,11 @@ const apiOrigin = window.location.protocol === "file:" ? "http://127.0.0.1:8000"
 const ownerApiBase = `${apiOrigin}/api/owner`;
 const authApiBase = `${apiOrigin}/api/auth`;
 
+function navigate(url) {
+  if (window.location.pathname === url) return;
+  window.location.replace(url);
+}
+
 async function requestJson(url, options = {}) {
   const response = await fetch(url, {
     credentials: "include",
@@ -87,26 +92,56 @@ async function requireOwnerSession({ allowLoginPage = false } = {}) {
   try {
     const session = await requestJson(`${authApiBase}/session`);
     if (session.role !== "owner") {
-      window.location.href = "/owner-app/";
+      navigate("/owner-app/");
       return null;
     }
     populateProfile(session.user);
     if (allowLoginPage) {
-      window.location.href = "/owner-app/dashboard.html";
-      return null;
+      return session.user;
     }
     return session.user;
   } catch {
     if (!allowLoginPage) {
-      window.location.href = "/owner-app/";
+      navigate("/owner-app/");
     }
     return null;
   }
 }
 
+async function ensureOwnerPage() {
+  const session = await requireOwnerSession();
+  if (!session) return null;
+  return session;
+}
+
+function goToOwnerDashboard() {
+  navigate("/owner-app/dashboard.html");
+}
+
+function goToOwnerLogin() {
+  navigate("/owner-app/");
+}
+
+function showAlreadyLoggedInAction() {
+  const loginForm = document.querySelector("[data-owner-login]");
+  const note = document.querySelector(".fa-form-note");
+  if (!loginForm || !note) return;
+  note.textContent = "Aap pehle se login hain. Dashboard kholne ke liye neeche button dabayein.";
+  note.classList.remove("is-error");
+  let quickButton = document.querySelector("[data-owner-open-dashboard]");
+  if (quickButton) return;
+  quickButton = document.createElement("button");
+  quickButton.type = "button";
+  quickButton.className = "fa-secondary-btn";
+  quickButton.setAttribute("data-owner-open-dashboard", "true");
+  quickButton.textContent = "Open Dashboard";
+  quickButton.addEventListener("click", goToOwnerDashboard);
+  loginForm.appendChild(quickButton);
+}
+
 function handlePageError(error) {
   if (error?.status === 401) {
-    window.location.href = "/owner-app/";
+    goToOwnerLogin();
     return;
   }
   console.error(error);
@@ -153,7 +188,9 @@ async function loadFinance() {
 
 const loginForm = document.querySelector("[data-owner-login]");
 if (loginForm) {
-  requireOwnerSession({ allowLoginPage: true });
+  requireOwnerSession({ allowLoginPage: true }).then((user) => {
+    if (user) showAlreadyLoggedInAction();
+  });
   loginForm.addEventListener("submit", async (event) => {
     event.preventDefault();
     const formData = new FormData(loginForm);
@@ -166,7 +203,7 @@ if (loginForm) {
           role: "owner",
         }),
       });
-      window.location.href = result.redirect || "/owner-app/dashboard.html";
+      navigate(result.redirect || "/owner-app/dashboard.html");
     } catch {
       setStatus(".fa-form-note", "Login nahi ho paaya. Owner credentials dobara check karein.", true);
     }
@@ -215,14 +252,17 @@ if (createFarmerForm) {
 document.querySelectorAll("[data-owner-logout]").forEach((button) => {
   button.addEventListener("click", async () => {
     await requestJson(`${authApiBase}/logout`, { method: "POST" });
-    window.location.href = "/owner-app/";
+    goToOwnerLogin();
   });
 });
 
 const page = document.body.dataset.ownerPage;
 if (page) {
-  if (page === "dashboard") loadDashboard().catch(handlePageError);
-  if (page === "farms") loadFarms().catch(handlePageError);
-  if (page === "operations") loadOperations().catch(handlePageError);
-  if (page === "finance") loadFinance().catch(handlePageError);
+  ensureOwnerPage().then((user) => {
+    if (!user) return;
+    if (page === "dashboard") loadDashboard().catch(handlePageError);
+    if (page === "farms") loadFarms().catch(handlePageError);
+    if (page === "operations") loadOperations().catch(handlePageError);
+    if (page === "finance") loadFinance().catch(handlePageError);
+  });
 }
