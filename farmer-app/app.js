@@ -45,6 +45,40 @@ function populateProfile(profile) {
   document.querySelectorAll("[data-profile-batch]").forEach((el) => (el.textContent = profile.active_batch ? `Batch ${profile.active_batch}` : ""));
   document.querySelectorAll("[data-profile-capacity]").forEach((el) => (el.textContent = profile.farm_capacity || ""));
   document.querySelectorAll("[data-profile-officer]").forEach((el) => (el.textContent = profile.field_officer || ""));
+  populateShedOptions(profile);
+}
+
+function normalizeShedLabel(value) {
+  return (value || "").trim();
+}
+
+function buildShedList(profile) {
+  const sheds = [];
+  const activeSheds = Number(profile?.active_sheds || 0);
+  for (let index = 1; index <= activeSheds; index += 1) {
+    sheds.push(`Shed ${index}`);
+  }
+  const currentShed = normalizeShedLabel(profile?.current_shed);
+  if (currentShed && !sheds.includes(currentShed)) {
+    sheds.unshift(currentShed);
+  }
+  return sheds.length ? sheds : ["Shed 1"];
+}
+
+function populateShedOptions(profile) {
+  const sheds = buildShedList(profile);
+  document.querySelectorAll('select[name="shed"]').forEach((select) => {
+    const currentValue = select.value;
+    const options = ['<option value="">Select shed</option>'].concat(
+      sheds.map((shed) => `<option value="${shed}">${shed}</option>`)
+    );
+    select.innerHTML = options.join("");
+    if (currentValue && sheds.includes(currentValue)) {
+      select.value = currentValue;
+    } else if (!currentValue && sheds.length === 1) {
+      select.value = sheds[0];
+    }
+  });
 }
 
 function hydrateCachedProfile() {
