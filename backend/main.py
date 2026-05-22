@@ -737,7 +737,7 @@ def latest_date_entries(entries: list[DailyEntry]) -> list[DailyEntry]:
 
 
 def farmer_seed_bundles(seed_data: dict) -> list[dict]:
-    if seed_data.get("farmers"):
+    if "farmers" in seed_data:
         return seed_data["farmers"]
     return [
         {
@@ -758,10 +758,13 @@ def farmer_seed_bundles(seed_data: dict) -> list[dict]:
 
 
 def create_farmer_user(profile: dict) -> User:
+    normalized_phone = normalize_phone(profile.get("phone", ""))
+    if not normalized_phone:
+        raise ValueError("Farmer seed profile requires a phone number.")
     return User(
         role="farmer",
         name=profile.get("farmer_name", "Farmer"),
-        phone=normalize_phone(profile.get("phone", "")),
+        phone=normalized_phone,
         password_hash=hash_password(profile.get("password", os.getenv("FARMER_APP_DEFAULT_PASSWORD", "changeme"))),
         cluster=profile.get("cluster", ""),
         farm_name=profile.get("farm_name", ""),
@@ -895,7 +898,10 @@ def seed_database_from_json() -> None:
                 )
             for bundle in bundles:
                 farmer_profile = bundle.get("profile", {})
-                farmer = db.scalar(select(User).where(User.role == "farmer", User.phone == farmer_profile.get("phone")))
+                normalized_farmer_phone = normalize_phone(farmer_profile.get("phone", ""))
+                if not normalized_farmer_phone:
+                    continue
+                farmer = db.scalar(select(User).where(User.role == "farmer", User.phone == normalized_farmer_phone))
                 if not farmer and farmer_profile.get("farmer_code"):
                     farmer = db.scalar(select(User).where(User.role == "farmer", User.farmer_code == farmer_profile.get("farmer_code")))
                 if not farmer:
@@ -923,6 +929,8 @@ def seed_database_from_json() -> None:
         db.flush()
         for bundle in bundles:
             farmer_profile = bundle.get("profile", {})
+            if not normalize_phone(farmer_profile.get("phone", "")):
+                continue
             farmer = create_farmer_user(farmer_profile)
             db.add(farmer)
             db.flush()
