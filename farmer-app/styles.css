@@ -1,15 +1,25 @@
 :root {
-  --fa-bg: #efe5d9;
-  --fa-surface: rgba(255, 251, 247, 0.96);
-  --fa-surface-soft: rgba(108, 77, 60, 0.09);
-  --fa-border: rgba(61, 43, 34, 0.11);
-  --fa-text: #1d1714;
-  --fa-muted: #73675f;
-  --fa-primary: #6c4d3c;
-  --fa-primary-dark: #241915;
-  --fa-accent: #d3a87a;
-  --fa-accent-strong: #bf8a54;
-  --fa-shadow: 0 28px 70px rgba(34, 23, 16, 0.14);
+  --fa-bg: #efe7dd;
+  --fa-surface: rgba(255, 252, 248, 0.97);
+  --fa-surface-strong: rgba(255, 255, 255, 0.99);
+  --fa-surface-soft: rgba(113, 83, 60, 0.08);
+  --fa-border: rgba(78, 58, 46, 0.1);
+  --fa-border-strong: rgba(78, 58, 46, 0.16);
+  --fa-text: #1f1916;
+  --fa-muted: #6f635b;
+  --fa-primary: #6f513d;
+  --fa-primary-dark: #2b201a;
+  --fa-accent: #d7b18a;
+  --fa-accent-strong: #c58d54;
+  --fa-accent-soft: rgba(197, 141, 84, 0.14);
+  --fa-success: #25634d;
+  --fa-danger: #a33636;
+  --fa-shadow: 0 22px 50px rgba(39, 27, 19, 0.08);
+  --fa-shadow-soft: 0 10px 24px rgba(39, 27, 19, 0.06);
+  --fa-radius-xl: 30px;
+  --fa-radius-lg: 24px;
+  --fa-radius-md: 18px;
+  --fa-radius-sm: 14px;
   --fa-font-sans: "Segoe UI", "Inter", "Noto Sans", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
   --fa-font-display: "Aptos Display", "Segoe UI Semibold", "Inter", system-ui, sans-serif;
 }
@@ -24,9 +34,9 @@ body {
   font-family: var(--fa-font-sans);
   color: var(--fa-text);
   background:
-    radial-gradient(circle at top left, rgba(191, 138, 84, 0.18), transparent 24%),
-    radial-gradient(circle at right 18%, rgba(108, 77, 60, 0.12), transparent 22%),
-    linear-gradient(180deg, #f5eee6 0%, #dfd1c2 100%);
+    radial-gradient(circle at top left, rgba(197, 141, 84, 0.14), transparent 24%),
+    radial-gradient(circle at right 20%, rgba(111, 81, 61, 0.08), transparent 20%),
+    linear-gradient(180deg, #f6efe7 0%, #e2d6c9 100%);
 }
 
 a {
@@ -39,6 +49,13 @@ input,
 select,
 textarea {
   font: inherit;
+}
+
+input,
+select,
+textarea,
+button {
+  -webkit-tap-highlight-color: transparent;
 }
 
 button {
@@ -68,7 +85,7 @@ button {
 .fa-detail-card,
 .fa-list-card {
   border: 1px solid var(--fa-border);
-  border-radius: 30px;
+  border-radius: var(--fa-radius-xl);
   background: var(--fa-surface);
   box-shadow: var(--fa-shadow);
 }
@@ -82,7 +99,7 @@ button {
   position: relative;
   overflow: hidden;
   background:
-    linear-gradient(145deg, rgba(255, 251, 247, 0.98), rgba(248, 240, 232, 0.96)),
+    linear-gradient(145deg, rgba(255, 252, 248, 0.99), rgba(248, 241, 234, 0.96)),
     var(--fa-surface);
 }
 
@@ -94,7 +111,7 @@ button {
   width: 220px;
   height: 220px;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(191, 138, 84, 0.25), transparent 70%);
+  background: radial-gradient(circle, rgba(197, 141, 84, 0.2), transparent 70%);
   pointer-events: none;
 }
 
@@ -115,14 +132,16 @@ button {
 .fa-brand-mark {
   display: grid;
   place-items: center;
-  width: 58px;
-  height: 58px;
-  border-radius: 18px;
+  width: 60px;
+  height: 60px;
+  border-radius: 20px;
   background: linear-gradient(135deg, var(--fa-primary-dark), var(--fa-primary), var(--fa-accent-strong));
   color: #fff;
   font-weight: 700;
   letter-spacing: 0.06em;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.16);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.16),
+    0 12px 26px rgba(57, 39, 28, 0.16);
 }
 
 .fa-eyebrow {
@@ -151,8 +170,9 @@ button {
 
 .fa-copy h2 {
   margin: 0.35rem 0 0.7rem;
-  font-size: clamp(2.5rem, 5vw, 5rem);
-  line-height: 0.96;
+  font-size: clamp(2.25rem, 4vw, 4.5rem);
+  line-height: 0.98;
+  letter-spacing: -0.04em;
 }
 
 .fa-copy p,
@@ -209,18 +229,38 @@ button {
 .fa-form label {
   display: grid;
   gap: 0.4rem;
-  color: var(--fa-muted);
+  color: #594c44;
+  font-size: 0.93rem;
+  font-weight: 600;
 }
 
 .fa-form input,
 .fa-form select,
 .fa-form textarea {
   width: 100%;
-  padding: 0.92rem 1rem;
-  border-radius: 16px;
+  padding: 0.96rem 1rem;
+  border-radius: var(--fa-radius-sm);
   border: 1px solid var(--fa-border);
-  background: rgba(255, 255, 255, 0.9);
+  background: rgba(255, 255, 255, 0.92);
   color: var(--fa-text);
+  transition: border-color 140ms ease, box-shadow 140ms ease, background 140ms ease;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.65);
+}
+
+.fa-form input::placeholder,
+.fa-form textarea::placeholder {
+  color: #97887d;
+}
+
+.fa-form input:focus,
+.fa-form select:focus,
+.fa-form textarea:focus {
+  outline: none;
+  border-color: rgba(197, 141, 84, 0.65);
+  background: rgba(255, 255, 255, 0.99);
+  box-shadow:
+    0 0 0 4px rgba(197, 141, 84, 0.14),
+    inset 0 1px 0 rgba(255, 255, 255, 0.75);
 }
 
 .fa-form textarea {
@@ -250,26 +290,37 @@ button {
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  min-height: 48px;
   padding: 0.98rem 1.24rem;
   border-radius: 999px;
   border: 1px solid var(--fa-border);
-  transition: transform 140ms ease, box-shadow 140ms ease;
+  transition: transform 140ms ease, box-shadow 140ms ease, background 140ms ease, border-color 140ms ease;
+  font-weight: 700;
 }
 
 .fa-primary-btn {
   background: linear-gradient(135deg, var(--fa-primary-dark), var(--fa-primary), var(--fa-accent-strong));
   color: #fff;
-  box-shadow: 0 16px 30px rgba(42, 29, 21, 0.2);
+  box-shadow: 0 16px 30px rgba(42, 29, 21, 0.18);
 }
 
 .fa-secondary-btn {
-  background: rgba(255, 251, 247, 0.85);
+  background: rgba(255, 251, 247, 0.9);
   color: var(--fa-text);
+  box-shadow: var(--fa-shadow-soft);
 }
 
 .fa-primary-btn:hover,
 .fa-secondary-btn:hover {
   transform: translateY(-1px);
+}
+
+.fa-primary-btn:focus-visible,
+.fa-secondary-btn:focus-visible,
+.fa-nav a:focus-visible,
+.fa-bottom-nav a:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 4px rgba(197, 141, 84, 0.18);
 }
 
 .fa-auth-card {
@@ -307,17 +358,22 @@ button {
   align-items: stretch;
   gap: 1.25rem;
   padding: 1.25rem;
+  max-width: 1500px;
+  margin: 0 auto;
 }
 
 .fa-sidebar {
-  width: 250px;
-  padding: 1.2rem;
+  width: 272px;
+  padding: 1.25rem;
   display: grid;
   align-content: start;
   gap: 1.1rem;
   background:
-    linear-gradient(180deg, rgba(255, 249, 244, 0.96), rgba(242, 229, 216, 0.96)),
+    linear-gradient(180deg, rgba(255, 249, 244, 0.98), rgba(245, 233, 221, 0.96)),
     var(--fa-surface);
+  position: sticky;
+  top: 1.25rem;
+  max-height: calc(100vh - 2.5rem);
 }
 
 .fa-nav {
@@ -326,11 +382,12 @@ button {
 }
 
 .fa-nav a {
-  padding: 0.92rem 1rem;
-  border-radius: 18px;
+  padding: 0.95rem 1rem;
+  border-radius: var(--fa-radius-md);
   color: var(--fa-muted);
   border: 1px solid transparent;
   font-weight: 600;
+  transition: background 140ms ease, color 140ms ease, border-color 140ms ease;
 }
 
 .fa-nav a.is-active,
@@ -342,8 +399,9 @@ button {
 
 .fa-sidebar-card {
   padding: 1rem;
-  border-radius: 22px;
+  border-radius: var(--fa-radius-lg);
   background: var(--fa-surface-soft);
+  border: 1px solid rgba(78, 58, 46, 0.08);
 }
 
 .fa-sidebar-card strong {
@@ -360,16 +418,18 @@ button {
   flex: 1 1 auto;
   display: grid;
   gap: 1rem;
+  min-width: 0;
 }
 
 .fa-page-head {
-  padding: 0.4rem 0.2rem 0;
+  padding: 0.2rem 0.2rem 0;
 }
 
 .fa-page-head h2 {
   margin: 0.18rem 0 0;
   font-family: var(--fa-font-display);
   font-size: clamp(1.8rem, 3.4vw, 2.5rem);
+  letter-spacing: -0.03em;
 }
 
 .fa-page-intro {
@@ -408,7 +468,9 @@ button {
 
 .fa-kpi-card,
 .fa-detail-card {
-  padding: 1.1rem;
+  padding: 1.15rem;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(251, 246, 240, 0.95));
+  box-shadow: var(--fa-shadow-soft);
 }
 
 .fa-kpi-card span,
@@ -426,10 +488,13 @@ button {
   margin-top: 0.35rem;
   font-size: 1.45rem;
   color: var(--fa-text);
+  letter-spacing: -0.03em;
 }
 
 .fa-section {
   padding: 1.3rem;
+  background:
+    linear-gradient(180deg, rgba(255, 254, 252, 0.98), rgba(248, 241, 234, 0.94));
 }
 
 .fa-hero-card {
@@ -494,9 +559,10 @@ button {
   display: grid;
   gap: 0.2rem;
   padding: 0.95rem 1rem;
-  border-radius: 22px;
+  border-radius: var(--fa-radius-lg);
   background: linear-gradient(135deg, rgba(36, 25, 21, 0.94), rgba(108, 77, 60, 0.9));
   color: #fff;
+  box-shadow: 0 18px 34px rgba(44, 30, 22, 0.18);
 }
 
 .fa-farm-strip span,
@@ -597,8 +663,9 @@ button {
   gap: 0.95rem;
   padding: 1rem;
   border: 1px solid var(--fa-border);
-  border-radius: 24px;
-  background: rgba(255, 255, 255, 0.62);
+  border-radius: var(--fa-radius-lg);
+  background: rgba(255, 255, 255, 0.72);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.6);
 }
 
 .fa-form-block-head p {
@@ -624,12 +691,14 @@ button {
 }
 
 .fa-list-card {
-  padding: 0.2rem 1rem;
+  padding: 0.25rem 1rem;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(250, 244, 238, 0.94));
 }
 
 .fa-list-row {
-  padding: 0.9rem 0;
+  padding: 0.95rem 0;
   border-bottom: 1px solid var(--fa-border);
+  align-items: flex-start;
 }
 
 .fa-list-row:last-child {
@@ -646,6 +715,7 @@ button {
 .fa-list-row strong {
   font-family: var(--fa-font-display);
   color: var(--fa-text);
+  font-size: 0.96rem;
 }
 
 .fa-request-form {
@@ -659,17 +729,19 @@ button {
 .fa-status-message {
   min-height: 1.25rem;
   margin: 0.8rem 0 0;
-  color: #25634d;
+  color: var(--fa-success);
   font-size: 0.94rem;
+  font-weight: 600;
 }
 
 .fa-status-message.is-error {
-  color: #a33636;
+  color: var(--fa-danger);
 }
 
 .fa-empty-state {
   padding: 1rem 0;
   color: var(--fa-muted);
+  font-style: italic;
 }
 
 @media (max-width: 980px) {
