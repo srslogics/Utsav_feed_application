@@ -716,7 +716,7 @@
   }
 
   .owner-body .fa-page-actions .fa-secondary-btn {
-    width: 100%;
+    width: auto;
   }
 
   .owner-edit-row-side {
@@ -785,9 +785,9 @@
   }
 
   .owner-hero {
-    padding: 0.9rem;
-    gap: 0.7rem;
-    border-radius: 20px;
+    padding: 0.82rem;
+    gap: 0.62rem;
+    border-radius: 18px;
   }
 
   .owner-hero-copy h3 {
@@ -806,8 +806,8 @@
 
   .owner-hero-rail a,
   .owner-hero-rail article {
-    padding: 0.72rem 0.78rem;
-    border-radius: 16px;
+    padding: 0.62rem 0.7rem;
+    border-radius: 14px;
   }
 
   .owner-body .fa-page-head h2 {
@@ -825,7 +825,7 @@
 
   .owner-form-band,
   .owner-subsection {
-    padding: 0.85rem;
+    padding: 0.76rem;
     border-radius: 16px;
   }
 
@@ -840,14 +840,25 @@
 
   .owner-body .fa-page-actions {
     width: 100%;
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 0.6rem;
-    align-items: stretch;
+    display: flex;
+    gap: 0.45rem;
+    overflow-x: auto;
+    padding-bottom: 0.1rem;
+    align-items: center;
+    scrollbar-width: none;
+  }
+
+  .owner-body .fa-page-actions::-webkit-scrollbar {
+    display: none;
   }
 
   .owner-body .fa-page-actions .fa-secondary-btn {
     width: auto;
+    min-height: 36px;
+    padding: 0.52rem 0.76rem;
+    font-size: 0.8rem;
+    white-space: nowrap;
+    flex: 0 0 auto;
   }
 
   .owner-hierarchy-toolbar {
@@ -880,7 +891,7 @@
 
   .owner-bottom-nav {
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 0.45rem;
+    gap: 0.32rem;
   }
 
   .owner-bottom-nav-five {
@@ -888,9 +899,9 @@
   }
 
   .owner-bottom-nav a {
-    min-height: 46px;
-    padding: 0.58rem 0.35rem;
-    font-size: 0.72rem;
+    min-height: 42px;
+    padding: 0.48rem 0.28rem;
+    font-size: 0.68rem;
     line-height: 1.15;
   }
 
@@ -905,8 +916,22 @@
     gap: 0.65rem;
   }
 
+  .owner-body .fa-list-row .fa-form-actions {
+    width: 100%;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+  }
+
+  .owner-body .fa-list-row .fa-form-actions .fa-primary-btn,
+  .owner-body .fa-list-row .fa-form-actions .fa-secondary-btn {
+    width: auto;
+    max-width: 100%;
+    flex: 0 0 auto;
+    align-self: flex-start;
+  }
+
   .owner-body .fa-list-card {
-    padding: 0.35rem;
+    padding: 0.12rem 0.46rem;
   }
 
   .owner-body .fa-section,
@@ -919,19 +944,36 @@
 
   .owner-edit-card-actions .fa-secondary-btn,
   .owner-edit-row-actions .fa-secondary-btn {
-    flex: 1 1 140px;
+    flex: 0 0 auto;
+    min-height: 36px;
+    padding: 0.58rem 0.82rem;
+    font-size: 0.84rem;
   }
 
   .owner-edit-card-actions,
   .owner-edit-row-actions,
   .owner-form-actions {
-    flex-direction: column;
-    align-items: stretch;
+    flex-direction: row;
+    align-items: center;
+    flex-wrap: wrap;
   }
 
   .owner-edit-row-side {
     gap: 0.7rem;
     width: 100%;
+  }
+
+  .owner-edit-card {
+    gap: 0.5rem;
+  }
+
+  .owner-form-actions .fa-primary-btn,
+  .owner-form-actions .fa-secondary-btn {
+    flex: 0 0 auto;
+    min-height: 36px;
+    padding: 0.58rem 0.82rem;
+    font-size: 0.84rem;
+    width: auto;
   }
 
   .owner-body .fa-form input,
@@ -945,11 +987,11 @@
   }
 
   .owner-hierarchy-farm-head {
-    padding: 0.78rem 0.82rem;
+    padding: 0.68rem 0.74rem;
   }
 
   .owner-hierarchy-shed-head {
-    padding: 0.68rem 0.78rem;
+    padding: 0.6rem 0.7rem;
   }
 
   .owner-hierarchy-title h4,
@@ -963,10 +1005,6 @@
 }
 
 @media (max-width: 420px) {
-  .owner-body .fa-page-actions {
-    grid-template-columns: 1fr;
-  }
-
   .owner-hierarchy-toolbar {
     grid-template-columns: 1fr;
   }
