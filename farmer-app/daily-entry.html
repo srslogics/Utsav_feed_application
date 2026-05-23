@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Utsav Farmer Daily Entry | दैनिक एंट्री</title>
-    <link rel="stylesheet" href="/farmer-app/styles.css?v=20260534" />
+    <link rel="stylesheet" href="/farmer-app/styles.css?v=20260538" />
   </head>
   <body class="fa-body" data-fa-page="daily-entry">
     <div class="fa-app-shell">
@@ -43,7 +43,34 @@
           </div>
         </header>
 
-        <section class="fa-section">
+        <section class="fa-module-hero">
+          <div class="fa-module-hero-copy">
+            <p class="fa-eyebrow">Daily Reporting | Roz ki report</p>
+            <h3>Owner ko batch ki actual condition samajhne ke liye sirf useful details dijiye.</h3>
+            <p>Form ko is tarah compact rakha gaya hai ki farmer roz jaldi entry kar sake aur owner ko shed-wise clear picture mil jaye.</p>
+          </div>
+          <div class="fa-meta-strip">
+            <article>
+              <span>Farm</span>
+              <strong data-profile-farm></strong>
+            </article>
+            <article>
+              <span>Batch</span>
+              <strong data-profile-batch></strong>
+            </article>
+            <article>
+              <span>Current shed</span>
+              <strong data-profile-current-shed></strong>
+            </article>
+            <article>
+              <span>Officer</span>
+              <strong data-profile-officer></strong>
+            </article>
+          </div>
+        </section>
+
+        <section class="fa-work-grid">
+          <section class="fa-section">
           <div class="fa-section-head">
             <div>
               <p class="fa-eyebrow">Daily Submission</p>
@@ -200,26 +227,29 @@
             </div>
           </form>
           <p class="fa-status-message" data-daily-entry-status></p>
-        </section>
+          </section>
 
-        <section class="fa-section">
-          <div class="fa-section-head">
-            <div>
-              <p class="fa-eyebrow">Recent Entries</p>
-              <h3>Recent entries</h3>
-            </div>
-          </div>
-          <div class="fa-list-card" id="daily-entry-history"></div>
-        </section>
+          <div class="fa-side-stack">
+            <section class="fa-section">
+              <div class="fa-section-head">
+                <div>
+                  <p class="fa-eyebrow">Recent Entries</p>
+                  <h3>Recent entries</h3>
+                </div>
+              </div>
+              <div class="fa-list-card" id="daily-entry-history"></div>
+            </section>
 
-        <section class="fa-section">
-          <div class="fa-section-head">
-            <div>
-              <p class="fa-eyebrow">Vaccination</p>
-              <h3>Vaccine record</h3>
-            </div>
+            <section class="fa-section">
+              <div class="fa-section-head">
+                <div>
+                  <p class="fa-eyebrow">Vaccination</p>
+                  <h3>Vaccine record</h3>
+                </div>
+              </div>
+              <div class="fa-list-card" id="daily-vaccine-history"></div>
+            </section>
           </div>
-          <div class="fa-list-card" id="daily-vaccine-history"></div>
         </section>
       </main>
     </div>
@@ -231,6 +261,6 @@
       <a href="./requests.html">Requests</a>
       <a href="./uploads.html">Uploads</a>
     </nav>
-    <script src="/farmer-app/app.js?v=20260537"></script>
+    <script src="/farmer-app/app.js?v=20260540"></script>
   </body>
 </html>

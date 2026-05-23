@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Utsav Farmer Health | दवाई और हेल्थ</title>
-    <link rel="stylesheet" href="/farmer-app/styles.css?v=20260534" />
+    <link rel="stylesheet" href="/farmer-app/styles.css?v=20260538" />
   </head>
   <body class="fa-body" data-fa-page="health">
     <div class="fa-app-shell">
@@ -43,7 +43,34 @@
           </div>
         </header>
 
-        <section class="fa-section" id="medicine-stock-form">
+        <section class="fa-module-hero">
+          <div class="fa-module-hero-copy">
+            <p class="fa-eyebrow">Health Monitoring | Dawai aur vaccine</p>
+            <h3>Stock, use, aur vaccine position ek hi jagah se clearly maintain kijiye.</h3>
+            <p>Health page ko itna direct rakha gaya hai ki farmer easily bata sake kya available hai, kya diya gaya hai, aur kya due hai.</p>
+          </div>
+          <div class="fa-meta-strip">
+            <article>
+              <span>Farm</span>
+              <strong data-profile-farm></strong>
+            </article>
+            <article>
+              <span>Batch</span>
+              <strong data-profile-batch></strong>
+            </article>
+            <article>
+              <span>Officer</span>
+              <strong data-profile-officer></strong>
+            </article>
+            <article>
+              <span>Cluster</span>
+              <strong data-profile-cluster></strong>
+            </article>
+          </div>
+        </section>
+
+        <section class="fa-work-grid">
+          <section class="fa-section" id="medicine-stock-form">
           <div class="fa-section-head">
             <div>
               <p class="fa-eyebrow">Medicine Stock</p>
@@ -74,9 +101,9 @@
             <button class="fa-primary-btn" type="submit">Dawai stock save karein</button>
           </form>
           <p class="fa-status-message" data-medicine-stock-status></p>
-        </section>
+          </section>
 
-        <section class="fa-section" id="health-vaccines">
+          <section class="fa-section" id="health-summary-section">
           <div class="fa-section-head">
             <div>
               <p class="fa-eyebrow">Medicine Status</p>
@@ -84,36 +111,18 @@
             </div>
           </div>
           <div class="fa-detail-grid" id="health-summary"></div>
+          </section>
         </section>
 
-        <section class="fa-section" id="medicine-log-form">
-          <div class="fa-section-head">
-            <div>
-              <p class="fa-eyebrow">Medicine Log</p>
-              <h3>Recent log</h3>
+        <section class="fa-work-grid">
+          <section class="fa-section">
+            <div class="fa-section-head">
+              <div>
+                <p class="fa-eyebrow">Medicine Entry</p>
+                <h3>Add medicine log</h3>
+              </div>
             </div>
-          </div>
-          <div class="fa-list-card" id="health-log"></div>
-        </section>
-
-        <section class="fa-section">
-          <div class="fa-section-head">
-            <div>
-              <p class="fa-eyebrow">Vaccination</p>
-              <h3>Vaccine record</h3>
-            </div>
-          </div>
-          <div class="fa-list-card" id="health-vaccines"></div>
-        </section>
-
-        <section class="fa-section">
-          <div class="fa-section-head">
-            <div>
-              <p class="fa-eyebrow">Medicine Entry</p>
-              <h3>Add medicine log</h3>
-            </div>
-          </div>
-          <form class="fa-form fa-inline-form" data-medicine-log-form>
+            <form class="fa-form fa-inline-form" data-medicine-log-form>
             <label>
               Date | तारीख
               <input name="entry_date" type="date" required />
@@ -139,8 +148,31 @@
               <input name="notes" type="text" placeholder="Time ya usage note" />
             </label>
             <button class="fa-primary-btn" type="submit">Dawai entry save karein</button>
-          </form>
-          <p class="fa-status-message" data-medicine-log-status></p>
+            </form>
+            <p class="fa-status-message" data-medicine-log-status></p>
+          </section>
+
+          <div class="fa-side-stack">
+            <section class="fa-section" id="medicine-log-form">
+              <div class="fa-section-head">
+                <div>
+                  <p class="fa-eyebrow">Medicine Log</p>
+                  <h3>Recent log</h3>
+                </div>
+              </div>
+              <div class="fa-list-card" id="health-log"></div>
+            </section>
+
+            <section class="fa-section">
+              <div class="fa-section-head">
+                <div>
+                  <p class="fa-eyebrow">Vaccination</p>
+                  <h3>Vaccine record</h3>
+                </div>
+              </div>
+              <div class="fa-list-card" id="health-vaccines"></div>
+            </section>
+          </div>
         </section>
       </main>
     </div>
@@ -152,6 +184,6 @@
       <a href="./requests.html">Requests</a>
       <a href="./uploads.html">Uploads</a>
     </nav>
-    <script src="/farmer-app/app.js?v=20260537"></script>
+    <script src="/farmer-app/app.js?v=20260540"></script>
   </body>
 </html>

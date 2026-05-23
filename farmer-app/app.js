@@ -61,6 +61,8 @@ function populateProfile(profile) {
   document.querySelectorAll("[data-profile-batch]").forEach((el) => (el.textContent = profile.active_batch ? `Batch ${profile.active_batch}` : ""));
   document.querySelectorAll("[data-profile-capacity]").forEach((el) => (el.textContent = profile.farm_capacity || ""));
   document.querySelectorAll("[data-profile-officer]").forEach((el) => (el.textContent = profile.field_officer || ""));
+  document.querySelectorAll("[data-profile-sheds]").forEach((el) => (el.textContent = profile.active_sheds ? `${profile.active_sheds} sheds` : ""));
+  document.querySelectorAll("[data-profile-current-shed]").forEach((el) => (el.textContent = profile.current_shed || ""));
   const profileForm = document.querySelector("[data-farmer-profile-form]");
   if (profileForm) {
     const setValue = (name, value) => {

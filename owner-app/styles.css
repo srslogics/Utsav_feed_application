@@ -131,6 +131,35 @@
   border-radius: 24px;
 }
 
+.owner-edit-card {
+  display: grid;
+  gap: 0.6rem;
+}
+
+.owner-edit-card-actions,
+.owner-edit-row-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+}
+
+.owner-edit-card-actions .fa-secondary-btn,
+.owner-edit-row-actions .fa-secondary-btn {
+  min-height: auto;
+  padding: 0.62rem 0.9rem;
+  font-size: 0.84rem;
+}
+
+.owner-edit-row {
+  align-items: flex-start;
+}
+
+.owner-edit-row-side {
+  display: grid;
+  justify-items: end;
+  gap: 0.55rem;
+}
+
 .owner-hero {
   display: grid;
   grid-template-columns: minmax(0, 1.2fr) minmax(260px, 0.8fr);
@@ -562,6 +591,15 @@
   .owner-body .fa-page-actions .fa-secondary-btn {
     width: 100%;
   }
+
+  .owner-edit-row-side {
+    width: 100%;
+    justify-items: stretch;
+  }
+
+  .owner-edit-row-actions {
+    width: 100%;
+  }
 }
 
 @media (max-width: 620px) {
@@ -629,6 +667,11 @@
   .owner-body .fa-list-card,
   .owner-body .fa-sidebar {
     box-shadow: 0 8px 18px rgba(20, 20, 27, 0.05);
+  }
+
+  .owner-edit-card-actions .fa-secondary-btn,
+  .owner-edit-row-actions .fa-secondary-btn {
+    flex: 1 1 140px;
   }
 }
 

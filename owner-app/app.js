@@ -128,6 +128,56 @@ function renderOwnerFarmerAccounts(container, items) {
     .join("");
 }
 
+function renderOwnerFarmDirectory(container, items) {
+  if (!container) return;
+  if (!items.length) {
+    container.innerHTML = `<div class="fa-empty-state">Abhi koi record available nahi hai.</div>`;
+    return;
+  }
+  container.innerHTML = items
+    .map(
+      (item) => `
+        <article class="fa-detail-card owner-edit-card">
+          <span>${item.label}</span>
+          <strong>${item.value}</strong>
+          <p>${item.note || ""}</p>
+          <div class="owner-edit-card-actions">
+            <button class="fa-secondary-btn" type="button" data-owner-edit-farm-card="${encodeURIComponent(JSON.stringify(item))}">Edit Farm</button>
+            <button class="fa-secondary-btn" type="button" data-owner-edit-batch-card="${encodeURIComponent(JSON.stringify(item))}">Edit Batch</button>
+          </div>
+        </article>
+      `
+    )
+    .join("");
+}
+
+function renderOwnerLatestEntries(container, items) {
+  if (!container) return;
+  if (!items.length) {
+    container.innerHTML = `<div class="fa-empty-state">Abhi koi record available nahi hai.</div>`;
+    return;
+  }
+  container.innerHTML = items
+    .map(
+      (item) => `
+        <div class="fa-list-row owner-edit-row">
+          <div>
+            <span>${item.label}</span>
+            ${item.note ? `<p>${item.note}</p>` : ""}
+          </div>
+          <div class="owner-edit-row-side">
+            <strong>${item.value}</strong>
+            <div class="owner-edit-row-actions">
+              <button class="fa-secondary-btn" type="button" data-owner-edit-farm-card="${encodeURIComponent(JSON.stringify(item))}">Edit Farm</button>
+              <button class="fa-secondary-btn" type="button" data-owner-edit-batch-card="${encodeURIComponent(JSON.stringify(item))}">Edit Batch</button>
+            </div>
+          </div>
+        </div>
+      `
+    )
+    .join("");
+}
+
 function renderDailyEntryHierarchy(container, farms) {
   const summary = document.querySelector("#owner-operations-daily-summary");
   if (!container) return;
@@ -256,8 +306,8 @@ function renderDashboardData(data) {
 function renderFarmsData(data) {
   if (!data) return;
   populateProfile(data.profile);
-  renderGrid(document.querySelector("#owner-farms-directory"), data.farms);
-  renderList(document.querySelector("#owner-farms-latest-entries"), data.latest_entries);
+  renderOwnerFarmDirectory(document.querySelector("#owner-farms-directory"), data.farms);
+  renderOwnerLatestEntries(document.querySelector("#owner-farms-latest-entries"), data.latest_entries);
   renderOwnerFarmerAccounts(document.querySelector("#owner-farmer-accounts"), data.farmer_accounts || []);
   renderList(document.querySelector("#owner-field-officers"), data.field_officers || []);
   populateFarmerSelect(data.farmer_accounts || []);
@@ -345,6 +395,20 @@ function startOwnerFarmerEdit(item) {
   if (cancelButton) cancelButton.hidden = false;
   setStatus(".owner-create-note", `Editing ${item.farmer_name || item.farm_name || "farmer"} account.`);
   form.scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+function startOwnerBatchEdit(item) {
+  const form = document.querySelector("[data-owner-batch-entry]");
+  const farmerSelect = form?.querySelector("[data-owner-farmer-select]");
+  if (!form || !farmerSelect || !item?.farmer_code) return;
+  farmerSelect.value = item.farmer_code || "";
+  syncSelectedFarmerMeta();
+  form.querySelector('input[name="active_batch"]').value = item.active_batch || "";
+  form.querySelector('input[name="current_shed"]').value = item.current_shed || "";
+  form.querySelector('input[name="bird_age_days"]').value = item.bird_age_days ? item.bird_age_days : "";
+  setStatus(".owner-batch-note", `Editing batch details for ${item.farm_name || item.farmer_name || "selected farm"}.`);
+  const anchor = document.querySelector("#owner-batch-entry-anchor");
+  (anchor || form).scrollIntoView({ behavior: "smooth", block: "start" });
 }
 
 async function requireOwnerSession({ allowLoginPage = false } = {}) {
@@ -463,10 +527,25 @@ if (enrollFarmerForm) {
   });
 
   document.addEventListener("click", (event) => {
-    const trigger = event.target.closest("[data-owner-edit-farmer]");
-    if (!trigger) return;
+    const farmerTrigger = event.target.closest("[data-owner-edit-farmer], [data-owner-edit-farm-card]");
+    if (farmerTrigger) {
+      try {
+        startOwnerFarmerEdit(
+          JSON.parse(
+            decodeURIComponent(
+              farmerTrigger.getAttribute("data-owner-edit-farmer") || farmerTrigger.getAttribute("data-owner-edit-farm-card")
+            )
+          )
+        );
+      } catch (error) {
+        console.error(error);
+      }
+      return;
+    }
+    const batchTrigger = event.target.closest("[data-owner-edit-batch-card]");
+    if (!batchTrigger) return;
     try {
-      startOwnerFarmerEdit(JSON.parse(decodeURIComponent(trigger.getAttribute("data-owner-edit-farmer"))));
+      startOwnerBatchEdit(JSON.parse(decodeURIComponent(batchTrigger.getAttribute("data-owner-edit-batch-card"))));
     } catch (error) {
       console.error(error);
     }

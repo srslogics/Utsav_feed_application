@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Utsav Farmer Requests | सहायता अनुरोध</title>
-    <link rel="stylesheet" href="/farmer-app/styles.css?v=20260534" />
+    <link rel="stylesheet" href="/farmer-app/styles.css?v=20260538" />
   </head>
   <body class="fa-body" data-fa-page="requests">
     <div class="fa-app-shell">
@@ -43,14 +43,41 @@
           </div>
         </header>
 
-        <section class="fa-section" id="request-form">
-          <div class="fa-section-head">
-            <div>
-              <p class="fa-eyebrow">New Request</p>
-              <h3>Support request</h3>
-            </div>
+        <section class="fa-module-hero">
+          <div class="fa-module-hero-copy">
+            <p class="fa-eyebrow">Support Flow | Madad ka request</p>
+            <h3>Jab actual support chahiye ho, request ko short aur clear rakhiye.</h3>
+            <p>Issue ka type, urgency, aur seedhi detail owner tak jaldi pahunchni chahiye. Is page ko usi kaam ke liye simple rakha gaya hai.</p>
           </div>
-          <form class="fa-form fa-request-form" data-farmer-request>
+          <div class="fa-meta-strip">
+            <article>
+              <span>Farm</span>
+              <strong data-profile-farm></strong>
+            </article>
+            <article>
+              <span>Batch</span>
+              <strong data-profile-batch></strong>
+            </article>
+            <article>
+              <span>Officer</span>
+              <strong data-profile-officer></strong>
+            </article>
+            <article>
+              <span>Cluster</span>
+              <strong data-profile-cluster></strong>
+            </article>
+          </div>
+        </section>
+
+        <section class="fa-work-grid">
+          <section class="fa-section" id="request-form">
+            <div class="fa-section-head">
+              <div>
+                <p class="fa-eyebrow">New Request</p>
+                <h3>Support request</h3>
+              </div>
+            </div>
+            <form class="fa-form fa-request-form" data-farmer-request>
             <label>
               Request type | अनुरोध का प्रकार
               <select name="type" required>
@@ -75,18 +102,19 @@
               <textarea name="details" placeholder="Farm ki problem ya requirement yahan likhein" required></textarea>
             </label>
             <button class="fa-primary-btn" type="submit">Request bhejein</button>
-          </form>
-          <p class="fa-status-message" data-request-status></p>
-        </section>
+            </form>
+            <p class="fa-status-message" data-request-status></p>
+          </section>
 
-        <section class="fa-section" id="request-history-section">
-          <div class="fa-section-head">
-            <div>
-              <p class="fa-eyebrow">Recent Requests</p>
-              <h3>Request history</h3>
+          <section class="fa-section" id="request-history-section">
+            <div class="fa-section-head">
+              <div>
+                <p class="fa-eyebrow">Recent Requests</p>
+                <h3>Request history</h3>
+              </div>
             </div>
-          </div>
-          <div class="fa-list-card" id="request-history"></div>
+            <div class="fa-list-card" id="request-history"></div>
+          </section>
         </section>
       </main>
     </div>
@@ -98,6 +126,6 @@
       <a class="is-active" href="./requests.html">Requests</a>
       <a href="./uploads.html">Uploads</a>
     </nav>
-    <script src="/farmer-app/app.js?v=20260537"></script>
+    <script src="/farmer-app/app.js?v=20260540"></script>
   </body>
 </html>

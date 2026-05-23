@@ -848,6 +848,17 @@ def summarize_owner_latest_entries(entries: list[DailyEntry], db: Session) -> li
                     f"Mortality {entry.mortality} • Feed {entry.feed_used_bags} bags • "
                     f"Water {entry.water_liters} L • Avg wt {entry.avg_weight_g} g"
                 ),
+                "farmer_code": farmer.farmer_code or "",
+                "farmer_name": farmer.name,
+                "phone": format_phone_display(farmer.phone),
+                "farm_name": farmer.farm_name or "",
+                "cluster": farmer.cluster or "",
+                "field_officer": farmer.field_officer or "",
+                "farm_capacity": farmer.farm_capacity or "",
+                "active_sheds": farmer.active_sheds or 1,
+                "active_batch": farmer.active_batch or "",
+                "current_shed": entry.shed or farmer.current_shed or "",
+                "bird_age_days": farmer.bird_age_days or 0,
             }
         )
     return items[:8]
@@ -2036,6 +2047,18 @@ def owner_farms(request: Request):
                         latest_by_farmer[farm.id].entry_date if farm.id in latest_by_farmer else "",
                     ]
                 ),
+                "farmer_code": farm.farmer_code or "",
+                "farmer_name": farm.name,
+                "phone": format_phone_display(farm.phone),
+                "farm_name": farm.farm_name or "",
+                "cluster": farm.cluster or "",
+                "field_officer": farm.field_officer or "",
+                "field_officer_phone": format_phone_display(field_officer_map[farm.field_officer].phone) if farm.field_officer in field_officer_map else "",
+                "farm_capacity": farm.farm_capacity or "",
+                "active_sheds": farm.active_sheds or 1,
+                "active_batch": farm.active_batch or "",
+                "current_shed": farm.current_shed or "",
+                "bird_age_days": farm.bird_age_days or 0,
             }
             for farm in farmers
         ],

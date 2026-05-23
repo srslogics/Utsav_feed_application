@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Utsav Farmer Uploads | फोटो और दस्तावेज़ अपलोड</title>
-    <link rel="stylesheet" href="/farmer-app/styles.css?v=20260534" />
+    <link rel="stylesheet" href="/farmer-app/styles.css?v=20260538" />
   </head>
   <body class="fa-body" data-fa-page="uploads">
     <div class="fa-app-shell">
@@ -43,14 +43,41 @@
           </div>
         </header>
 
-        <section class="fa-section" id="issue-photo-form">
-          <div class="fa-section-head">
-            <div>
-              <p class="fa-eyebrow">Issue Photo</p>
-              <h3>Upload issue photo</h3>
-            </div>
+        <section class="fa-module-hero">
+          <div class="fa-module-hero-copy">
+            <p class="fa-eyebrow">Photo & Bill Upload | Photo aur document</p>
+            <h3>Photo evidence aur bills ko alag flows me bhejiye, taaki owner ko samajhne me asani ho.</h3>
+            <p>Issue photos aur documents ko ek hi page par rakha gaya hai, lekin dono ka action area clearly alag hai.</p>
           </div>
-          <form class="fa-form fa-request-form" data-issue-photo-form enctype="multipart/form-data">
+          <div class="fa-meta-strip">
+            <article>
+              <span>Farm</span>
+              <strong data-profile-farm></strong>
+            </article>
+            <article>
+              <span>Batch</span>
+              <strong data-profile-batch></strong>
+            </article>
+            <article>
+              <span>Current shed</span>
+              <strong data-profile-current-shed></strong>
+            </article>
+            <article>
+              <span>Officer</span>
+              <strong data-profile-officer></strong>
+            </article>
+          </div>
+        </section>
+
+        <section class="fa-work-grid">
+          <section class="fa-section" id="issue-photo-form">
+            <div class="fa-section-head">
+              <div>
+                <p class="fa-eyebrow">Issue Photo</p>
+                <h3>Upload issue photo</h3>
+              </div>
+            </div>
+            <form class="fa-form fa-request-form" data-issue-photo-form enctype="multipart/form-data">
             <label>
               Issue type | समस्या का प्रकार
               <select name="issue_type" required>
@@ -86,28 +113,30 @@
               <textarea name="notes" placeholder="Chhoti si jankari likhein, jaise problem kaha hai ya kab dekhi gayi"></textarea>
             </label>
             <button class="fa-primary-btn" type="submit">Photo owner ko bhejein</button>
-          </form>
-          <p class="fa-status-message" data-issue-photo-status></p>
+            </form>
+            <p class="fa-status-message" data-issue-photo-status></p>
+          </section>
+
+          <section class="fa-section">
+            <div class="fa-section-head">
+              <div>
+                <p class="fa-eyebrow">Issue Photos</p>
+                <h3>Photo history</h3>
+              </div>
+            </div>
+            <div class="fa-list-card" id="issue-photo-history"></div>
+          </section>
         </section>
 
-        <section class="fa-section">
-          <div class="fa-section-head">
-            <div>
-              <p class="fa-eyebrow">Issue Photos</p>
-              <h3>Photo history</h3>
+        <section class="fa-work-grid">
+          <section class="fa-section">
+            <div class="fa-section-head">
+              <div>
+                <p class="fa-eyebrow">Documents & Bills</p>
+                <h3>Upload document</h3>
+              </div>
             </div>
-          </div>
-          <div class="fa-list-card" id="issue-photo-history"></div>
-        </section>
-
-        <section class="fa-section">
-          <div class="fa-section-head">
-            <div>
-              <p class="fa-eyebrow">Documents & Bills</p>
-              <h3>Upload document</h3>
-            </div>
-          </div>
-          <form class="fa-form fa-request-form" data-document-upload-form enctype="multipart/form-data">
+            <form class="fa-form fa-request-form" data-document-upload-form enctype="multipart/form-data">
             <label>
               Document type | document ka type
               <select name="doc_type" required>
@@ -136,18 +165,19 @@
               <textarea name="notes" placeholder="Owner ko dikhne wali koi bhi baat yahan likhein"></textarea>
             </label>
             <button class="fa-primary-btn" type="submit">Owner system me upload karein</button>
-          </form>
-          <p class="fa-status-message" data-document-status></p>
-        </section>
+            </form>
+            <p class="fa-status-message" data-document-status></p>
+          </section>
 
-        <section class="fa-section">
-          <div class="fa-section-head">
-            <div>
-              <p class="fa-eyebrow">Uploaded Documents</p>
-              <h3>Document history</h3>
+          <section class="fa-section">
+            <div class="fa-section-head">
+              <div>
+                <p class="fa-eyebrow">Uploaded Documents</p>
+                <h3>Document history</h3>
+              </div>
             </div>
-          </div>
-          <div class="fa-list-card" id="document-history"></div>
+            <div class="fa-list-card" id="document-history"></div>
+          </section>
         </section>
       </main>
     </div>
@@ -159,6 +189,6 @@
       <a href="./requests.html">Requests</a>
       <a class="is-active" href="./uploads.html">Uploads</a>
     </nav>
-    <script src="/farmer-app/app.js?v=20260537"></script>
+    <script src="/farmer-app/app.js?v=20260540"></script>
   </body>
 </html>

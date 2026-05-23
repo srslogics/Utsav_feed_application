@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Utsav Farmer Feed | दाना रिकॉर्ड</title>
-    <link rel="stylesheet" href="/farmer-app/styles.css?v=20260534" />
+    <link rel="stylesheet" href="/farmer-app/styles.css?v=20260538" />
   </head>
   <body class="fa-body" data-fa-page="feed">
     <div class="fa-app-shell">
@@ -43,7 +43,34 @@
           </div>
         </header>
 
-        <section class="fa-section" id="feed-balance-form">
+        <section class="fa-module-hero">
+          <div class="fa-module-hero-copy">
+            <p class="fa-eyebrow">Feed Control | Daaney ki dekh-rekh</p>
+            <h3>Current stock aur inward ko alag-alag clean flow me maintain kijiye.</h3>
+            <p>Farmer ko yahan sirf do kaam karne hain: abhi kitna feed bacha hai aur aaj kitna inward aaya hai.</p>
+          </div>
+          <div class="fa-meta-strip">
+            <article>
+              <span>Farm</span>
+              <strong data-profile-farm></strong>
+            </article>
+            <article>
+              <span>Batch</span>
+              <strong data-profile-batch></strong>
+            </article>
+            <article>
+              <span>Sheds</span>
+              <strong data-profile-sheds></strong>
+            </article>
+            <article>
+              <span>Cluster</span>
+              <strong data-profile-cluster></strong>
+            </article>
+          </div>
+        </section>
+
+        <section class="fa-work-grid">
+          <section class="fa-section" id="feed-balance-form">
           <div class="fa-section-head">
             <div>
               <p class="fa-eyebrow">Feed Balance</p>
@@ -74,9 +101,9 @@
             <button class="fa-primary-btn" type="submit">Stock update karein</button>
           </form>
           <p class="fa-status-message" data-feed-balance-status></p>
-        </section>
+          </section>
 
-        <section class="fa-section" id="feed-current-stock">
+          <section class="fa-section" id="feed-current-stock">
           <div class="fa-section-head">
             <div>
               <p class="fa-eyebrow">Current Stock</p>
@@ -84,26 +111,18 @@
             </div>
           </div>
           <div class="fa-card-grid" id="feed-balance"></div>
+          </section>
         </section>
 
-        <section class="fa-section" id="feed-inward-form">
-          <div class="fa-section-head">
-            <div>
-              <p class="fa-eyebrow">Feed Inward</p>
-              <h3>Inward history</h3>
+        <section class="fa-work-grid">
+          <section class="fa-section">
+            <div class="fa-section-head">
+              <div>
+                <p class="fa-eyebrow">New Inward Entry</p>
+                <h3>Add inward</h3>
+              </div>
             </div>
-          </div>
-          <div class="fa-list-card" id="feed-history"></div>
-        </section>
-
-        <section class="fa-section">
-          <div class="fa-section-head">
-            <div>
-              <p class="fa-eyebrow">New Inward Entry</p>
-              <h3>Add inward</h3>
-            </div>
-          </div>
-          <form class="fa-form fa-inline-form" data-feed-inward-form>
+            <form class="fa-form fa-inline-form" data-feed-inward-form>
             <label>
               Date | तारीख
               <input name="inward_date" type="date" required />
@@ -129,8 +148,19 @@
               <input name="bags" type="number" min="1" placeholder="0" required />
             </label>
             <button class="fa-primary-btn" type="submit">Inward add karein</button>
-          </form>
-          <p class="fa-status-message" data-feed-inward-status></p>
+            </form>
+            <p class="fa-status-message" data-feed-inward-status></p>
+          </section>
+
+          <section class="fa-section" id="feed-inward-form">
+            <div class="fa-section-head">
+              <div>
+                <p class="fa-eyebrow">Feed Inward</p>
+                <h3>Inward history</h3>
+              </div>
+            </div>
+            <div class="fa-list-card" id="feed-history"></div>
+          </section>
         </section>
       </main>
     </div>
@@ -142,6 +172,6 @@
       <a href="./requests.html">Requests</a>
       <a href="./uploads.html">Uploads</a>
     </nav>
-    <script src="/farmer-app/app.js?v=20260537"></script>
+    <script src="/farmer-app/app.js?v=20260540"></script>
   </body>
 </html>
