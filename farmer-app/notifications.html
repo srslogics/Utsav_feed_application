@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Utsav Farmer Notifications | सूचनाएं</title>
+    <link rel="stylesheet" href="/farmer-app/styles.css?v=20260538" />
+  </head>
+  <body class="fa-body" data-fa-page="notifications">
+    <div class="fa-app-shell">
+      <aside class="fa-sidebar">
+        <div class="fa-brand">
+          <div class="fa-brand-mark">UF</div>
+          <div>
+            <p class="fa-eyebrow">Farmer App | किसान ऐप</p>
+            <h1>Utsav Farmer</h1>
+          </div>
+        </div>
+        <nav class="fa-nav">
+          <a href="./dashboard.html">Dashboard | होम</a>
+          <a href="./daily-entry.html">Daily Entry | दैनिक एंट्री</a>
+          <a href="./feed.html">Feed | दाना</a>
+          <a href="./health.html">Health | दवाई</a>
+          <a class="is-active" href="./notifications.html">Notifications | सूचनाएं</a>
+          <a href="./profile.html">Profile | प्रोफाइल</a>
+          <a href="./requests.html">Requests | अनुरोध</a>
+          <a href="./uploads.html">Uploads | अपलोड</a>
+        </nav>
+        <div class="fa-farm-strip">
+          <span data-profile-farm></span>
+          <strong data-profile-batch></strong>
+          <small data-profile-cluster></small>
+        </div>
+        <button class="fa-secondary-btn" type="button" data-logout>Logout</button>
+      </aside>
+
+      <main class="fa-content">
+        <header class="fa-page-head">
+          <div>
+            <p class="fa-eyebrow">Notifications | सूचनाएं</p>
+            <h2>Notifications</h2>
+          </div>
+          <div class="fa-page-actions">
+            <a class="fa-secondary-btn" href="./profile.html">Profile</a>
+            <button class="fa-secondary-btn" type="button" data-logout>Logout</button>
+          </div>
+        </header>
+
+        <section class="fa-module-hero">
+          <div class="fa-module-hero-copy">
+            <p class="fa-eyebrow">Action Center | Zaroori cheezein</p>
+            <h3>Aaj ke pending kaam aur owner ki alerts ek jagah.</h3>
+            <p>Dashboard ko clean rakha gaya hai. Jo kaam follow-up maangta hai, use yahan shift kiya gaya hai.</p>
+          </div>
+          <div class="fa-meta-strip">
+            <article>
+              <span>Farm</span>
+              <strong data-profile-farm></strong>
+            </article>
+            <article>
+              <span>Batch</span>
+              <strong data-profile-batch></strong>
+            </article>
+            <article>
+              <span>Officer</span>
+              <strong data-profile-officer></strong>
+            </article>
+            <article>
+              <span>Cluster</span>
+              <strong data-profile-cluster></strong>
+            </article>
+          </div>
+        </section>
+
+        <section class="fa-work-grid">
+          <section class="fa-section">
+            <div class="fa-section-head">
+              <div>
+                <p class="fa-eyebrow">Today’s Tasks | Aaj ka Kaam</p>
+                <h3>Pending tasks</h3>
+              </div>
+            </div>
+            <div class="fa-list-card" id="notifications-tasks"></div>
+          </section>
+
+          <section class="fa-section">
+            <div class="fa-section-head">
+              <div>
+                <p class="fa-eyebrow">Important Alerts | Zaroori Suchna</p>
+                <h3>Alerts</h3>
+              </div>
+            </div>
+            <div class="fa-list-card" id="notifications-alerts"></div>
+          </section>
+        </section>
+      </main>
+    </div>
+    <nav class="fa-bottom-nav">
+      <a href="./dashboard.html">Home</a>
+      <a href="./daily-entry.html">Entry</a>
+      <a href="./feed.html">Feed</a>
+      <a href="./health.html">Health</a>
+      <a class="is-active" href="./notifications.html">Notify</a>
+      <a href="./profile.html">Profile</a>
+    </nav>
+    <script src="/farmer-app/app.js?v=20260540"></script>
+  </body>
+</html>

@@ -44,6 +44,8 @@
             <h2>Farm dashboard</h2>
           </div>
           <div class="fa-page-actions">
+            <a class="fa-secondary-btn" href="./notifications.html">Notifications</a>
+            <a class="fa-secondary-btn" href="./profile.html">Profile</a>
             <a class="fa-secondary-btn" href="./requests.html">Request Bhejein</a>
             <a class="fa-secondary-btn" href="./uploads.html">Upload Karein</a>
             <button class="fa-secondary-btn" type="button" data-logout>Logout</button>
@@ -129,49 +131,25 @@
           <div class="fa-kpi-grid fa-kpi-grid-five" id="dashboard-kpis"></div>
         </section>
 
-        <section class="fa-work-grid">
-          <section class="fa-section">
-            <div class="fa-section-head">
-              <div>
-                <p class="fa-eyebrow">Running Performance | Batch Performance</p>
-                <h3>Running performance</h3>
-              </div>
+        <section class="fa-section">
+          <div class="fa-section-head">
+            <div>
+              <p class="fa-eyebrow">Running Performance | Batch Performance</p>
+              <h3>Running performance</h3>
             </div>
-            <div class="fa-kpi-grid fa-kpi-grid-five" id="dashboard-performance"></div>
-          </section>
-
-          <section class="fa-section">
-            <div class="fa-section-head">
-              <div>
-                <p class="fa-eyebrow">Active Batch | Chalti Batch</p>
-                <h3>Batch details</h3>
-              </div>
-            </div>
-            <div class="fa-detail-grid" id="dashboard-batch"></div>
-          </section>
+          </div>
+          <div class="fa-kpi-grid fa-kpi-grid-five" id="dashboard-performance"></div>
         </section>
 
-        <section class="fa-work-grid">
-          <section class="fa-section">
-            <div class="fa-section-head">
-              <div>
-                <p class="fa-eyebrow">Latest Entry | Nayi Entry</p>
-                <h3>Latest entry</h3>
-              </div>
-              <a class="fa-secondary-btn" href="./daily-entry.html">Daily Entry Kholein</a>
+        <section class="fa-section">
+          <div class="fa-section-head">
+            <div>
+              <p class="fa-eyebrow">Latest Entry | Nayi Entry</p>
+              <h3>Latest entry</h3>
             </div>
-            <div class="fa-detail-grid" id="dashboard-latest-entry"></div>
-          </section>
-
-          <section class="fa-section">
-            <div class="fa-section-head">
-              <div>
-                <p class="fa-eyebrow">Today’s Tasks | Aaj ka Kaam</p>
-                <h3>Pending tasks</h3>
-              </div>
-            </div>
-            <div class="fa-list-card" id="dashboard-tasks"></div>
-          </section>
+            <a class="fa-secondary-btn" href="./daily-entry.html">Daily Entry Kholein</a>
+          </div>
+          <div class="fa-detail-grid" id="dashboard-latest-entry"></div>
         </section>
 
         <section class="fa-work-grid">
@@ -183,51 +161,6 @@
               </div>
             </div>
             <div class="fa-list-card" id="dashboard-mortality-log"></div>
-          </section>
-
-          <section class="fa-section">
-            <div class="fa-section-head">
-              <div>
-                <p class="fa-eyebrow">Edit Details | जानकारी बदलें</p>
-                <h3>Profile and farm details</h3>
-              </div>
-            </div>
-            <form class="fa-form fa-form-grid" data-farmer-profile-form autocomplete="off">
-              <label>
-                Farmer Name
-                <input name="farmer_name" type="text" placeholder="Farmer name" required />
-              </label>
-              <label>
-                Mobile Number
-                <input name="phone" type="tel" inputmode="numeric" placeholder="Mobile number" required />
-              </label>
-              <label>
-                New Password
-                <input name="password" type="password" placeholder="Leave blank to keep same" autocomplete="new-password" />
-              </label>
-              <label>
-                Farm Name
-                <input name="farm_name" type="text" placeholder="Farm name" required />
-              </label>
-              <label>
-                Cluster
-                <input name="cluster" type="text" placeholder="Cluster" />
-              </label>
-              <label>
-                Field Officer
-                <input name="field_officer" type="text" placeholder="Field officer" />
-              </label>
-              <label>
-                Farm Capacity
-                <input name="farm_capacity" type="text" placeholder="Farm capacity" />
-              </label>
-              <label>
-                Active Sheds
-                <input name="active_sheds" type="number" min="1" placeholder="No. of sheds" />
-              </label>
-              <button class="fa-primary-btn full" type="submit">Save Details</button>
-            </form>
-            <p class="fa-status-message" data-farmer-profile-status></p>
           </section>
         </section>
       </main>

@@ -272,11 +272,22 @@ function renderDashboardData(data) {
   populateProfile(data.profile);
   renderKpis(document.querySelector("#dashboard-kpis"), data.kpis);
   renderKpis(document.querySelector("#dashboard-performance"), data.performance_metrics);
-  renderKeyValueGrid(document.querySelector("#dashboard-batch"), data.batch_summary);
   renderList(document.querySelector("#dashboard-alerts"), data.owner_alerts);
   renderKeyValueGrid(document.querySelector("#dashboard-latest-entry"), data.latest_daily_entry);
   renderList(document.querySelector("#dashboard-tasks"), data.tasks);
   renderList(document.querySelector("#dashboard-mortality-log"), data.mortality_history);
+}
+
+function renderNotificationsData(data) {
+  if (!data) return;
+  populateProfile(data.profile);
+  renderList(document.querySelector("#notifications-tasks"), data.tasks || []);
+  renderList(document.querySelector("#notifications-alerts"), data.owner_alerts || []);
+}
+
+function renderProfilePageData(data) {
+  if (!data) return;
+  populateProfile(data.profile);
 }
 
 function renderDailyEntryData(data) {
@@ -694,6 +705,18 @@ if (page) {
   if (page === "dashboard") {
     renderDashboardData(readCache("dashboard"));
     loadDashboard().catch(handlePageError);
+  }
+  if (page === "notifications") {
+    renderNotificationsData(readCache("dashboard"));
+    loadDashboard()
+      .then(() => renderNotificationsData(readCache("dashboard")))
+      .catch(handlePageError);
+  }
+  if (page === "profile") {
+    renderProfilePageData(readCache("dashboard"));
+    loadDashboard()
+      .then(() => renderProfilePageData(readCache("dashboard")))
+      .catch(handlePageError);
   }
   if (page === "daily-entry") {
     renderDailyEntryData(readCache("daily-entry"));

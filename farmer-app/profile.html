@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Utsav Farmer Profile | प्रोफाइल</title>
+    <link rel="stylesheet" href="/farmer-app/styles.css?v=20260538" />
+  </head>
+  <body class="fa-body" data-fa-page="profile">
+    <div class="fa-app-shell">
+      <aside class="fa-sidebar">
+        <div class="fa-brand">
+          <div class="fa-brand-mark">UF</div>
+          <div>
+            <p class="fa-eyebrow">Farmer App | किसान ऐप</p>
+            <h1>Utsav Farmer</h1>
+          </div>
+        </div>
+        <nav class="fa-nav">
+          <a href="./dashboard.html">Dashboard | होम</a>
+          <a href="./daily-entry.html">Daily Entry | दैनिक एंट्री</a>
+          <a href="./feed.html">Feed | दाना</a>
+          <a href="./health.html">Health | दवाई</a>
+          <a href="./notifications.html">Notifications | सूचनाएं</a>
+          <a class="is-active" href="./profile.html">Profile | प्रोफाइल</a>
+          <a href="./requests.html">Requests | अनुरोध</a>
+          <a href="./uploads.html">Uploads | अपलोड</a>
+        </nav>
+        <div class="fa-farm-strip">
+          <span data-profile-farm></span>
+          <strong data-profile-batch></strong>
+          <small data-profile-cluster></small>
+        </div>
+        <button class="fa-secondary-btn" type="button" data-logout>Logout</button>
+      </aside>
+
+      <main class="fa-content">
+        <header class="fa-page-head">
+          <div>
+            <p class="fa-eyebrow">Profile | प्रोफाइल</p>
+            <h2>Profile and farm details</h2>
+          </div>
+          <div class="fa-page-actions">
+            <a class="fa-secondary-btn" href="./notifications.html">Notifications</a>
+            <button class="fa-secondary-btn" type="button" data-logout>Logout</button>
+          </div>
+        </header>
+
+        <section class="fa-module-hero">
+          <div class="fa-module-hero-copy">
+            <p class="fa-eyebrow">Farmer Details | Account aur farm</p>
+            <h3>Login, farm mapping, aur contact details yahan maintain kijiye.</h3>
+            <p>Is screen ko dashboard se alag rakha gaya hai, taaki roz ka kaam aur account settings alag-alag rahen.</p>
+          </div>
+          <div class="fa-meta-strip">
+            <article>
+              <span>Farm</span>
+              <strong data-profile-farm></strong>
+            </article>
+            <article>
+              <span>Batch</span>
+              <strong data-profile-batch></strong>
+            </article>
+            <article>
+              <span>Sheds</span>
+              <strong data-profile-sheds></strong>
+            </article>
+            <article>
+              <span>Officer</span>
+              <strong data-profile-officer></strong>
+            </article>
+          </div>
+        </section>
+
+        <section class="fa-section">
+          <div class="fa-section-head">
+            <div>
+              <p class="fa-eyebrow">Edit Details | जानकारी बदलें</p>
+              <h3>Update profile</h3>
+            </div>
+          </div>
+          <form class="fa-form fa-form-grid" data-farmer-profile-form autocomplete="off">
+            <label>
+              Farmer Name
+              <input name="farmer_name" type="text" placeholder="Farmer name" required />
+            </label>
+            <label>
+              Mobile Number
+              <input name="phone" type="tel" inputmode="numeric" placeholder="Mobile number" required />
+            </label>
+            <label>
+              New Password
+              <input name="password" type="password" placeholder="Leave blank to keep same" autocomplete="new-password" />
+            </label>
+            <label>
+              Farm Name
+              <input name="farm_name" type="text" placeholder="Farm name" required />
+            </label>
+            <label>
+              Cluster
+              <input name="cluster" type="text" placeholder="Cluster" />
+            </label>
+            <label>
+              Field Officer
+              <input name="field_officer" type="text" placeholder="Field officer" />
+            </label>
+            <label>
+              Farm Capacity
+              <input name="farm_capacity" type="text" placeholder="Farm capacity" />
+            </label>
+            <label>
+              Active Sheds
+              <input name="active_sheds" type="number" min="1" placeholder="No. of sheds" />
+            </label>
+            <button class="fa-primary-btn full" type="submit">Save Details</button>
+          </form>
+          <p class="fa-status-message" data-farmer-profile-status></p>
+        </section>
+      </main>
+    </div>
+    <nav class="fa-bottom-nav">
+      <a href="./dashboard.html">Home</a>
+      <a href="./daily-entry.html">Entry</a>
+      <a href="./feed.html">Feed</a>
+      <a href="./health.html">Health</a>
+      <a href="./notifications.html">Notify</a>
+      <a class="is-active" href="./profile.html">Profile</a>
+    </nav>
+    <script src="/farmer-app/app.js?v=20260540"></script>
+  </body>
+</html>
