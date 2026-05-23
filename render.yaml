@@ -21,3 +21,13 @@ services:
         sync: false
       - key: OWNER_APP_DEFAULT_PASSWORD
         sync: false
+      - key: WHATSAPP_ACCESS_TOKEN
+        sync: false
+      - key: WHATSAPP_PHONE_NUMBER_ID
+        sync: false
+      - key: WHATSAPP_TEMPLATE_NAME
+        sync: false
+      - key: WHATSAPP_TEMPLATE_LANGUAGE
+        sync: false
+      - key: WHATSAPP_GRAPH_VERSION
+        sync: false

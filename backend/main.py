@@ -10,6 +10,7 @@ from typing import Callable
 from urllib.error import URLError
 from urllib.parse import quote
 from urllib.parse import urlparse
+from urllib.request import Request as UrlRequest
 from urllib.request import urlopen
 
 from fastapi import FastAPI, File, Form, HTTPException, Request, UploadFile
@@ -22,6 +23,7 @@ from sqlalchemy import delete
 from sqlalchemy import Float
 from sqlalchemy import ForeignKey
 from sqlalchemy import Integer
+from sqlalchemy import Boolean
 from sqlalchemy import or_
 from sqlalchemy import String
 from sqlalchemy import Text
@@ -326,6 +328,45 @@ class FieldVisit(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
 
 
+class PartyContact(Base):
+    __tablename__ = "party_contacts"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    name: Mapped[str] = mapped_column(String(140))
+    phone: Mapped[str] = mapped_column(String(40), unique=True, index=True)
+    market_area: Mapped[str] = mapped_column(String(120), default="")
+    notes: Mapped[str] = mapped_column(Text, default="")
+    preferred_clusters: Mapped[str] = mapped_column(Text, default="")
+    preferred_farms: Mapped[str] = mapped_column(Text, default="")
+    is_active: Mapped[bool] = mapped_column(Boolean, default=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
+
+
+class SaleReadyRule(Base):
+    __tablename__ = "sale_ready_rules"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    farmer_id: Mapped[int] = mapped_column(ForeignKey("users.id"), unique=True, index=True)
+    ready_weight_g: Mapped[int] = mapped_column(Integer, default=0)
+    auto_whatsapp_enabled: Mapped[bool] = mapped_column(Boolean, default=False)
+    notes: Mapped[str] = mapped_column(Text, default="")
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
+
+
+class SaleAlertDispatch(Base):
+    __tablename__ = "sale_alert_dispatches"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    daily_entry_id: Mapped[int] = mapped_column(ForeignKey("daily_entries.id"), index=True)
+    farmer_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)
+    party_id: Mapped[int] = mapped_column(ForeignKey("party_contacts.id"), index=True)
+    channel: Mapped[str] = mapped_column(String(40), default="whatsapp")
+    status: Mapped[str] = mapped_column(String(40), default="pending")
+    external_message_id: Mapped[str | None] = mapped_column(String(120), nullable=True)
+    message_text: Mapped[str] = mapped_column(Text, default="")
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
+
+
 engine = create_engine(
     DATABASE_URL,
     future=True,
@@ -464,6 +505,23 @@ class OwnerBatchEntryPayload(BaseModel):
     bird_age_days: int = Field(default=0, ge=0)
 
 
+class OwnerPartyPayload(BaseModel):
+    name: str
+    phone: str
+    market_area: str = ""
+    preferred_clusters: str = ""
+    preferred_farms: str = ""
+    notes: str = ""
+    is_active: bool = True
+
+
+class OwnerSaleReadyRulePayload(BaseModel):
+    farmer_code: str
+    ready_weight_g: int = Field(default=0, ge=0)
+    auto_whatsapp_enabled: bool = False
+    notes: str = ""
+
+
 class FarmerProfileUpdatePayload(BaseModel):
     farmer_name: str
     phone: str
@@ -596,6 +654,72 @@ def get_outside_weather(user: User) -> dict | None:
     }
     cache_set(_weather_cache, cache_key, value, WEATHER_CACHE_TTL_SECONDS)
     return value
+
+
+def whatsapp_config() -> dict[str, str]:
+    return {
+        "access_token": os.getenv("WHATSAPP_ACCESS_TOKEN", "").strip(),
+        "phone_number_id": os.getenv("WHATSAPP_PHONE_NUMBER_ID", "").strip(),
+        "template_name": os.getenv("WHATSAPP_TEMPLATE_NAME", "").strip(),
+        "template_language": os.getenv("WHATSAPP_TEMPLATE_LANGUAGE", "en").strip() or "en",
+        "graph_version": os.getenv("WHATSAPP_GRAPH_VERSION", "v23.0").strip() or "v23.0",
+    }
+
+
+def whatsapp_ready() -> bool:
+    config = whatsapp_config()
+    return bool(config["access_token"] and config["phone_number_id"] and config["template_name"])
+
+
+def normalize_whatsapp_recipient(phone: str) -> str:
+    normalized = normalize_phone(phone)
+    return re.sub(r"\D", "", normalized)
+
+
+def make_sale_ready_message(farmer: User, entry: DailyEntry, rule: SaleReadyRule) -> str:
+    return (
+        f"Birds are ready for sale at {farmer.farm_name or 'selected farm'}"
+        f" ({farmer.farmer_code or '-'})"
+        f" • Shed {entry.shed or farmer.current_shed or '-'}"
+        f" • Avg wt {entry.avg_weight_g} g"
+        f" • Target {rule.ready_weight_g} g"
+        f" • Batch {farmer.active_batch or '-'}."
+    )
+
+
+def send_whatsapp_template_message(to_phone: str, body_values: list[str]) -> dict:
+    config = whatsapp_config()
+    endpoint = (
+        f"https://graph.facebook.com/{config['graph_version']}/"
+        f"{config['phone_number_id']}/messages"
+    )
+    payload = {
+        "messaging_product": "whatsapp",
+        "to": normalize_whatsapp_recipient(to_phone),
+        "type": "template",
+        "template": {
+            "name": config["template_name"],
+            "language": {"code": config["template_language"]},
+            "components": [
+                {
+                    "type": "body",
+                    "parameters": [{"type": "text", "text": value} for value in body_values],
+                }
+            ],
+        },
+    }
+    request = UrlRequest(
+        endpoint,
+        data=json.dumps(payload).encode("utf-8"),
+        headers={
+            "Authorization": f"Bearer {config['access_token']}",
+            "Content-Type": "application/json",
+        },
+        method="POST",
+    )
+    with urlopen(request, timeout=20) as response:
+        raw = response.read().decode("utf-8")
+    return json.loads(raw or "{}")
 
 
 def get_current_user(request: Request, role: str | None = None) -> User:
@@ -1040,6 +1164,165 @@ def summarize_owner_documents(records: list[DocumentUpload], db: Session) -> lis
             }
         )
     return items[:10]
+
+
+def split_csv_text(value: str) -> list[str]:
+    return [item.strip() for item in (value or "").split(",") if item.strip()]
+
+
+def party_matches_farmer(party: PartyContact, farmer: User) -> bool:
+    farm_matches = split_csv_text(party.preferred_farms)
+    cluster_matches = split_csv_text(party.preferred_clusters)
+    if not farm_matches and not cluster_matches:
+        return True
+    farmer_farm = (farmer.farm_name or "").strip().lower()
+    farmer_code = (farmer.farmer_code or "").strip().lower()
+    farmer_cluster = (farmer.cluster or "").strip().lower()
+    farm_ok = not farm_matches or any(match.lower() in {farmer_farm, farmer_code} for match in farm_matches)
+    cluster_ok = not cluster_matches or any(match.lower() == farmer_cluster for match in cluster_matches)
+    return farm_ok and cluster_ok
+
+
+def get_sale_rule_map(db: Session, farmer_ids: list[int]) -> dict[int, SaleReadyRule]:
+    if not farmer_ids:
+        return {}
+    rules = list(db.scalars(select(SaleReadyRule).where(SaleReadyRule.farmer_id.in_(farmer_ids))))
+    return {rule.farmer_id: rule for rule in rules}
+
+
+def build_sale_ready_queue(
+    farmers: list[User],
+    entries: list[DailyEntry],
+    parties: list[PartyContact],
+    rule_map: dict[int, SaleReadyRule],
+) -> list[dict]:
+    latest_by_farmer: dict[int, DailyEntry] = {}
+    for entry in entries:
+        if entry.farmer_id not in latest_by_farmer:
+            latest_by_farmer[entry.farmer_id] = entry
+
+    queue: list[dict] = []
+    active_parties = [party for party in parties if party.is_active]
+    for farmer in farmers:
+        latest_entry = latest_by_farmer.get(farmer.id)
+        rule = rule_map.get(farmer.id)
+        if not latest_entry or not rule or not rule.ready_weight_g:
+            continue
+        if latest_entry.avg_weight_g < rule.ready_weight_g:
+            continue
+        matched_parties = [party for party in active_parties if party_matches_farmer(party, farmer)]
+        message = (
+            f"Birds are ready for sale at {farmer.farm_name or 'selected farm'}"
+            f" ({farmer.farmer_code or '-'})"
+            f" • Shed {latest_entry.shed or farmer.current_shed or '-'}"
+            f" • Avg wt {latest_entry.avg_weight_g} g"
+            f" • Batch {farmer.active_batch or '-'}."
+        )
+        queue.append(
+            {
+                "label": farmer.farm_name or "-",
+                "value": f"{latest_entry.avg_weight_g} g",
+                "note": join_present(
+                    [
+                        farmer.farmer_code or "",
+                        latest_entry.shed or farmer.current_shed or "",
+                        f"{len(matched_parties)} parties",
+                        "WhatsApp ready" if rule.auto_whatsapp_enabled else "Manual share",
+                    ]
+                ),
+                "farmer_code": farmer.farmer_code or "",
+                "farm_name": farmer.farm_name or "",
+                "farmer_name": farmer.name or "",
+                "current_shed": latest_entry.shed or farmer.current_shed or "",
+                "avg_weight_g": latest_entry.avg_weight_g,
+                "ready_weight_g": rule.ready_weight_g,
+                "auto_whatsapp_enabled": rule.auto_whatsapp_enabled,
+                "message_preview": message,
+                "parties": [
+                    {
+                        "name": party.name,
+                        "phone": format_phone_display(party.phone),
+                        "market_area": party.market_area or "",
+                    }
+                    for party in matched_parties
+                ],
+            }
+        )
+    return queue
+
+
+def trigger_sale_ready_whatsapp(db: Session, farmer: User, entry: DailyEntry) -> list[dict]:
+    rule = db.scalar(select(SaleReadyRule).where(SaleReadyRule.farmer_id == farmer.id))
+    if not rule or not rule.auto_whatsapp_enabled or not rule.ready_weight_g:
+        return []
+    if entry.avg_weight_g < rule.ready_weight_g:
+        return []
+
+    parties = [party for party in db.scalars(select(PartyContact).where(PartyContact.is_active == True).order_by(PartyContact.name))]
+    matched_parties = [party for party in parties if party_matches_farmer(party, farmer)]
+    if not matched_parties:
+        return []
+
+    dispatch_results: list[dict] = []
+    message_text = make_sale_ready_message(farmer, entry, rule)
+    for party in matched_parties:
+        existing_dispatch = db.scalar(
+            select(SaleAlertDispatch).where(
+                SaleAlertDispatch.daily_entry_id == entry.id,
+                SaleAlertDispatch.party_id == party.id,
+                SaleAlertDispatch.channel == "whatsapp",
+            )
+        )
+        if existing_dispatch:
+            dispatch_results.append(
+                {
+                    "party_name": party.name,
+                    "phone": format_phone_display(party.phone),
+                    "status": existing_dispatch.status,
+                    "sent": existing_dispatch.status == "sent",
+                }
+            )
+            continue
+
+        status = "pending_setup"
+        external_message_id = None
+        if whatsapp_ready():
+            try:
+                response_payload = send_whatsapp_template_message(
+                    party.phone,
+                    [
+                        farmer.farm_name or "-",
+                        entry.shed or farmer.current_shed or "-",
+                        str(entry.avg_weight_g),
+                        farmer.active_batch or "-",
+                    ],
+                )
+                messages = response_payload.get("messages") or []
+                external_message_id = messages[0].get("id") if messages else None
+                status = "sent"
+            except Exception as error:
+                logger.exception("whatsapp_sale_alert_failed farmer=%s party=%s", farmer.farmer_code, party.phone)
+                status = f"failed: {str(error)[:120]}"
+
+        dispatch = SaleAlertDispatch(
+            daily_entry_id=entry.id,
+            farmer_id=farmer.id,
+            party_id=party.id,
+            channel="whatsapp",
+            status=status,
+            external_message_id=external_message_id,
+            message_text=message_text,
+        )
+        db.add(dispatch)
+        dispatch_results.append(
+            {
+                "party_name": party.name,
+                "phone": format_phone_display(party.phone),
+                "status": status,
+                "sent": status == "sent",
+            }
+        )
+    return dispatch_results
 
 
 def current_cycle_entries(db: Session, farmer_id: int) -> list[DailyEntry]:
@@ -1644,9 +1927,12 @@ async def add_daily_entry(
         )
         db.add(record)
         db.add(MortalityLog(farmer_id=user.id, entry_date=entry_date, shed=shed, birds=mortality, notes=issues or "Daily entry"))
+        db.flush()
+        farmer = db.scalar(select(User).where(User.id == user.id, User.role == "farmer"))
+        sale_ready_dispatch = trigger_sale_ready_whatsapp(db, farmer, record) if farmer else []
         db.commit()
         db.refresh(record)
-    return {"success": True, "record": {"id": record.id}}
+    return {"success": True, "record": {"id": record.id}, "sale_ready_dispatch": sale_ready_dispatch}
 
 
 @app.put("/api/farmer/daily-entry/{entry_id}")
@@ -1720,9 +2006,11 @@ async def update_daily_entry(
             mortality_log.notes = issues or "Daily entry"
 
         db.add(record)
+        farmer = db.scalar(select(User).where(User.id == user.id, User.role == "farmer"))
+        sale_ready_dispatch = trigger_sale_ready_whatsapp(db, farmer, record) if farmer else []
         db.commit()
         db.refresh(record)
-    return {"success": True, "record": {"id": record.id}}
+    return {"success": True, "record": {"id": record.id}, "sale_ready_dispatch": sale_ready_dispatch}
 
 
 @app.get("/api/farmer/feed")
@@ -2292,6 +2580,185 @@ def owner_finance(request: Request):
         ],
         "documents": document_items,
         "feed_inward": inward_items,
+    }
+
+
+@app.get("/api/owner/parties")
+def owner_parties(request: Request):
+    user = get_current_user(request, "owner")
+    with session_scope() as db:
+        farmers = [farm for farm in db.scalars(select(User).where(User.role == "farmer").order_by(User.farm_name)) if valid_farmer_user(farm)]
+        farmer_ids = [farm.id for farm in farmers]
+        parties = list(db.scalars(select(PartyContact).order_by(PartyContact.name)))
+        rules = get_sale_rule_map(db, farmer_ids)
+        entries = (
+            list(
+                db.scalars(
+                    select(DailyEntry)
+                    .where(DailyEntry.farmer_id.in_(farmer_ids))
+                    .order_by(DailyEntry.entry_date.desc(), DailyEntry.created_at.desc())
+                )
+            )
+            if farmer_ids
+            else []
+        )
+        sale_ready_queue = build_sale_ready_queue(farmers, entries, parties, rules)
+
+    return {
+        "profile": serialize_profile(user),
+        "parties": [
+            {
+                "id": party.id,
+                "label": party.name,
+                "value": format_phone_display(party.phone),
+                "note": join_present(
+                    [
+                        party.market_area or "",
+                        "Active" if party.is_active else "Inactive",
+                        party.preferred_clusters or "",
+                    ]
+                ),
+                "name": party.name,
+                "phone": format_phone_display(party.phone),
+                "market_area": party.market_area or "",
+                "preferred_clusters": party.preferred_clusters or "",
+                "preferred_farms": party.preferred_farms or "",
+                "notes": party.notes or "",
+                "is_active": party.is_active,
+            }
+            for party in parties
+        ],
+        "sale_rules": [
+            {
+                "label": farm.farm_name or "-",
+                "value": f"{(rules.get(farm.id).ready_weight_g if rules.get(farm.id) else 0)} g",
+                "note": join_present(
+                    [
+                        farm.farmer_code or "",
+                        f"Batch {farm.active_batch}" if farm.active_batch else "",
+                        "Auto WhatsApp" if rules.get(farm.id) and rules.get(farm.id).auto_whatsapp_enabled else "Manual alert",
+                    ]
+                ),
+                "farmer_code": farm.farmer_code or "",
+                "farm_name": farm.farm_name or "",
+                "farmer_name": farm.name or "",
+                "ready_weight_g": rules.get(farm.id).ready_weight_g if rules.get(farm.id) else 0,
+                "auto_whatsapp_enabled": bool(rules.get(farm.id).auto_whatsapp_enabled) if rules.get(farm.id) else False,
+                "notes": rules.get(farm.id).notes if rules.get(farm.id) else "",
+            }
+            for farm in farmers
+        ],
+        "sale_ready_queue": sale_ready_queue,
+        "farmer_options": [
+            {
+                "farmer_code": farm.farmer_code or "",
+                "farm_name": farm.farm_name or "",
+                "farmer_name": farm.name or "",
+            }
+            for farm in farmers
+        ],
+        "meta": {
+            "whatsapp_mode": "ready" if whatsapp_ready() else "pending_business_setup",
+            "whatsapp_note": (
+                "Auto WhatsApp is live for sale-ready farms."
+                if whatsapp_ready()
+                else "Automatic WhatsApp alerts will go live after WhatsApp Business Platform credentials "
+                "and an approved message template are connected."
+            ),
+        },
+    }
+
+
+@app.post("/api/owner/parties")
+def owner_create_party(payload: OwnerPartyPayload, request: Request):
+    get_current_user(request, "owner")
+    with session_scope() as db:
+        normalized_phone = normalize_phone(payload.phone)
+        if not normalized_phone:
+            raise HTTPException(status_code=400, detail="Phone number required.")
+        existing_party = db.scalar(select(PartyContact).where(PartyContact.phone == normalized_phone))
+        if existing_party:
+            raise HTTPException(status_code=400, detail="Party phone already exists.")
+        party = PartyContact(
+            name=payload.name.strip(),
+            phone=normalized_phone,
+            market_area=payload.market_area.strip(),
+            preferred_clusters=payload.preferred_clusters.strip(),
+            preferred_farms=payload.preferred_farms.strip(),
+            notes=payload.notes.strip(),
+            is_active=payload.is_active,
+        )
+        db.add(party)
+        db.commit()
+        db.refresh(party)
+    return {
+        "success": True,
+        "party": {
+            "id": party.id,
+            "name": party.name,
+            "phone": format_phone_display(party.phone),
+        },
+    }
+
+
+@app.put("/api/owner/parties/{party_id}")
+def owner_update_party(party_id: int, payload: OwnerPartyPayload, request: Request):
+    get_current_user(request, "owner")
+    with session_scope() as db:
+        party = db.get(PartyContact, party_id)
+        if not party:
+            raise HTTPException(status_code=404, detail="Party not found.")
+        normalized_phone = normalize_phone(payload.phone)
+        if not normalized_phone:
+            raise HTTPException(status_code=400, detail="Phone number required.")
+        existing_party = db.scalar(select(PartyContact).where(PartyContact.phone == normalized_phone, PartyContact.id != party_id))
+        if existing_party:
+            raise HTTPException(status_code=400, detail="Party phone already exists.")
+        party.name = payload.name.strip()
+        party.phone = normalized_phone
+        party.market_area = payload.market_area.strip()
+        party.preferred_clusters = payload.preferred_clusters.strip()
+        party.preferred_farms = payload.preferred_farms.strip()
+        party.notes = payload.notes.strip()
+        party.is_active = payload.is_active
+        db.add(party)
+        db.commit()
+        db.refresh(party)
+    return {
+        "success": True,
+        "party": {
+            "id": party.id,
+            "name": party.name,
+            "phone": format_phone_display(party.phone),
+        },
+    }
+
+
+@app.post("/api/owner/parties/rules")
+def owner_save_sale_rule(payload: OwnerSaleReadyRulePayload, request: Request):
+    get_current_user(request, "owner")
+    with session_scope() as db:
+        farmer = db.scalar(select(User).where(User.role == "farmer", User.farmer_code == payload.farmer_code))
+        if not farmer:
+            raise HTTPException(status_code=404, detail="Farmer not found.")
+        rule = db.scalar(select(SaleReadyRule).where(SaleReadyRule.farmer_id == farmer.id))
+        if not rule:
+            rule = SaleReadyRule(farmer_id=farmer.id)
+        rule.ready_weight_g = payload.ready_weight_g
+        rule.auto_whatsapp_enabled = payload.auto_whatsapp_enabled
+        rule.notes = payload.notes.strip()
+        db.add(rule)
+        db.commit()
+        db.refresh(rule)
+    return {
+        "success": True,
+        "rule": {
+            "farmer_code": farmer.farmer_code or "",
+            "farm_name": farmer.farm_name or "",
+            "ready_weight_g": rule.ready_weight_g,
+            "auto_whatsapp_enabled": rule.auto_whatsapp_enabled,
+            "notes": rule.notes or "",
+        },
     }
 
 

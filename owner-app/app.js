@@ -128,6 +128,30 @@ function renderOwnerFarmerAccounts(container, items) {
     .join("");
 }
 
+function renderOwnerSaleRules(container, items) {
+  if (!container) return;
+  if (!items.length) {
+    container.innerHTML = `<div class="fa-empty-state">Abhi koi trigger configured nahi hai.</div>`;
+    return;
+  }
+  container.innerHTML = items
+    .map(
+      (item) => `
+        <div class="fa-list-row">
+          <div>
+            <span>${item.label}</span>
+            <p>${item.note || ""}</p>
+          </div>
+          <div class="fa-form-actions">
+            <strong>${item.value}</strong>
+            <button class="fa-secondary-btn" type="button" data-owner-edit-sale-rule="${encodeURIComponent(JSON.stringify(item))}">Edit Trigger</button>
+          </div>
+        </div>
+      `
+    )
+    .join("");
+}
+
 function renderOwnerFarmDirectory(container, items) {
   if (!container) return;
   if (!items.length) {
@@ -332,6 +356,143 @@ function renderFinanceData(data) {
   renderList(document.querySelector("#owner-finance-inward"), data.feed_inward);
 }
 
+function renderOwnerPartyDirectory(container, items) {
+  if (!container) return;
+  if (!items.length) {
+    container.innerHTML = `<div class="fa-empty-state">Abhi koi party contact add nahi hua hai.</div>`;
+    return;
+  }
+  container.innerHTML = items
+    .map(
+      (item) => `
+        <div class="fa-list-row owner-edit-row">
+          <div>
+            <span>${item.label}</span>
+            <p>${item.note || ""}</p>
+          </div>
+          <div class="owner-edit-row-side">
+            <strong>${item.value}</strong>
+            <div class="owner-edit-row-actions">
+              <button class="fa-secondary-btn" type="button" data-owner-edit-party="${encodeURIComponent(JSON.stringify(item))}">Edit Party</button>
+            </div>
+          </div>
+        </div>
+      `
+    )
+    .join("");
+}
+
+function renderSaleReadyQueue(container, items) {
+  if (!container) return;
+  if (!items.length) {
+    container.innerHTML = `<div class="fa-empty-state">Abhi koi farm ready-weight trigger par nahi aaya hai.</div>`;
+    return;
+  }
+  container.innerHTML = items
+    .map(
+      (item) => `
+        <article class="owner-sale-card">
+          <div class="owner-sale-card-head">
+            <div>
+              <span>${item.farm_name}</span>
+              <strong>${item.value}</strong>
+            </div>
+            <div class="owner-sale-chip-row">
+              <span class="owner-sale-chip">Target ${item.ready_weight_g} g</span>
+              <span class="owner-sale-chip">${item.auto_whatsapp_enabled ? "Auto WhatsApp" : "Manual share"}</span>
+            </div>
+          </div>
+          <p class="owner-sale-card-note">${item.note || ""}</p>
+          <div class="owner-sale-party-list">
+            ${
+              item.parties.length
+                ? item.parties
+                    .map(
+                      (party) => `
+                        <span class="owner-sale-party-pill">${party.name} • ${party.phone}</span>
+                      `
+                    )
+                    .join("")
+                : `<span class="owner-sale-party-pill owner-sale-party-pill-muted">No matching party contacts yet</span>`
+            }
+          </div>
+          <p class="owner-sale-message">${item.message_preview}</p>
+        </article>
+      `
+    )
+    .join("");
+}
+
+function populateSaleRuleSelect(items) {
+  const select = document.querySelector("[data-owner-rule-farm-select]");
+  if (!select) return;
+  const currentValue = select.value;
+  select.innerHTML = [
+    `<option value="">Choose farm</option>`,
+    ...items.map(
+      (item) =>
+        `<option value="${item.farmer_code || ""}" data-farm-name="${item.farm_name || ""}" data-farmer-name="${item.farmer_name || ""}">${item.farm_name || item.farmer_name || ""}${item.farmer_code ? ` • ${item.farmer_code}` : ""}</option>`
+    ),
+  ].join("");
+  if (currentValue) select.value = currentValue;
+}
+
+function resetOwnerPartyForm() {
+  const form = document.querySelector("[data-owner-party-form]");
+  if (!form) return;
+  form.reset();
+  const hiddenId = form.querySelector('input[name="party_id"]');
+  const submitButton = form.querySelector("[data-owner-party-submit]");
+  const cancelButton = form.querySelector("[data-owner-party-cancel]");
+  const activeCheckbox = form.querySelector('input[name="is_active"]');
+  if (hiddenId) hiddenId.value = "";
+  if (submitButton) submitButton.textContent = "Save Party";
+  if (cancelButton) cancelButton.hidden = true;
+  if (activeCheckbox) activeCheckbox.checked = true;
+}
+
+function startOwnerPartyEdit(item) {
+  const form = document.querySelector("[data-owner-party-form]");
+  if (!form || !item) return;
+  form.querySelector('input[name="party_id"]').value = item.id || "";
+  form.querySelector('input[name="name"]').value = item.name || "";
+  form.querySelector('input[name="phone"]').value = item.phone || "";
+  form.querySelector('input[name="market_area"]').value = item.market_area || "";
+  form.querySelector('input[name="preferred_clusters"]').value = item.preferred_clusters || "";
+  form.querySelector('input[name="preferred_farms"]').value = item.preferred_farms || "";
+  form.querySelector('textarea[name="notes"]').value = item.notes || "";
+  form.querySelector('input[name="is_active"]').checked = !!item.is_active;
+  const submitButton = form.querySelector("[data-owner-party-submit]");
+  const cancelButton = form.querySelector("[data-owner-party-cancel]");
+  if (submitButton) submitButton.textContent = "Update Party";
+  if (cancelButton) cancelButton.hidden = false;
+  setStatus(".owner-party-note", `Editing ${item.name || "party"} details.`);
+  form.scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+function startOwnerSaleRuleEdit(item) {
+  const form = document.querySelector("[data-owner-sale-rule-form]");
+  const select = form?.querySelector("[data-owner-rule-farm-select]");
+  if (!form || !select || !item?.farmer_code) return;
+  select.value = item.farmer_code || "";
+  form.querySelector('input[name="ready_weight_g"]').value = item.ready_weight_g || "";
+  form.querySelector('input[name="auto_whatsapp_enabled"]').checked = !!item.auto_whatsapp_enabled;
+  form.querySelector('textarea[name="notes"]').value = item.notes || "";
+  setStatus(".owner-sale-rule-note", `Editing sale trigger for ${item.farm_name || item.farmer_name || "selected farm"}.`);
+  form.scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+function renderPartiesData(data) {
+  if (!data) return;
+  populateProfile(data.profile);
+  renderOwnerPartyDirectory(document.querySelector("#owner-party-directory"), data.parties || []);
+  renderOwnerSaleRules(document.querySelector("#owner-sale-rule-list"), data.sale_rules || []);
+  renderSaleReadyQueue(document.querySelector("#owner-sale-ready-queue"), data.sale_ready_queue || []);
+  populateSaleRuleSelect(data.farmer_options || []);
+  const note = document.querySelector("#owner-whatsapp-note");
+  if (note) note.textContent = data.meta?.whatsapp_note || "";
+}
+
 function populateFarmerSelect(items) {
   const select = document.querySelector("[data-owner-farmer-select]");
   if (!select) return;
@@ -494,6 +655,12 @@ async function loadFinance() {
   renderFinanceData(data);
 }
 
+async function loadParties() {
+  const data = await requestJson(`${ownerApiBase}/parties`);
+  writeCache("parties", data);
+  renderPartiesData(data);
+}
+
 const loginForm = document.querySelector("[data-owner-login]");
 if (loginForm) {
   requireOwnerSession({ allowLoginPage: true }).then((user) => {
@@ -588,6 +755,91 @@ if (enrollFarmerForm) {
   });
 }
 
+const partyForm = document.querySelector("[data-owner-party-form]");
+if (partyForm) {
+  const cancelButton = partyForm.querySelector("[data-owner-party-cancel]");
+  cancelButton?.addEventListener("click", () => {
+    resetOwnerPartyForm();
+    setStatus(".owner-party-note", "");
+  });
+
+  document.addEventListener("click", (event) => {
+    const partyTrigger = event.target.closest("[data-owner-edit-party]");
+    if (partyTrigger) {
+      try {
+        startOwnerPartyEdit(JSON.parse(decodeURIComponent(partyTrigger.getAttribute("data-owner-edit-party"))));
+      } catch (error) {
+        console.error(error);
+      }
+      return;
+    }
+    const ruleTrigger = event.target.closest("[data-owner-edit-sale-rule]");
+    if (!ruleTrigger) return;
+    try {
+      startOwnerSaleRuleEdit(JSON.parse(decodeURIComponent(ruleTrigger.getAttribute("data-owner-edit-sale-rule"))));
+    } catch (error) {
+      console.error(error);
+    }
+  });
+
+  partyForm.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    const formData = new FormData(partyForm);
+    const partyId = formData.get("party_id");
+    const payload = {
+      name: formData.get("name"),
+      phone: formData.get("phone"),
+      market_area: formData.get("market_area"),
+      preferred_clusters: formData.get("preferred_clusters"),
+      preferred_farms: formData.get("preferred_farms"),
+      notes: formData.get("notes"),
+      is_active: formData.get("is_active") === "on",
+    };
+    try {
+      const result = await requestJson(partyId ? `${ownerApiBase}/parties/${partyId}` : `${ownerApiBase}/parties`, {
+        method: partyId ? "PUT" : "POST",
+        body: JSON.stringify(payload),
+      });
+      setStatus(".owner-party-note", `${result.party.name} contact save ho gaya.`);
+      resetOwnerPartyForm();
+      loadParties().catch(console.error);
+    } catch {
+      setStatus(".owner-party-note", "Party contact save nahi ho paaya. Mobile number aur details dobara check karein.", true);
+    }
+  });
+}
+
+const saleRuleForm = document.querySelector("[data-owner-sale-rule-form]");
+if (saleRuleForm) {
+  saleRuleForm.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    const formData = new FormData(saleRuleForm);
+    if (!formData.get("farmer_code")) {
+      setStatus(".owner-sale-rule-note", "Pehle farm select karein.", true);
+      return;
+    }
+    const payload = {
+      farmer_code: formData.get("farmer_code"),
+      ready_weight_g: Number(formData.get("ready_weight_g") || 0),
+      auto_whatsapp_enabled: formData.get("auto_whatsapp_enabled") === "on",
+      notes: formData.get("notes"),
+    };
+    try {
+      const result = await requestJson(`${ownerApiBase}/parties/rules`, {
+        method: "POST",
+        body: JSON.stringify(payload),
+      });
+      setStatus(
+        ".owner-sale-rule-note",
+        `Sale trigger save ho gaya: ${result.rule.farm_name} • ${result.rule.ready_weight_g} g`
+      );
+      loadParties().catch(console.error);
+    } catch {
+      setStatus(".owner-sale-rule-note", "Sale trigger save nahi ho paaya. Farm aur target weight dobara check karein.", true);
+    }
+  });
+}
+
 const batchEntryForm = document.querySelector("[data-owner-batch-entry]");
 if (batchEntryForm) {
   const farmerSelect = batchEntryForm.querySelector("[data-owner-farmer-select]");
@@ -646,5 +898,9 @@ if (page) {
   if (page === "finance") {
     renderFinanceData(readCache("finance"));
     loadFinance().catch(handlePageError);
+  }
+  if (page === "parties") {
+    renderPartiesData(readCache("parties"));
+    loadParties().catch(handlePageError);
   }
 }

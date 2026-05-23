@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Utsav Owner Parties</title>
+    <link rel="stylesheet" href="/farmer-app/styles.css?v=20260534" />
+    <link rel="stylesheet" href="/owner-app/styles.css?v=20260537" />
+  </head>
+  <body class="fa-body owner-body" data-owner-page="parties">
+    <div class="fa-app-shell">
+      <aside class="fa-sidebar">
+        <div class="fa-brand">
+          <div class="fa-brand-mark">UF</div>
+          <div>
+            <p class="fa-eyebrow">Owner Workspace</p>
+            <h1>Utsav Owner</h1>
+          </div>
+        </div>
+        <nav class="fa-nav">
+          <a href="./dashboard.html">Dashboard</a>
+          <a href="./farms.html">Farms</a>
+          <a class="is-active" href="./parties.html">Parties</a>
+          <a href="./operations-daily.html">Operations</a>
+          <a href="./finance.html">Finance</a>
+        </nav>
+        <div class="fa-farm-strip">
+          <span data-owner-name></span>
+          <strong data-owner-title></strong>
+          <small data-owner-cluster></small>
+        </div>
+      </aside>
+
+      <main class="fa-content">
+        <header class="fa-page-head">
+          <div>
+            <p class="fa-eyebrow">Party Network</p>
+            <h2>Buyer parties</h2>
+          </div>
+          <div class="fa-page-actions">
+            <button class="fa-secondary-btn" type="button" data-owner-logout>Logout</button>
+          </div>
+        </header>
+
+        <section class="owner-hero owner-hero-compact">
+          <div class="owner-hero-copy">
+            <p class="fa-eyebrow">Sale Readiness</p>
+            <h3>Keep buyer contacts ready before a farm hits sale weight.</h3>
+            <p>Maintain the party directory, map the right farms or clusters, and keep a ready-weight trigger so the sales message can move instantly when birds are ready.</p>
+          </div>
+          <div class="owner-hero-rail owner-hero-links">
+            <a href="#owner-party-directory">
+              <span>Parties</span>
+              <strong>Manage buyer names and numbers</strong>
+            </a>
+            <a href="#owner-sale-rule-anchor">
+              <span>Trigger</span>
+              <strong>Set ready-weight farm thresholds</strong>
+            </a>
+            <a href="#owner-sale-ready-queue">
+              <span>Queue</span>
+              <strong>See who should be notified</strong>
+            </a>
+          </div>
+        </section>
+
+        <section class="owner-grid-two owner-grid-two-top">
+          <section class="fa-section">
+            <div class="fa-section-head">
+              <div>
+                <p class="fa-eyebrow">Party Directory</p>
+                <h3>Buyer contacts</h3>
+              </div>
+            </div>
+            <div class="fa-list-card" id="owner-party-directory"></div>
+          </section>
+
+          <section class="fa-section" id="owner-sale-rule-anchor">
+            <div class="fa-section-head">
+              <div>
+                <p class="fa-eyebrow">WhatsApp Trigger</p>
+                <h3>Sale trigger</h3>
+              </div>
+            </div>
+            <div class="owner-form-band">
+              <span>WhatsApp Mode</span>
+              <strong>Business setup required before live auto-send</strong>
+            </div>
+            <p class="fa-form-note owner-party-meta-note" id="owner-whatsapp-note"></p>
+            <div class="fa-list-card" id="owner-sale-rule-list"></div>
+          </section>
+        </section>
+
+        <section class="owner-management-grid owner-management-grid-party">
+          <section class="fa-section">
+            <div class="fa-section-head">
+              <div>
+                <p class="fa-eyebrow">Party Entry</p>
+                <h3>Add or edit party</h3>
+              </div>
+            </div>
+            <div class="owner-form-band">
+              <span>Directory Setup</span>
+              <strong>Store the right buyers with the right farm reach</strong>
+            </div>
+            <form class="fa-form owner-form-grid" data-owner-party-form autocomplete="off">
+              <input name="party_id" type="hidden" />
+              <label>
+                Party Name
+                <input name="name" type="text" placeholder="Enter party name" required />
+              </label>
+              <label>
+                WhatsApp Number
+                <input name="phone" type="tel" inputmode="numeric" placeholder="Enter WhatsApp number" required />
+              </label>
+              <label>
+                Market / Area
+                <input name="market_area" type="text" placeholder="Enter market or area" />
+              </label>
+              <label>
+                Preferred Clusters
+                <input name="preferred_clusters" type="text" placeholder="Example: Korba, Bilaspur" />
+              </label>
+              <label class="full">
+                Preferred Farms or Codes
+                <input name="preferred_farms" type="text" placeholder="Example: UF-101, Fetry Farm" />
+              </label>
+              <label class="full">
+                Notes
+                <textarea name="notes" rows="4" placeholder="Any buying preference, payment note, or timing note"></textarea>
+              </label>
+              <label class="owner-checkbox full">
+                <input name="is_active" type="checkbox" checked />
+                <span>Keep this party active for sale alerts</span>
+              </label>
+              <div class="owner-form-actions full">
+                <button class="fa-primary-btn" type="submit" data-owner-party-submit>Save Party</button>
+                <button class="fa-secondary-btn" type="button" data-owner-party-cancel hidden>Cancel Edit</button>
+              </div>
+            </form>
+            <p class="fa-form-note owner-party-note"></p>
+          </section>
+
+          <section class="fa-section">
+            <div class="fa-section-head">
+              <div>
+                <p class="fa-eyebrow">Ready Weight Control</p>
+                <h3>Farm trigger rule</h3>
+              </div>
+            </div>
+            <div class="owner-form-band">
+              <span>Sale Rule</span>
+              <strong>Choose the farm and set the weight where alerts should start</strong>
+            </div>
+            <form class="fa-form owner-form-grid" data-owner-sale-rule-form autocomplete="off">
+              <label>
+                Farm
+                <select name="farmer_code" data-owner-rule-farm-select>
+                  <option value="">Choose farm</option>
+                </select>
+              </label>
+              <label>
+                Ready Weight (g)
+                <input name="ready_weight_g" type="number" min="0" placeholder="Example: 2200" />
+              </label>
+              <label class="owner-checkbox full">
+                <input name="auto_whatsapp_enabled" type="checkbox" />
+                <span>Mark this farm ready for automatic WhatsApp once business API is connected</span>
+              </label>
+              <label class="full">
+                Trigger Note
+                <textarea name="notes" rows="4" placeholder="Example: Notify Korba parties first, then Bilaspur backup list"></textarea>
+              </label>
+              <button class="fa-primary-btn" type="submit">Save Trigger</button>
+            </form>
+            <p class="fa-form-note owner-sale-rule-note"></p>
+          </section>
+        </section>
+
+        <section class="fa-section">
+          <div class="fa-section-head">
+            <div>
+              <p class="fa-eyebrow">Ready Queue</p>
+              <h3>Ready-for-sale farms</h3>
+            </div>
+          </div>
+          <div class="owner-sale-card-grid" id="owner-sale-ready-queue"></div>
+        </section>
+      </main>
+    </div>
+    <nav class="fa-bottom-nav owner-bottom-nav owner-bottom-nav-five">
+      <a href="./dashboard.html">Home</a>
+      <a href="./farms.html">Farms</a>
+      <a class="is-active" href="./parties.html">Parties</a>
+      <a href="./operations-daily.html">Ops</a>
+      <a href="./finance.html">Finance</a>
+    </nav>
+    <script src="/owner-app/app.js?v=20260540"></script>
+  </body>
+</html>
