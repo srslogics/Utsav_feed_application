@@ -2817,3 +2817,4 @@ def owner_app_files(file_name: str, request: Request):
 
 
 app.mount("/uploads", StaticFiles(directory=UPLOADS_DIR), name="uploads")
+app.mount("/assets", StaticFiles(directory=PROJECT_ROOT / "assets"), name="assets")
