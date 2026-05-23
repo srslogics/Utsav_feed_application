@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Utsav Owner Farms</title>
     <link rel="stylesheet" href="/farmer-app/styles.css?v=20260534" />
-    <link rel="stylesheet" href="/owner-app/styles.css?v=20260531" />
+    <link rel="stylesheet" href="/owner-app/styles.css?v=20260532" />
   </head>
   <body class="fa-body owner-body" data-owner-page="farms">
     <div class="fa-app-shell">
@@ -36,33 +36,61 @@
           </div>
         </header>
 
-        <section class="fa-section">
-          <div class="fa-section-head">
-            <div>
-              <p class="fa-eyebrow">All Farms</p>
-              <h3>Farm list</h3>
-            </div>
+        <section class="owner-hero owner-hero-compact">
+          <div class="owner-hero-copy">
+            <p class="fa-eyebrow">Farm Control</p>
+            <h3>Enroll, map, and update farms without leaving the operations workflow.</h3>
+            <p>Use this screen to maintain farmer records, keep farm mapping clean, and push batch-level updates that should reflect across the system.</p>
           </div>
-          <div class="fa-detail-grid" id="owner-farms-directory"></div>
+          <div class="owner-hero-rail owner-hero-links">
+            <a href="#owner-farms-directory">
+              <span>Directory</span>
+              <strong>Review farm coverage and active codes</strong>
+            </a>
+            <a href="#owner-farmer-accounts">
+              <span>Accounts</span>
+              <strong>Edit farmer account and contact details</strong>
+            </a>
+            <a href="#owner-batch-entry-anchor">
+              <span>Batch Control</span>
+              <strong>Assign batch, shed, and bird age</strong>
+            </a>
+          </div>
         </section>
 
-        <section class="fa-section">
-          <div class="fa-section-head">
-            <div>
-              <p class="fa-eyebrow">Latest Reporting</p>
-              <h3>Latest entries</h3>
+        <section class="owner-grid-two owner-grid-two-top">
+          <section class="fa-section">
+            <div class="fa-section-head">
+              <div>
+                <p class="fa-eyebrow">All Farms</p>
+                <h3>Farm list</h3>
+              </div>
             </div>
-          </div>
-          <div class="fa-list-card" id="owner-farms-latest-entries"></div>
+            <div class="fa-detail-grid" id="owner-farms-directory"></div>
+          </section>
+
+          <section class="fa-section">
+            <div class="fa-section-head">
+              <div>
+                <p class="fa-eyebrow">Latest Reporting</p>
+                <h3>Latest entries</h3>
+              </div>
+            </div>
+            <div class="fa-list-card" id="owner-farms-latest-entries"></div>
+          </section>
         </section>
 
-        <section class="owner-split-grid">
+        <section class="owner-management-grid">
           <section class="fa-section">
             <div class="fa-section-head">
               <div>
                 <p class="fa-eyebrow">Farmer Enrollment</p>
                 <h3>Enroll farmer</h3>
               </div>
+            </div>
+            <div class="owner-form-band">
+              <span>Account Setup</span>
+              <strong>Basic login and identity</strong>
             </div>
             <form class="fa-form owner-form-grid" data-owner-enroll-farmer autocomplete="off">
               <input name="editing_farmer_code" type="hidden" />
@@ -78,6 +106,10 @@
                 Password
                 <input name="password" type="text" placeholder="Create password" autocomplete="new-password" required />
               </label>
+              <div class="owner-form-band owner-form-band-sub full">
+                <span>Farm Profile</span>
+                <strong>Mapping and capacity</strong>
+              </div>
               <label>
                 Cluster
                 <input name="cluster" type="text" placeholder="Enter cluster" autocomplete="off" />
@@ -114,12 +146,16 @@
             <p class="fa-form-note owner-create-note"></p>
           </section>
 
-          <section class="fa-section">
+          <section class="fa-section" id="owner-batch-entry-anchor">
             <div class="fa-section-head">
               <div>
                 <p class="fa-eyebrow">Batch Entry</p>
                 <h3>Assign batch</h3>
               </div>
+            </div>
+            <div class="owner-form-band">
+              <span>Batch Control</span>
+              <strong>Batch, shed, and age updates</strong>
             </div>
             <form class="fa-form owner-form-grid" data-owner-batch-entry autocomplete="off">
               <label>
@@ -148,20 +184,26 @@
             </form>
             <p class="fa-form-note owner-batch-note"></p>
 
-            <div class="fa-section-head owner-subhead">
-              <div>
-                <p class="fa-eyebrow">Farmer Accounts</p>
-                <h3>Farmer accounts</h3>
-              </div>
-            </div>
-            <div class="fa-list-card" id="owner-farmer-accounts"></div>
-            <div class="fa-section-head owner-subhead">
-              <div>
-                <p class="fa-eyebrow">Field Officers</p>
-                <h3>Field officers</h3>
-              </div>
-            </div>
-            <div class="fa-list-card" id="owner-field-officers"></div>
+            <section class="owner-grid-two owner-grid-two-tight owner-subsection-grid">
+              <section class="fa-section owner-subsection">
+                <div class="fa-section-head owner-subhead">
+                  <div>
+                    <p class="fa-eyebrow">Farmer Accounts</p>
+                    <h3>Farmer accounts</h3>
+                  </div>
+                </div>
+                <div class="fa-list-card" id="owner-farmer-accounts"></div>
+              </section>
+              <section class="fa-section owner-subsection">
+                <div class="fa-section-head owner-subhead">
+                  <div>
+                    <p class="fa-eyebrow">Field Officers</p>
+                    <h3>Field officers</h3>
+                  </div>
+                </div>
+                <div class="fa-list-card" id="owner-field-officers"></div>
+              </section>
+            </section>
           </section>
         </section>
       </main>

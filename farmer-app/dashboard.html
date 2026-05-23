@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Utsav Farmer Dashboard | किसान डैशबोर्ड</title>
-    <link rel="stylesheet" href="/farmer-app/styles.css?v=20260534" />
+    <link rel="stylesheet" href="/farmer-app/styles.css?v=20260535" />
   </head>
   <body class="fa-body" data-fa-page="dashboard">
     <div class="fa-app-shell">
@@ -106,6 +106,51 @@
         <section class="fa-section">
           <div class="fa-section-head">
             <div>
+              <p class="fa-eyebrow">Edit Details | जानकारी बदलें</p>
+              <h3>Profile and farm details</h3>
+            </div>
+          </div>
+          <form class="fa-form fa-form-grid" data-farmer-profile-form autocomplete="off">
+            <label>
+              Farmer Name
+              <input name="farmer_name" type="text" placeholder="Farmer name" required />
+            </label>
+            <label>
+              Mobile Number
+              <input name="phone" type="tel" inputmode="numeric" placeholder="Mobile number" required />
+            </label>
+            <label>
+              New Password
+              <input name="password" type="password" placeholder="Leave blank to keep same" autocomplete="new-password" />
+            </label>
+            <label>
+              Farm Name
+              <input name="farm_name" type="text" placeholder="Farm name" required />
+            </label>
+            <label>
+              Cluster
+              <input name="cluster" type="text" placeholder="Cluster" />
+            </label>
+            <label>
+              Field Officer
+              <input name="field_officer" type="text" placeholder="Field officer" />
+            </label>
+            <label>
+              Farm Capacity
+              <input name="farm_capacity" type="text" placeholder="Farm capacity" />
+            </label>
+            <label>
+              Active Sheds
+              <input name="active_sheds" type="number" min="1" placeholder="No. of sheds" />
+            </label>
+            <button class="fa-primary-btn full" type="submit">Save Details</button>
+          </form>
+          <p class="fa-status-message" data-farmer-profile-status></p>
+        </section>
+
+        <section class="fa-section">
+          <div class="fa-section-head">
+            <div>
               <p class="fa-eyebrow">Important Alerts | Zaroori Suchna</p>
               <h3>Alerts</h3>
             </div>
@@ -153,6 +198,6 @@
       <a href="./requests.html">Requests</a>
       <a href="./uploads.html">Uploads</a>
     </nav>
-    <script src="/farmer-app/app.js?v=20260536"></script>
+    <script src="/farmer-app/app.js?v=20260537"></script>
   </body>
 </html>

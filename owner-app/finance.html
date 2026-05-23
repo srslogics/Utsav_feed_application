@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Utsav Owner Finance</title>
     <link rel="stylesheet" href="/farmer-app/styles.css?v=20260534" />
-    <link rel="stylesheet" href="/owner-app/styles.css?v=20260531" />
+    <link rel="stylesheet" href="/owner-app/styles.css?v=20260532" />
   </head>
   <body class="fa-body owner-body" data-owner-page="finance">
     <div class="fa-app-shell">
@@ -36,26 +36,54 @@
           </div>
         </header>
 
-        <section class="fa-kpi-grid" id="owner-finance-kpis"></section>
-
-        <section class="fa-section">
-          <div class="fa-section-head">
-            <div>
-              <p class="fa-eyebrow">Documents</p>
-              <h3>Documents</h3>
-            </div>
+        <section class="owner-hero owner-hero-compact">
+          <div class="owner-hero-copy">
+            <p class="fa-eyebrow">Finance Visibility</p>
+            <h3>Track inward movement, uploaded bills, and pending document review.</h3>
+            <p>This screen is for finance-side visibility, not settlement complexity. Keep the flow simple: see the latest documents, verify inward, and move quickly.</p>
           </div>
-          <div class="fa-list-card" id="owner-finance-documents"></div>
+          <div class="owner-hero-rail owner-hero-links">
+            <a href="#owner-finance-documents">
+              <span>Documents</span>
+              <strong>Review latest uploads from farms</strong>
+            </a>
+            <a href="#owner-finance-inward">
+              <span>Feed Inward</span>
+              <strong>Verify current inward movement</strong>
+            </a>
+          </div>
         </section>
 
         <section class="fa-section">
           <div class="fa-section-head">
             <div>
-              <p class="fa-eyebrow">Feed Inward</p>
-              <h3>Feed inward</h3>
+              <p class="fa-eyebrow">Finance Snapshot</p>
+              <h3>Key numbers</h3>
             </div>
           </div>
-          <div class="fa-list-card" id="owner-finance-inward"></div>
+          <div class="fa-kpi-grid" id="owner-finance-kpis"></div>
+        </section>
+
+        <section class="owner-grid-two">
+          <section class="fa-section">
+            <div class="fa-section-head">
+              <div>
+                <p class="fa-eyebrow">Documents</p>
+                <h3>Documents</h3>
+              </div>
+            </div>
+            <div class="fa-list-card" id="owner-finance-documents"></div>
+          </section>
+
+          <section class="fa-section">
+            <div class="fa-section-head">
+              <div>
+                <p class="fa-eyebrow">Feed Inward</p>
+                <h3>Feed inward</h3>
+              </div>
+            </div>
+            <div class="fa-list-card" id="owner-finance-inward"></div>
+          </section>
         </section>
       </main>
     </div>

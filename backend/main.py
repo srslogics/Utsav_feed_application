@@ -464,6 +464,17 @@ class OwnerBatchEntryPayload(BaseModel):
     bird_age_days: int = Field(default=0, ge=0)
 
 
+class FarmerProfileUpdatePayload(BaseModel):
+    farmer_name: str
+    phone: str
+    password: str = ""
+    cluster: str = ""
+    farm_name: str
+    field_officer: str = ""
+    farm_capacity: str = ""
+    active_sheds: int = Field(default=1, ge=1)
+
+
 def safe_slug(value: str) -> str:
     cleaned = re.sub(r"[^a-zA-Z0-9]+", "-", value.strip().lower()).strip("-")
     return cleaned or "document"
@@ -1453,6 +1464,37 @@ def farmer_profile(request: Request):
     return serialize_profile(user)
 
 
+@app.put("/api/farmer/profile")
+def farmer_update_profile(payload: FarmerProfileUpdatePayload, request: Request):
+    user = get_current_user(request, "farmer")
+    with session_scope() as db:
+        farmer = db.scalar(select(User).where(User.id == user.id, User.role == "farmer"))
+        if not farmer:
+            raise HTTPException(status_code=404, detail="Farmer not found.")
+
+        normalized_phone = normalize_phone(payload.phone)
+        existing_phone = db.scalar(select(User).where(User.phone == normalized_phone, User.id != farmer.id))
+        if existing_phone:
+            raise HTTPException(status_code=400, detail="Phone number already exists.")
+
+        farmer.name = payload.farmer_name
+        farmer.phone = normalized_phone
+        if payload.password.strip():
+            farmer.password_hash = hash_password(payload.password)
+        farmer.cluster = payload.cluster
+        farmer.farm_name = payload.farm_name
+        farmer.field_officer = payload.field_officer
+        farmer.farm_capacity = payload.farm_capacity
+        farmer.active_sheds = payload.active_sheds
+        db.add(farmer)
+        db.commit()
+        db.refresh(farmer)
+
+    request.session["user_id"] = farmer.id
+    request.session["role"] = farmer.role
+    return {"success": True, "profile": serialize_profile(farmer)}
+
+
 @app.get("/api/farmer/dashboard")
 def farmer_dashboard(request: Request):
     user = get_current_user(request, "farmer")
@@ -1974,6 +2016,7 @@ def owner_farms(request: Request):
         farmer_ids = [farm.id for farm in farmers]
         latest_entries = list(db.scalars(select(DailyEntry).where(DailyEntry.farmer_id.in_(farmer_ids)).order_by(DailyEntry.entry_date.desc(), DailyEntry.created_at.desc()))) if farmer_ids else []
         field_officers = [officer for officer in db.scalars(select(User).where(User.role == "field").order_by(User.name)) if valid_field_user(officer)]
+        field_officer_map = {officer.name: officer for officer in field_officers}
         latest_by_farmer: dict[int, DailyEntry] = {}
         for entry in latest_entries:
             if entry.farmer_id not in latest_by_farmer:
@@ -2009,7 +2052,7 @@ def owner_farms(request: Request):
                 "farm_name": farm.farm_name or "",
                 "cluster": farm.cluster or "",
                 "field_officer": farm.field_officer or "",
-                "field_officer_phone": "",
+                "field_officer_phone": format_phone_display(field_officer_map[farm.field_officer].phone) if farm.field_officer in field_officer_map else "",
                 "farm_capacity": farm.farm_capacity or "",
                 "active_sheds": farm.active_sheds or 1,
                 "active_batch": farm.active_batch or "",

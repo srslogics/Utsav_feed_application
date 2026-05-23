@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Utsav Owner Dashboard</title>
     <link rel="stylesheet" href="/farmer-app/styles.css?v=20260534" />
-    <link rel="stylesheet" href="/owner-app/styles.css?v=20260531" />
+    <link rel="stylesheet" href="/owner-app/styles.css?v=20260532" />
   </head>
   <body class="fa-body owner-body" data-owner-page="dashboard">
     <div class="fa-app-shell">
@@ -41,7 +41,37 @@
           </div>
         </header>
 
-        <section class="fa-kpi-grid fa-kpi-grid-six" id="owner-kpis"></section>
+        <section class="owner-hero owner-hero-compact">
+          <div class="owner-hero-copy">
+            <p class="fa-eyebrow">Integration Command View</p>
+            <h3>Daily control across farms, sheds, field teams, and finance.</h3>
+            <p>Track what needs attention first, then move straight into farm actions, daily entries, uploads, and settlements without hunting across pages.</p>
+          </div>
+          <div class="owner-hero-rail owner-hero-links">
+            <a href="./farms.html">
+              <span>Farm Directory</span>
+              <strong>Manage farms and farmer accounts</strong>
+            </a>
+            <a href="./operations-daily.html">
+              <span>Operations</span>
+              <strong>Review daily entries and issue flow</strong>
+            </a>
+            <a href="./finance.html">
+              <span>Finance</span>
+              <strong>Check inward, bills, and documents</strong>
+            </a>
+          </div>
+        </section>
+
+        <section class="fa-section">
+          <div class="fa-section-head">
+            <div>
+              <p class="fa-eyebrow">Command Snapshot</p>
+              <h3>Key numbers</h3>
+            </div>
+          </div>
+          <div class="fa-kpi-grid fa-kpi-grid-six" id="owner-kpis"></div>
+        </section>
 
         <section class="fa-section">
           <div class="fa-section-head">
@@ -53,27 +83,29 @@
           <div class="fa-detail-grid" id="owner-farms"></div>
         </section>
 
-        <section class="fa-section">
-          <div class="fa-section-head">
-            <div>
-              <p class="fa-eyebrow">Priority Queue</p>
-              <h3>Priority items</h3>
+        <section class="owner-grid-two">
+          <section class="fa-section">
+            <div class="fa-section-head">
+              <div>
+                <p class="fa-eyebrow">Priority Queue</p>
+                <h3>Priority items</h3>
+              </div>
             </div>
-          </div>
-          <div class="fa-list-card" id="owner-priority"></div>
+            <div class="fa-list-card" id="owner-priority"></div>
+          </section>
+
+          <section class="fa-section">
+            <div class="fa-section-head">
+              <div>
+                <p class="fa-eyebrow">Field Activity</p>
+                <h3>Field updates</h3>
+              </div>
+            </div>
+            <div class="fa-list-card" id="owner-field-activity"></div>
+          </section>
         </section>
 
-        <section class="fa-section">
-          <div class="fa-section-head">
-            <div>
-              <p class="fa-eyebrow">Field Activity</p>
-              <h3>Field updates</h3>
-            </div>
-          </div>
-          <div class="fa-list-card" id="owner-field-activity"></div>
-        </section>
-
-        <section class="owner-split-grid">
+        <section class="owner-grid-two">
           <section class="fa-section">
             <div class="fa-section-head">
               <div>
@@ -95,24 +127,26 @@
           </section>
         </section>
 
-        <section class="fa-section">
-          <div class="fa-section-head">
-            <div>
-              <p class="fa-eyebrow">Health Watch</p>
-              <h3>Health updates</h3>
+        <section class="owner-grid-two owner-grid-two-bottom">
+          <section class="fa-section">
+            <div class="fa-section-head">
+              <div>
+                <p class="fa-eyebrow">Health Watch</p>
+                <h3>Health updates</h3>
+              </div>
             </div>
-          </div>
-          <div class="fa-list-card" id="owner-health-watch"></div>
-        </section>
+            <div class="fa-list-card" id="owner-health-watch"></div>
+          </section>
 
-        <section class="fa-section">
-          <div class="fa-section-head">
-            <div>
-              <p class="fa-eyebrow">Latest Uploads</p>
-              <h3>Uploads</h3>
+          <section class="fa-section">
+            <div class="fa-section-head">
+              <div>
+                <p class="fa-eyebrow">Latest Uploads</p>
+                <h3>Uploads</h3>
+              </div>
             </div>
-          </div>
-          <div class="fa-list-card" id="owner-uploads"></div>
+            <div class="fa-list-card" id="owner-uploads"></div>
+          </section>
         </section>
       </main>
     </div>

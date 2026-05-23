@@ -61,6 +61,20 @@ function populateProfile(profile) {
   document.querySelectorAll("[data-profile-batch]").forEach((el) => (el.textContent = profile.active_batch ? `Batch ${profile.active_batch}` : ""));
   document.querySelectorAll("[data-profile-capacity]").forEach((el) => (el.textContent = profile.farm_capacity || ""));
   document.querySelectorAll("[data-profile-officer]").forEach((el) => (el.textContent = profile.field_officer || ""));
+  const profileForm = document.querySelector("[data-farmer-profile-form]");
+  if (profileForm) {
+    const setValue = (name, value) => {
+      const input = profileForm.querySelector(`[name="${name}"]`);
+      if (input) input.value = value ?? "";
+    };
+    setValue("farmer_name", profile.farmer_name || profile.name || "");
+    setValue("phone", profile.phone || "");
+    setValue("cluster", profile.cluster || "");
+    setValue("farm_name", profile.farm_name || "");
+    setValue("field_officer", profile.field_officer || "");
+    setValue("farm_capacity", profile.farm_capacity || "");
+    setValue("active_sheds", profile.active_sheds || 1);
+  }
   populateShedOptions(profile);
 }
 
@@ -546,6 +560,37 @@ if (dailyEntryForm) {
       setStatus("[data-daily-entry-status]", editingEntryId ? "Daily entry update ho gayi." : "Safalta se save ho gaya.");
     } catch {
       setStatus("[data-daily-entry-status]", editingEntryId ? "Daily entry update nahi ho paayi. Dobara koshish karein." : "Abhi save nahi ho paaya. Kripya dobara koshish karein.", true);
+    }
+  });
+}
+
+const farmerProfileForm = document.querySelector("[data-farmer-profile-form]");
+if (farmerProfileForm) {
+  farmerProfileForm.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    const formData = new FormData(farmerProfileForm);
+    const payload = {
+      farmer_name: formData.get("farmer_name"),
+      phone: formData.get("phone"),
+      password: formData.get("password"),
+      cluster: formData.get("cluster"),
+      farm_name: formData.get("farm_name"),
+      field_officer: formData.get("field_officer"),
+      farm_capacity: formData.get("farm_capacity"),
+      active_sheds: Number(formData.get("active_sheds") || 1),
+    };
+    try {
+      const result = await requestJson(`${farmerApiBase}/profile`, {
+        method: "PUT",
+        body: JSON.stringify(payload),
+      });
+      populateProfile(result.profile);
+      const passwordInput = farmerProfileForm.querySelector('input[name="password"]');
+      if (passwordInput) passwordInput.value = "";
+      setStatus("[data-farmer-profile-status]", "Details safalta se update ho gaye.");
+      loadDashboard().catch(handlePageError);
+    } catch {
+      setStatus("[data-farmer-profile-status]", "Details update nahi ho paaye. Dobara check karein.", true);
     }
   });
 }
