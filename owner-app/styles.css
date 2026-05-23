@@ -618,8 +618,23 @@
     line-height: 1.45;
   }
 
+  .owner-hero-rail {
+    gap: 0.6rem;
+  }
+
+  .owner-hero-rail a,
+  .owner-hero-rail article {
+    padding: 0.72rem 0.78rem;
+    border-radius: 16px;
+  }
+
   .owner-body .fa-page-head h2 {
     max-width: 100%;
+  }
+
+  .owner-body .fa-login-shell {
+    gap: 0.8rem;
+    align-items: start;
   }
 
   .owner-body .fa-kpi-card strong {
@@ -636,6 +651,18 @@
     display: none;
   }
 
+  .owner-body .fa-page-actions {
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.6rem;
+    align-items: stretch;
+  }
+
+  .owner-body .fa-page-actions .fa-secondary-btn {
+    width: auto;
+  }
+
   .owner-hierarchy-toolbar {
     grid-template-columns: 1fr 1fr;
   }
@@ -650,8 +677,23 @@
     justify-content: flex-start;
   }
 
+  .owner-hierarchy-sheds {
+    gap: 0.6rem;
+    padding: 0.72rem;
+  }
+
+  .owner-hierarchy-entry-list {
+    gap: 0.55rem;
+    padding: 0 0.72rem 0.72rem;
+  }
+
+  .owner-hierarchy-entry {
+    padding: 0.72rem;
+  }
+
   .owner-bottom-nav {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.45rem;
   }
 
   .owner-bottom-nav a {
@@ -659,6 +701,17 @@
     padding: 0.58rem 0.35rem;
     font-size: 0.72rem;
     line-height: 1.15;
+  }
+
+  .owner-body .fa-detail-grid,
+  .fa-kpi-grid-six {
+    grid-template-columns: 1fr;
+  }
+
+  .owner-body .fa-list-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.65rem;
   }
 
   .owner-body .fa-section,
@@ -673,9 +726,30 @@
   .owner-edit-row-actions .fa-secondary-btn {
     flex: 1 1 140px;
   }
+
+  .owner-edit-card-actions,
+  .owner-edit-row-actions,
+  .owner-form-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .owner-edit-row-side {
+    gap: 0.7rem;
+  }
+
+  .owner-body .fa-form input,
+  .owner-body .fa-form select,
+  .owner-body .fa-form textarea {
+    padding: 0.76rem 0.82rem;
+  }
 }
 
 @media (max-width: 420px) {
+  .owner-body .fa-page-actions {
+    grid-template-columns: 1fr;
+  }
+
   .owner-hierarchy-toolbar {
     grid-template-columns: 1fr;
   }

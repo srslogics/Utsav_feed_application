@@ -966,8 +966,14 @@ button {
     padding: 0.8rem;
   }
 
+  .fa-login-shell {
+    gap: 0.8rem;
+    align-items: start;
+  }
+
   .fa-login-panel {
     order: 2;
+    margin-top: 0;
   }
 
   .fa-auth-card {
@@ -1054,13 +1060,16 @@ button {
 
   .fa-page-actions {
     width: 100%;
-    justify-content: flex-start;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    justify-content: stretch;
+    gap: 0.6rem;
   }
 
   .fa-page-actions .fa-secondary-btn {
     min-height: 42px;
     padding: 0.72rem 1rem;
-    width: 100%;
+    width: auto;
   }
 
   .fa-hero-card {
