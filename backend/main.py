@@ -856,6 +856,7 @@ def serialize_daily_entry_record(record: DailyEntry) -> dict:
     return {
         "id": record.id,
         "entry_date": record.entry_date,
+        "can_edit_today": record.entry_date == today_string(),
         "shed": record.shed,
         "opening_birds": record.opening_birds,
         "mortality": record.mortality,
@@ -998,45 +999,51 @@ def build_owner_daily_entry_hierarchy(farmers: list[User], entries: list[DailyEn
         farmer_entries = entries_by_farmer.get(farmer.id, [])
         entry_count = len(farmer_entries)
         latest_entry_date = farmer_entries[0].entry_date if farmer_entries else ""
-        shed_map: dict[str, list[DailyEntry]] = {}
-        for record in farmer_entries:
-            shed_key = record.shed or farmer.current_shed or "Unassigned shed"
-            shed_map.setdefault(shed_key, []).append(record)
-
         active_sheds = int(farmer.active_sheds or 0)
-        for index in range(1, active_sheds + 1):
-            shed_name = f"Shed {index}"
-            shed_map.setdefault(shed_name, [])
-
+        default_sheds = [f"Shed {index}" for index in range(1, active_sheds + 1)]
         current_shed = (farmer.current_shed or "").strip()
-        if current_shed:
-            shed_map.setdefault(current_shed, [])
+        if current_shed and current_shed not in default_sheds:
+            default_sheds.insert(0, current_shed)
 
-        sheds: list[dict] = []
-        for shed_name in sorted(shed_map.keys()):
-            shed_entries = shed_map[shed_name]
-            latest = shed_entries[0] if shed_entries else None
-            sheds.append(
+        date_map: dict[str, list[DailyEntry]] = {}
+        for record in farmer_entries:
+            date_map.setdefault(record.entry_date, []).append(record)
+
+        daily_groups: list[dict] = []
+        for entry_date in sorted(date_map.keys(), reverse=True):
+            date_entries = date_map[entry_date]
+            shed_rows: dict[str, DailyEntry | None] = {}
+            for shed_name in default_sheds:
+                shed_rows.setdefault(shed_name, None)
+            for record in date_entries:
+                shed_name = record.shed or current_shed or "Unassigned shed"
+                shed_rows[shed_name] = record
+
+            rows: list[dict] = []
+            for shed_name, record in shed_rows.items():
+                rows.append(
+                    {
+                        "shed_name": shed_name,
+                        "has_entry": bool(record),
+                        "opening_birds": record.opening_birds if record else None,
+                        "mortality": record.mortality if record else None,
+                        "culls": record.culls if record else None,
+                        "feed_used_bags": record.feed_used_bags if record else None,
+                        "water_liters": record.water_liters if record else None,
+                        "avg_weight_g": record.avg_weight_g if record else None,
+                        "temperature_c": record.temperature_c if record else None,
+                        "humidity_pct": record.humidity_pct if record else None,
+                        "litter_condition": record.litter_condition if record else "",
+                        "issues": record.issues or "" if record else "",
+                        "remarks": record.remarks or "" if record else "",
+                    }
+                )
+
+            daily_groups.append(
                 {
-                    "shed_name": shed_name,
-                    "entry_count": len(shed_entries),
-                    "latest_entry_date": latest.entry_date if latest else "",
-                    "entries": [
-                        {
-                            "entry_date": record.entry_date,
-                            "mortality": record.mortality,
-                            "culls": record.culls,
-                            "feed_used_bags": record.feed_used_bags,
-                            "water_liters": record.water_liters,
-                            "avg_weight_g": record.avg_weight_g,
-                            "temperature_c": record.temperature_c,
-                            "humidity_pct": record.humidity_pct,
-                            "litter_condition": record.litter_condition,
-                            "issues": record.issues or "",
-                            "remarks": record.remarks or "",
-                        }
-                        for record in shed_entries[:10]
-                    ],
+                    "entry_date": entry_date,
+                    "shed_count": len([row for row in rows if row["has_entry"]]),
+                    "rows": rows,
                 }
             )
 
@@ -1050,7 +1057,8 @@ def build_owner_daily_entry_hierarchy(farmers: list[User], entries: list[DailyEn
                 "cluster": farmer.cluster or "",
                 "entry_count": entry_count,
                 "latest_entry_date": latest_entry_date,
-                "sheds": sheds,
+                "shed_count": len(default_sheds),
+                "daily_groups": daily_groups[:10],
             }
         )
     return hierarchy
@@ -1963,6 +1971,10 @@ async def update_daily_entry(
         record = db.scalar(select(DailyEntry).where(DailyEntry.id == entry_id, DailyEntry.farmer_id == user.id))
         if not record:
             raise HTTPException(status_code=404, detail="Daily entry not found.")
+        if record.entry_date != today_string():
+            raise HTTPException(status_code=403, detail="Previous day entries cannot be edited.")
+        if entry_date != today_string():
+            raise HTTPException(status_code=403, detail="Only today's entry can be updated.")
 
         if litter_photo and litter_photo.filename:
             timestamp = datetime.now().strftime("%Y%m%d%H%M%S")

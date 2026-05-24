@@ -503,7 +503,7 @@
 }
 
 .owner-hierarchy-farm,
-.owner-hierarchy-shed {
+.owner-hierarchy-day {
   border: 1px solid var(--fa-border);
   background: linear-gradient(180deg, rgba(255, 255, 255, 0.99), rgba(248, 245, 240, 0.97));
   box-shadow: 0 16px 36px rgba(20, 20, 27, 0.06);
@@ -514,24 +514,24 @@
   overflow: hidden;
 }
 
-.owner-hierarchy-shed {
+.owner-hierarchy-day {
   border-radius: 18px;
   background: linear-gradient(180deg, rgba(250, 248, 244, 0.98), rgba(244, 239, 232, 0.94));
 }
 
 .owner-hierarchy-farm summary,
-.owner-hierarchy-shed summary {
+.owner-hierarchy-day summary {
   list-style: none;
   cursor: pointer;
 }
 
 .owner-hierarchy-farm summary::-webkit-details-marker,
-.owner-hierarchy-shed summary::-webkit-details-marker {
+.owner-hierarchy-day summary::-webkit-details-marker {
   display: none;
 }
 
 .owner-hierarchy-farm-head,
-.owner-hierarchy-shed-head,
+.owner-hierarchy-day-head,
 .owner-hierarchy-entry-head {
   display: flex;
   align-items: flex-start;
@@ -545,7 +545,7 @@
   color: #fff;
 }
 
-.owner-hierarchy-shed-head {
+.owner-hierarchy-day-head {
   padding: 0.78rem 0.9rem;
 }
 
@@ -598,69 +598,96 @@
   color: rgba(255, 255, 255, 0.82);
 }
 
-.owner-hierarchy-shed .owner-hierarchy-chip {
+.owner-hierarchy-day .owner-hierarchy-chip {
   background: rgba(163, 125, 73, 0.11);
   border-color: rgba(163, 125, 73, 0.14);
   color: var(--fa-text);
 }
 
-.owner-hierarchy-shed .owner-hierarchy-chip-muted {
+.owner-hierarchy-day .owner-hierarchy-chip-muted {
   color: var(--fa-muted);
 }
 
-.owner-hierarchy-sheds {
+.owner-hierarchy-days {
   display: grid;
   gap: 0.7rem;
   padding: 0.85rem;
 }
 
-.owner-hierarchy-entry-list {
+.owner-day-sheet {
   display: grid;
   gap: 0.6rem;
   padding: 0 0.9rem 0.9rem;
 }
 
-.owner-hierarchy-entry {
-  padding: 0.8rem 0.85rem;
-  border-radius: 15px;
-  border: 1px solid rgba(49, 54, 66, 0.08);
-  background: rgba(255, 255, 255, 0.88);
-}
-
-.owner-hierarchy-status {
-  color: var(--fa-accent-strong);
-  font-weight: 700;
-}
-
-.owner-hierarchy-entry-grid {
+.owner-day-sheet-head,
+.owner-day-sheet-row {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 0.45rem 0.6rem;
-  margin-top: 0.58rem;
+  grid-template-columns:
+    minmax(110px, 1.15fr)
+    repeat(8, minmax(68px, 0.8fr))
+    minmax(90px, 0.9fr);
+  gap: 0.42rem;
+  align-items: stretch;
 }
 
-.owner-hierarchy-entry-grid span {
-  display: grid;
-  gap: 0.18rem;
-  padding: 0.58rem 0.65rem;
-  border-radius: 12px;
-  background: rgba(244, 239, 232, 0.82);
+.owner-day-sheet-head {
+  padding: 0.3rem 0 0;
 }
 
-.owner-hierarchy-entry-grid label {
-  font-size: 0.72rem;
-  text-transform: uppercase;
+.owner-day-sheet-head span {
+  padding: 0 0.2rem;
+  font-size: 0.68rem;
   letter-spacing: 0.1em;
+  text-transform: uppercase;
   color: var(--fa-muted);
 }
 
-.owner-hierarchy-entry-grid strong {
-  font-size: 0.88rem;
-  color: var(--fa-text);
+.owner-day-sheet-body {
+  display: grid;
+  gap: 0.5rem;
 }
 
-.owner-hierarchy-entry-note {
-  margin-top: 0.75rem;
+.owner-day-sheet-row {
+  padding: 0.62rem 0.65rem;
+  border-radius: 15px;
+  border: 1px solid rgba(49, 54, 66, 0.08);
+  background: rgba(255, 255, 255, 0.9);
+}
+
+.owner-day-sheet-row.is-empty {
+  background: rgba(245, 240, 233, 0.72);
+}
+
+.owner-day-sheet-cell {
+  display: grid;
+  align-items: center;
+  min-height: 2.2rem;
+  padding: 0.45rem 0.52rem;
+  border-radius: 12px;
+  background: rgba(244, 239, 232, 0.82);
+  color: var(--fa-text);
+  font-size: 0.84rem;
+  font-weight: 600;
+  line-height: 1.25;
+}
+
+.owner-day-sheet-row.is-empty .owner-day-sheet-cell {
+  color: var(--fa-muted);
+}
+
+.owner-day-sheet-cell.shed {
+  font-family: var(--fa-font-display);
+  font-size: 0.9rem;
+}
+
+.owner-day-sheet-note {
+  grid-column: 1 / -1;
+  margin: 0;
+  padding: 0.1rem 0.3rem 0;
+  color: var(--fa-muted);
+  font-size: 0.82rem;
+  line-height: 1.4;
 }
 
 @media (max-width: 1380px) {
@@ -678,8 +705,16 @@
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
-  .owner-hierarchy-entry-grid {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+  .owner-day-sheet-head,
+  .owner-day-sheet-row {
+    grid-template-columns:
+      minmax(110px, 1.15fr)
+      repeat(5, minmax(68px, 0.8fr));
+  }
+
+  .owner-day-sheet-head span:nth-child(n + 7),
+  .owner-day-sheet-row .owner-day-sheet-cell:nth-child(n + 7):nth-child(-n + 10) {
+    display: none;
   }
 }
 
@@ -711,8 +746,25 @@
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
-  .owner-hierarchy-entry-grid {
+  .owner-hierarchy-day-head {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .owner-day-sheet-head {
+    display: none;
+  }
+
+  .owner-day-sheet-row {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .owner-day-sheet-cell.shed {
+    grid-column: 1 / -1;
+  }
+
+  .owner-day-sheet-note {
+    padding-left: 0;
   }
 
   .owner-body .fa-page-actions .fa-secondary-btn {
@@ -866,7 +918,7 @@
   }
 
   .owner-hierarchy-farm-head,
-  .owner-hierarchy-shed-head,
+  .owner-hierarchy-day-head,
   .owner-hierarchy-entry-head {
     flex-direction: column;
   }
@@ -875,17 +927,8 @@
     justify-content: flex-start;
   }
 
-  .owner-hierarchy-sheds {
+  .owner-hierarchy-days {
     gap: 0.6rem;
-    padding: 0.72rem;
-  }
-
-  .owner-hierarchy-entry-list {
-    gap: 0.55rem;
-    padding: 0 0.72rem 0.72rem;
-  }
-
-  .owner-hierarchy-entry {
     padding: 0.72rem;
   }
 
@@ -990,7 +1033,7 @@
     padding: 0.68rem 0.74rem;
   }
 
-  .owner-hierarchy-shed-head {
+.owner-hierarchy-day-head {
     padding: 0.6rem 0.7rem;
   }
 
@@ -1006,10 +1049,6 @@
 
 @media (max-width: 420px) {
   .owner-hierarchy-toolbar {
-    grid-template-columns: 1fr;
-  }
-
-  .owner-hierarchy-entry-grid {
     grid-template-columns: 1fr;
   }
 

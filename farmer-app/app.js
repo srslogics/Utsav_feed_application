@@ -259,7 +259,11 @@ function renderDailyEntryRecords(container, records) {
           </div>
           <div class="fa-form-actions">
             <strong>${record.avg_weight_g} g</strong>
-            <button class="fa-secondary-btn" type="button" data-edit-daily-entry="${record.id}">Edit</button>
+            ${
+              record.can_edit_today
+                ? `<button class="fa-secondary-btn" type="button" data-edit-daily-entry="${record.id}">Edit</button>`
+                : `<span class="fa-muted-inline">Read only</span>`
+            }
           </div>
         </div>
       `

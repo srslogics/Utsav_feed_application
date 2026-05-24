@@ -898,6 +898,12 @@ button {
   font-size: 0.88rem;
 }
 
+.fa-muted-inline {
+  color: var(--fa-muted);
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+
 .fa-list-row .fa-form-actions .fa-secondary-btn {
   min-height: auto;
   padding: 0.58rem 0.86rem;

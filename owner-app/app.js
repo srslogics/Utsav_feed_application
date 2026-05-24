@@ -212,9 +212,9 @@ function renderDailyEntryHierarchy(container, farms) {
   }
 
   const totalFarms = farms.length;
-  const totalSheds = farms.reduce((count, farm) => count + (farm.sheds?.length || 0), 0);
+  const totalSheds = farms.reduce((count, farm) => count + (farm.shed_count || 0), 0);
   const totalEntries = farms.reduce(
-    (count, farm) => count + (farm.sheds || []).reduce((shedCount, shed) => shedCount + (shed.entry_count || 0), 0),
+    (count, farm) => count + (farm.daily_groups || []).reduce((dayCount, day) => dayCount + (day.shed_count || 0), 0),
     0
   );
   const activeBatches = farms.filter((farm) => farm.current_batch).length;
@@ -256,57 +256,66 @@ function renderDailyEntryHierarchy(container, farms) {
               <span class="owner-hierarchy-chip owner-hierarchy-chip-muted">${farm.latest_entry_date ? `Latest ${farm.latest_entry_date}` : "No entry yet"}</span>
             </div>
           </summary>
-          <div class="owner-hierarchy-sheds">
-            ${farm.sheds
+          <div class="owner-hierarchy-days">
+            ${farm.daily_groups?.length
+              ? farm.daily_groups
               .map(
-                (shed, shedIndex) => `
-                  <details class="owner-hierarchy-shed" ${farmIndex === 0 && shedIndex === 0 && shed.entry_count ? "open" : ""}>
-                    <summary class="owner-hierarchy-shed-head">
+                (dayGroup, dayIndex) => `
+                  <details class="owner-hierarchy-day" ${farmIndex === 0 && dayIndex === 0 && dayGroup.shed_count ? "open" : ""}>
+                    <summary class="owner-hierarchy-day-head">
                       <div class="owner-hierarchy-title">
-                        <span>Shed</span>
-                        <h5>${shed.shed_name}</h5>
+                        <span>Date</span>
+                        <h5>${dayGroup.entry_date}</h5>
                       </div>
                       <div class="owner-hierarchy-chip-row">
-                        <span class="owner-hierarchy-chip">${shed.entry_count} entries</span>
-                        <span class="owner-hierarchy-chip owner-hierarchy-chip-muted">${shed.latest_entry_date ? `Latest ${shed.latest_entry_date}` : "No entry yet"}</span>
+                        <span class="owner-hierarchy-chip">${dayGroup.shed_count} sheds reported</span>
+                        <span class="owner-hierarchy-chip owner-hierarchy-chip-muted">Shed-wise daily sheet</span>
                       </div>
                     </summary>
-                    <div class="owner-hierarchy-entry-list">
-                      ${
-                        shed.entries.length
-                          ? shed.entries
-                              .map(
-                                (entry) => `
-                                  <article class="owner-hierarchy-entry">
-                                    <div class="owner-hierarchy-entry-head">
-                                      <strong>${entry.entry_date}</strong>
-                                      <span class="owner-hierarchy-status">${entry.litter_condition || "-"}</span>
-                                    </div>
-                                    <div class="owner-hierarchy-entry-grid">
-                                      <span><label>Mortality</label><strong>${entry.mortality}</strong></span>
-                                      <span><label>Culls</label><strong>${entry.culls}</strong></span>
-                                      <span><label>Feed</label><strong>${entry.feed_used_bags} bags</strong></span>
-                                      <span><label>Water</label><strong>${entry.water_liters} L</strong></span>
-                                      <span><label>Weight</label><strong>${entry.avg_weight_g} g</strong></span>
-                                      <span><label>Temp</label><strong>${entry.temperature_c} C</strong></span>
-                                      <span><label>Humidity</label><strong>${entry.humidity_pct}%</strong></span>
-                                    </div>
-                                    ${
-                                      entry.issues || entry.remarks
-                                        ? `<p class="owner-hierarchy-entry-note">${[entry.issues, entry.remarks].filter(Boolean).join(" • ")}</p>`
-                                        : ""
-                                    }
-                                  </article>
-                                `
-                              )
-                              .join("")
-                          : `<div class="fa-empty-state">Is shed ke liye abhi koi daily entry nahi hai.</div>`
-                      }
+                    <div class="owner-day-sheet">
+                      <div class="owner-day-sheet-head">
+                        <span>Shed</span>
+                        <span>Live</span>
+                        <span>Mort.</span>
+                        <span>Culls</span>
+                        <span>Feed</span>
+                        <span>Water</span>
+                        <span>Weight</span>
+                        <span>Temp</span>
+                        <span>Humidity</span>
+                        <span>Litter</span>
+                      </div>
+                      <div class="owner-day-sheet-body">
+                        ${dayGroup.rows
+                          .map(
+                            (row) => `
+                              <article class="owner-day-sheet-row ${row.has_entry ? "" : "is-empty"}">
+                                <span class="owner-day-sheet-cell shed">${row.shed_name}</span>
+                                <span class="owner-day-sheet-cell">${row.has_entry ? row.opening_birds : "-"}</span>
+                                <span class="owner-day-sheet-cell">${row.has_entry ? row.mortality : "-"}</span>
+                                <span class="owner-day-sheet-cell">${row.has_entry ? row.culls : "-"}</span>
+                                <span class="owner-day-sheet-cell">${row.has_entry ? `${row.feed_used_bags} bags` : "-"}</span>
+                                <span class="owner-day-sheet-cell">${row.has_entry ? `${row.water_liters} L` : "-"}</span>
+                                <span class="owner-day-sheet-cell">${row.has_entry ? `${row.avg_weight_g} g` : "-"}</span>
+                                <span class="owner-day-sheet-cell">${row.has_entry ? `${row.temperature_c} C` : "-"}</span>
+                                <span class="owner-day-sheet-cell">${row.has_entry ? `${row.humidity_pct}%` : "-"}</span>
+                                <span class="owner-day-sheet-cell">${row.has_entry ? row.litter_condition || "-" : "No entry"}</span>
+                                ${
+                                  row.has_entry && (row.issues || row.remarks)
+                                    ? `<p class="owner-day-sheet-note">${[row.issues, row.remarks].filter(Boolean).join(" • ")}</p>`
+                                    : ""
+                                }
+                              </article>
+                            `
+                          )
+                          .join("")}
+                      </div>
                     </div>
                   </details>
                 `
               )
-              .join("")}
+              .join("")
+              : `<div class="fa-empty-state">Is farm ke liye abhi koi daily entry nahi hai.</div>`}
           </div>
         </details>
       `
