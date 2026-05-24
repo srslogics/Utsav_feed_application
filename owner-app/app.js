@@ -13,6 +13,7 @@ async function requestJson(url, options = {}) {
   const response = await fetch(url, {
     credentials: "include",
     headers: {
+      "X-Utsav-Role": "owner",
       ...(options.body instanceof FormData ? {} : { "Content-Type": "application/json" }),
       ...(options.headers || {}),
     },

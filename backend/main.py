@@ -37,7 +37,10 @@ from sqlalchemy.orm import Session
 from sqlalchemy.orm import mapped_column
 from sqlalchemy.orm import relationship
 from sqlalchemy.orm import sessionmaker
+from starlette.responses import JSONResponse
 from starlette.middleware.sessions import SessionMiddleware
+from itsdangerous import BadSignature
+from itsdangerous import URLSafeSerializer
 
 
 BASE_DIR = Path(__file__).resolve().parent
@@ -76,6 +79,11 @@ LOCATION_COORDINATE_OVERRIDES = {
 }
 _weather_cache: dict[str, dict] = {}
 _geocode_cache: dict[str, dict] = {}
+ROLE_COOKIE_NAMES = {
+    "farmer": "utsav_farmer_session",
+    "owner": "utsav_owner_session",
+    "field": "utsav_field_session",
+}
 
 
 def hash_password(value: str) -> str:
@@ -123,6 +131,72 @@ def cache_set(store: dict[str, dict], key: str, value, ttl_seconds: int):
         "value": value,
         "expires_at": datetime.utcnow().timestamp() + ttl_seconds,
     }
+
+
+def session_serializer() -> URLSafeSerializer:
+    secret = os.getenv("SESSION_SECRET", "utsav-dev-session-secret")
+    return URLSafeSerializer(secret, salt="utsav-role-cookie")
+
+
+def role_cookie_name(role: str) -> str:
+    return ROLE_COOKIE_NAMES.get(role, f"utsav_{role}_session")
+
+
+def build_role_cookie_payload(user: "User") -> dict:
+    return {
+        "user_id": int(user.id),
+        "role": user.role,
+        "name": user.name,
+        "last_seen_at": datetime.utcnow().isoformat(),
+    }
+
+
+def set_role_auth_cookie(response: JSONResponse, user: "User"):
+    payload = session_serializer().dumps(build_role_cookie_payload(user))
+    response.set_cookie(
+        key=role_cookie_name(user.role),
+        value=payload,
+        max_age=SESSION_MAX_AGE_SECONDS,
+        httponly=True,
+        samesite="lax",
+        secure=False,
+        path="/",
+    )
+
+
+def clear_role_auth_cookies(response: JSONResponse):
+    for role in ROLE_COOKIE_NAMES:
+        response.delete_cookie(role_cookie_name(role), path="/")
+
+
+def expected_role_from_request(request: Request) -> str | None:
+    explicit = (request.headers.get("X-Utsav-Role") or "").strip().lower()
+    if explicit in ROLE_COOKIE_NAMES:
+        return explicit
+    path = request.url.path
+    if path.startswith("/api/farmer") or path.startswith("/farmer-app"):
+        return "farmer"
+    if path.startswith("/api/owner") or path.startswith("/owner-app"):
+        return "owner"
+    if path.startswith("/api/field") or path.startswith("/field-app"):
+        return "field"
+    return None
+
+
+def read_role_cookie_identity(request: Request, expected_role: str | None = None) -> dict | None:
+    role = expected_role or expected_role_from_request(request)
+    if not role:
+        return None
+    cookie_value = request.cookies.get(role_cookie_name(role))
+    if not cookie_value:
+        return None
+    try:
+        payload = session_serializer().loads(cookie_value)
+    except BadSignature:
+        return None
+    if payload.get("role") != role or not payload.get("user_id"):
+        return None
+    return payload
 
 
 def is_placeholder_field_phone(value: str) -> bool:
@@ -725,8 +799,9 @@ def send_whatsapp_template_message(to_phone: str, body_values: list[str]) -> dic
 
 
 def get_current_user(request: Request, role: str | None = None) -> User:
-    user_id = request.session.get("user_id")
-    user_role = request.session.get("role")
+    cookie_identity = read_role_cookie_identity(request, role)
+    user_id = (cookie_identity or {}).get("user_id") or request.session.get("user_id")
+    user_role = (cookie_identity or {}).get("role") or request.session.get("role")
     if not user_id or not user_role:
         raise HTTPException(status_code=401, detail="Login required.")
     if role and user_role != role:
@@ -1734,30 +1809,37 @@ def auth_login(payload: LoginPayload, request: Request):
         request.session["role"] = user.role
         request.session["name"] = user.name
         request.session["last_seen_at"] = datetime.utcnow().isoformat()
-        return {
-            "success": True,
-            "role": user.role,
-            "user": serialize_profile(user),
-            "redirect": (
-                "/farmer-app/dashboard.html"
-                if user.role == "farmer"
-                else "/field-app/dashboard.html"
-                if user.role == "field"
-                else "/owner-app/dashboard.html"
-            ),
-        }
+        response = JSONResponse(
+            {
+                "success": True,
+                "role": user.role,
+                "user": serialize_profile(user),
+                "redirect": (
+                    "/farmer-app/dashboard.html"
+                    if user.role == "farmer"
+                    else "/field-app/dashboard.html"
+                    if user.role == "field"
+                    else "/owner-app/dashboard.html"
+                ),
+            }
+        )
+        set_role_auth_cookie(response, user)
+        return response
 
 
 @app.post("/api/auth/logout")
 def auth_logout(request: Request):
     request.session.clear()
-    return {"success": True}
+    response = JSONResponse({"success": True})
+    clear_role_auth_cookies(response)
+    return response
 
 
 @app.get("/api/auth/session")
 def auth_session(request: Request):
-    user_id = request.session.get("user_id")
-    role = request.session.get("role")
+    cookie_identity = read_role_cookie_identity(request, expected_role_from_request(request))
+    user_id = (cookie_identity or {}).get("user_id") or request.session.get("user_id")
+    role = (cookie_identity or {}).get("role") or request.session.get("role")
     if not user_id or not role:
         raise HTTPException(status_code=401, detail="No active session.")
     with session_scope() as db:

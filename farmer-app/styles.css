@@ -1005,6 +1005,10 @@ button {
 }
 
 @media (max-width: 980px) {
+  .fa-body {
+    padding-bottom: calc(76px + env(safe-area-inset-bottom));
+  }
+
   .fa-login-shell,
   .fa-app-shell,
   .fa-request-form,
@@ -1055,27 +1059,31 @@ button {
   }
 
   .fa-bottom-nav {
-    position: sticky;
+    position: fixed;
+    left: 0;
+    right: 0;
     bottom: 0;
     z-index: 30;
     display: grid;
     grid-template-columns: repeat(6, minmax(0, 1fr));
-    gap: 0.35rem;
-    padding: 0.7rem 0.75rem calc(0.7rem + env(safe-area-inset-bottom));
-    border-top: 1px solid var(--fa-border);
-    background: rgba(255, 251, 247, 0.95);
-    backdrop-filter: blur(6px);
+    gap: 0.24rem;
+    padding: 0.46rem 0.5rem calc(0.46rem + env(safe-area-inset-bottom));
+    border-top: 1px solid rgba(78, 58, 46, 0.08);
+    background: rgba(255, 251, 247, 0.93);
+    backdrop-filter: blur(14px);
+    box-shadow: 0 -10px 26px rgba(39, 27, 19, 0.08);
   }
 
   .fa-bottom-nav a {
     display: grid;
     place-items: center;
-    min-height: 48px;
-    padding: 0.65rem 0.45rem;
-    border-radius: 16px;
+    min-height: 40px;
+    padding: 0.42rem 0.2rem;
+    border-radius: 14px;
     color: var(--fa-muted);
-    font-size: 0.76rem;
+    font-size: 0.64rem;
     font-weight: 700;
+    line-height: 1.1;
   }
 
   .fa-bottom-nav a.is-active {
@@ -1096,11 +1104,11 @@ button {
 @media (max-width: 620px) {
   .fa-login-shell,
   .fa-app-shell {
-    padding: 0.8rem;
+    padding: 0.55rem 0.55rem 0.25rem;
   }
 
   .fa-login-shell {
-    gap: 0.8rem;
+    gap: 0.7rem;
     align-items: start;
   }
 
@@ -1126,7 +1134,7 @@ button {
   .fa-sidebar {
     width: auto;
     padding: 0;
-    gap: 0;
+    gap: 0.3rem;
     border: 0;
     border-radius: 0;
     background: transparent;
@@ -1141,58 +1149,77 @@ button {
 
   .fa-brand {
     width: 100%;
-    padding: 0.35rem 0.15rem 0.1rem;
+    padding: 0.58rem 0.75rem;
+    border: 1px solid rgba(78, 58, 46, 0.08);
+    border-radius: 18px;
+    background: rgba(255, 252, 248, 0.88);
+    box-shadow: 0 8px 20px rgba(39, 27, 19, 0.05);
   }
 
   .fa-brand-mark {
-    width: 44px;
-    height: 44px;
+    width: 40px;
+    height: 40px;
     border-radius: 14px;
-    font-size: 1rem;
+    font-size: 0.94rem;
   }
 
   .fa-brand h1 {
-    font-size: 1.62rem;
-    line-height: 1.05;
+    font-size: 1.18rem;
+    line-height: 1.06;
   }
 
   .fa-brand .fa-eyebrow {
-    font-size: 0.62rem;
+    font-size: 0.58rem;
     letter-spacing: 0.12em;
   }
 
   .fa-section,
   .fa-hero-card,
   .fa-module-hero {
-    padding: 0.84rem;
-    border-radius: 18px;
+    padding: 0.76rem;
+    border-radius: 20px;
   }
 
   .fa-module-hero.is-compact {
-    padding: 0.78rem 0.82rem;
+    padding: 0.72rem 0.76rem;
   }
 
   .fa-content {
-    padding-bottom: 0.35rem;
-    gap: 0.85rem;
+    padding-bottom: 0.2rem;
+    gap: 0.7rem;
   }
 
   .fa-form-block {
-    padding: 0.9rem;
+    padding: 0.72rem;
+    gap: 0.6rem;
+    border-radius: 16px;
   }
 
   .fa-page-head h2 {
-    font-size: 1.58rem;
-    line-height: 1.08;
+    font-size: 1.18rem;
+    line-height: 1.12;
   }
 
   .fa-page-head {
-    padding: 0;
-    gap: 0.7rem;
+    position: sticky;
+    top: 0.4rem;
+    z-index: 18;
+    padding: 0.62rem 0.72rem;
+    gap: 0.5rem;
+    border: 1px solid rgba(78, 58, 46, 0.08);
+    border-radius: 18px;
+    background: rgba(255, 252, 248, 0.9);
+    box-shadow: 0 10px 24px rgba(39, 27, 19, 0.05);
+    backdrop-filter: blur(12px);
   }
 
   .fa-page-intro {
     display: none;
+  }
+
+  .fa-page-head .fa-eyebrow {
+    font-size: 0.56rem;
+    letter-spacing: 0.12em;
   }
 
   .fa-page-actions {
@@ -1209,40 +1236,40 @@ button {
   }
 
   .fa-page-actions .fa-secondary-btn {
-    min-height: 36px;
-    padding: 0.52rem 0.76rem;
-    font-size: 0.8rem;
+    min-height: 34px;
+    padding: 0.46rem 0.7rem;
+    font-size: 0.74rem;
     width: auto;
     white-space: nowrap;
     flex: 0 0 auto;
   }
 
   .fa-hero-card {
-    gap: 0.68rem;
-    padding: 0.88rem;
+    gap: 0.6rem;
+    padding: 0.78rem;
   }
 
   .fa-module-hero {
-    gap: 0.68rem;
-    padding: 0.88rem;
+    gap: 0.56rem;
+    padding: 0.78rem;
   }
 
   .fa-hero-card h3 {
-    font-size: 1.28rem;
-    margin: 0.2rem 0 0.4rem;
+    font-size: 1.08rem;
+    margin: 0.12rem 0 0.28rem;
   }
 
   .fa-hero-card p {
-    font-size: 0.9rem;
-    line-height: 1.45;
+    display: none;
   }
 
   .fa-module-hero-copy h3 {
-    font-size: 1.24rem;
+    font-size: 1.02rem;
+    line-height: 1.2;
   }
 
   .fa-hero-stats {
-    gap: 0.7rem;
+    gap: 0.5rem;
   }
 
   .fa-hero-stats article,
@@ -1251,13 +1278,13 @@ button {
   .fa-detail-card,
   .fa-quick-card,
   .fa-highlight-card {
-    padding: 0.76rem;
-    border-radius: 16px;
+    padding: 0.68rem;
+    border-radius: 15px;
   }
 
   .fa-kpi-card strong,
   .fa-detail-card strong {
-    font-size: 1.05rem;
+    font-size: 0.98rem;
   }
 
   .fa-kpi-grid,
@@ -1269,7 +1296,7 @@ button {
   .fa-quick-grid-five,
   .fa-detail-grid-compact {
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 0.75rem;
+    gap: 0.58rem;
   }
 
   .fa-info-strip,
@@ -1279,7 +1306,7 @@ button {
   .fa-multi-form,
   .fa-flow-strip {
     grid-template-columns: 1fr;
-    gap: 0.75rem;
+    gap: 0.62rem;
   }
 
   .fa-form-actions {
@@ -1290,9 +1317,9 @@ button {
 
   .fa-form-actions .fa-primary-btn,
   .fa-form-actions .fa-secondary-btn {
-    min-height: 36px;
-    padding: 0.58rem 0.82rem;
-    font-size: 0.84rem;
+    min-height: 34px;
+    padding: 0.52rem 0.76rem;
+    font-size: 0.78rem;
     width: auto;
     flex: 0 0 auto;
   }
@@ -1310,96 +1337,109 @@ button {
     align-self: flex-start;
   }
 
-  .fa-quick-card {
-    min-height: 132px;
-  }
-
   .fa-quick-card strong {
-    margin-top: 0.72rem;
-    font-size: 0.95rem;
+    margin-top: 0.54rem;
+    font-size: 0.88rem;
   }
 
   .fa-quick-card p,
   .fa-kpi-card p,
   .fa-detail-card p {
-    font-size: 0.86rem;
-    line-height: 1.42;
+    font-size: 0.8rem;
+    line-height: 1.34;
   }
 
   .fa-section-head h3 {
-    font-size: 1rem;
+    font-size: 0.96rem;
   }
 
   .fa-section-head .fa-eyebrow {
-    font-size: 0.64rem;
+    font-size: 0.58rem;
   }
 
   .fa-list-card {
-    padding: 0.05rem 0.68rem;
+    padding: 0.02rem 0.56rem;
+    border-radius: 18px;
   }
 
   .fa-list-row {
-    padding: 0.68rem 0;
-    gap: 0.75rem;
+    padding: 0.56rem 0;
+    gap: 0.58rem;
   }
 
   .fa-list-row strong {
-    font-size: 0.95rem;
+    font-size: 0.9rem;
   }
 
   .fa-list-row p {
-    font-size: 0.84rem;
-    line-height: 1.4;
+    font-size: 0.79rem;
+    line-height: 1.34;
   }
 
   .fa-shortcut-row {
-    gap: 0.5rem;
+    gap: 0.42rem;
   }
 
   .fa-shortcut-chip {
-    padding: 0.58rem 0.82rem;
-    font-size: 0.84rem;
+    padding: 0.48rem 0.7rem;
+    font-size: 0.76rem;
   }
 
   .fa-bottom-nav {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 0.32rem;
-    padding: 0.55rem 0.58rem calc(0.68rem + env(safe-area-inset-bottom));
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    gap: 0.16rem;
+    padding: 0.4rem 0.36rem calc(0.42rem + env(safe-area-inset-bottom));
   }
 
   .fa-bottom-nav a {
-    min-height: 42px;
-    padding: 0.48rem 0.28rem;
-    font-size: 0.68rem;
-    line-height: 1.15;
+    min-height: 36px;
+    padding: 0.36rem 0.12rem;
+    font-size: 0.58rem;
+    line-height: 1.08;
+  }
+
+  .fa-meta-strip {
+    gap: 0.5rem;
+  }
+
+  .fa-meta-strip article {
+    padding: 0.62rem 0.68rem;
+    border-radius: 14px;
+  }
+
+  .fa-form label {
+    gap: 0.26rem;
+    font-size: 0.82rem;
+  }
+
+  .fa-form input,
+  .fa-form select,
+  .fa-form textarea {
+    padding: 0.78rem 0.82rem;
+    font-size: 16px;
+    border-radius: 14px;
   }
 }
 
 @media (max-width: 420px) {
   .fa-login-shell,
   .fa-app-shell {
-    padding: 0.65rem;
+    padding: 0.45rem 0.45rem 0.2rem;
   }
 
   .fa-section,
   .fa-hero-card,
   .fa-module-hero {
-    padding: 0.74rem;
+    padding: 0.68rem;
     border-radius: 16px;
   }
 
-  .fa-form input,
-  .fa-form select,
-  .fa-form textarea {
-    padding: 0.76rem 0.82rem;
-  }
-
   .fa-brand h1 {
-    font-size: 1.46rem;
+    font-size: 1.08rem;
   }
 
   .fa-page-head h2 {
-    font-size: 1.42rem;
+    font-size: 1.08rem;
   }
 
   .fa-kpi-grid,
@@ -1410,6 +1450,17 @@ button {
   .fa-quick-grid-three,
   .fa-quick-grid-five,
   .fa-detail-grid-compact {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.5rem;
+  }
+
+  .fa-bottom-nav {
+    gap: 0.14rem;
+    padding: 0.34rem 0.28rem calc(0.38rem + env(safe-area-inset-bottom));
+  }
+
+  .fa-bottom-nav a {
+    min-height: 34px;
+    font-size: 0.56rem;
   }
 }
