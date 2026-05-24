@@ -872,6 +872,7 @@ def serialize_daily_entry_record(record: DailyEntry) -> dict:
         "litter_condition": record.litter_condition,
         "litter_notes": record.litter_notes or "",
         "litter_photo_name": record.litter_photo_name or "",
+        "litter_photo_url": f"/uploads/{record.litter_photo_stored}" if record.litter_photo_stored else "",
         "power_cut_hours": record.power_cut_hours,
         "dg_hours": record.dg_hours,
         "uniformity_pct": record.uniformity_pct,
@@ -1037,6 +1038,9 @@ def build_owner_daily_entry_hierarchy(farmers: list[User], entries: list[DailyEn
                         "temperature_c": record.temperature_c if record else None,
                         "humidity_pct": record.humidity_pct if record else None,
                         "litter_condition": record.litter_condition if record else "",
+                        "litter_notes": record.litter_notes or "" if record else "",
+                        "litter_photo_name": record.litter_photo_name or "" if record else "",
+                        "litter_photo_url": f"/uploads/{record.litter_photo_stored}" if record and record.litter_photo_stored else "",
                         "issues": record.issues or "" if record else "",
                         "remarks": record.remarks or "" if record else "",
                     }

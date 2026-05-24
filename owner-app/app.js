@@ -579,8 +579,21 @@ function renderDailyEntryHierarchy(container, farms) {
                         <article><span>Uniformity</span><strong>${entry.uniformity_pct}%</strong></article>
                       </div>
                       ${
-                        entry.issues || entry.remarks
-                          ? `<p class="owner-daily-entry-note">${[entry.issues, entry.remarks].filter(Boolean).join(" • ")}</p>`
+                        entry.litter_photo_url
+                          ? `
+                            <div class="owner-daily-entry-media">
+                              <span class="owner-daily-entry-media-label">Litter photo</span>
+                              <a class="owner-daily-entry-photo-link" href="${entry.litter_photo_url}" target="_blank" rel="noopener noreferrer">
+                                <img src="${entry.litter_photo_url}" alt="${entry.litter_photo_name || "Litter photo"}" loading="lazy" />
+                                <strong>Open photo</strong>
+                              </a>
+                            </div>
+                          `
+                          : ""
+                      }
+                      ${
+                        entry.litter_notes || entry.issues || entry.remarks
+                          ? `<p class="owner-daily-entry-note">${[entry.litter_notes, entry.issues, entry.remarks].filter(Boolean).join(" • ")}</p>`
                           : ""
                       }
                     </article>

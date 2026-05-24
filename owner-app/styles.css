@@ -725,6 +725,44 @@
   line-height: 1.45;
 }
 
+.owner-daily-entry-media {
+  display: grid;
+  gap: 0.45rem;
+  margin-top: 0.8rem;
+}
+
+.owner-daily-entry-media-label {
+  display: block;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--fa-muted);
+}
+
+.owner-daily-entry-photo-link {
+  display: inline-grid;
+  gap: 0.45rem;
+  width: min(240px, 100%);
+  padding: 0.55rem;
+  border-radius: 16px;
+  border: 1px solid rgba(49, 54, 66, 0.08);
+  background: rgba(255, 255, 255, 0.92);
+  color: var(--fa-text);
+  text-decoration: none;
+}
+
+.owner-daily-entry-photo-link img {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  border-radius: 12px;
+  display: block;
+}
+
+.owner-daily-entry-photo-link strong {
+  font-size: 0.86rem;
+}
+
 .owner-hierarchy-toolbar article {
   padding: 0.78rem 0.82rem;
   border-radius: 16px;
