@@ -64,6 +64,7 @@ LEGACY_DEMO_FIELD_PHONES = {
 }
 WEATHER_CACHE_TTL_SECONDS = 900
 GEOCODE_CACHE_TTL_SECONDS = 86400
+SESSION_MAX_AGE_SECONDS = int(os.getenv("SESSION_MAX_AGE_SECONDS", str(60 * 60 * 24 * 30)))
 LOCATION_COORDINATE_OVERRIDES = {
     "korba-cluster": {"latitude": 22.3595, "longitude": 82.7501, "label": "Korba"},
     "korba": {"latitude": 22.3595, "longitude": 82.7501, "label": "Korba"},
@@ -385,6 +386,7 @@ app.add_middleware(
 app.add_middleware(
     SessionMiddleware,
     secret_key=os.getenv("SESSION_SECRET", "utsav-dev-session-secret"),
+    max_age=SESSION_MAX_AGE_SECONDS,
     same_site="lax",
     https_only=False,
 )
@@ -737,6 +739,7 @@ def get_current_user(request: Request, role: str | None = None) -> User:
             raise HTTPException(status_code=401, detail="Session expired.")
         if role and user.role != role:
             raise HTTPException(status_code=403, detail="Access denied.")
+        request.session["last_seen_at"] = datetime.utcnow().isoformat()
         return user
 
 
@@ -1726,6 +1729,7 @@ def auth_login(payload: LoginPayload, request: Request):
         request.session["user_id"] = user.id
         request.session["role"] = user.role
         request.session["name"] = user.name
+        request.session["last_seen_at"] = datetime.utcnow().isoformat()
         return {
             "success": True,
             "role": user.role,
@@ -1757,6 +1761,7 @@ def auth_session(request: Request):
         if not user:
             request.session.clear()
             raise HTTPException(status_code=401, detail="Session expired.")
+        request.session["last_seen_at"] = datetime.utcnow().isoformat()
         return {"authenticated": True, "role": user.role, "user": serialize_profile(user)}
 
 
@@ -1794,6 +1799,7 @@ def farmer_update_profile(payload: FarmerProfileUpdatePayload, request: Request)
 
     request.session["user_id"] = farmer.id
     request.session["role"] = farmer.role
+    request.session["last_seen_at"] = datetime.utcnow().isoformat()
     return {"success": True, "profile": serialize_profile(farmer)}
 
 

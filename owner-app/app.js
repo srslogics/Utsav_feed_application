@@ -444,8 +444,8 @@ function renderDailyEntryHierarchy(container, farms) {
         const selectedDate = state.selectedDates[farm.farmKey];
         const selectedGroup =
           availableDates.find((group) => group.entry_date === selectedDate) || farm.latestGroup || availableDates[0] || null;
-        const recentDates = availableDates.slice(0, 5);
-        const olderDates = availableDates.slice(5);
+        const recentDates = availableDates.slice(0, 3);
+        const olderDates = availableDates.slice(3);
         const anyVisibleOpen = visibleFarms.some((visibleFarm) => state.openFarms[visibleFarm.farmKey]);
         const openByDefault = state.openFarms[farm.farmKey] || (!anyVisibleOpen && farmIndex === 0);
 
@@ -512,8 +512,9 @@ function renderDailyEntryHierarchy(container, farms) {
                           ? `
                             <div class="owner-day-select-wrap">
                               <label>
-                                <span>Older dates</span>
+                                <span>Full history</span>
                                 <select data-owner-farm-select="${farm.farmKey}">
+                                  <option value="">Select reporting date</option>
                                   ${availableDates
                                     .map(
                                       (dayGroup) => `
