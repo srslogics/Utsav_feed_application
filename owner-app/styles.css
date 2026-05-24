@@ -731,6 +731,10 @@
   margin-top: 0.8rem;
 }
 
+.owner-daily-entry-media-prominent {
+  margin: 0 0 0.85rem;
+}
+
 .owner-daily-entry-media-label {
   display: block;
   font-size: 0.7rem;
@@ -742,7 +746,7 @@
 .owner-daily-entry-photo-link {
   display: inline-grid;
   gap: 0.45rem;
-  width: min(240px, 100%);
+  width: min(320px, 100%);
   padding: 0.55rem;
   border-radius: 16px;
   border: 1px solid rgba(49, 54, 66, 0.08);
@@ -753,7 +757,7 @@
 
 .owner-daily-entry-photo-link img {
   width: 100%;
-  aspect-ratio: 4 / 3;
+  aspect-ratio: 16 / 10;
   object-fit: cover;
   border-radius: 12px;
   display: block;

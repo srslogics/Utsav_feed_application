@@ -273,6 +273,8 @@ function renderDailyEntryHierarchy(container, farms) {
             latest_weight_g: 0,
             latest_mortality: 0,
             latest_litter: "",
+            latest_photo_url: "",
+            latest_photo_name: "",
             entries: [],
           });
         }
@@ -284,6 +286,8 @@ function renderDailyEntryHierarchy(container, farms) {
             shedRecord.latest_weight_g = Number(row.avg_weight_g) || 0;
             shedRecord.latest_mortality = Number(row.mortality) || 0;
             shedRecord.latest_litter = row.litter_condition || "";
+            shedRecord.latest_photo_url = row.litter_photo_url || "";
+            shedRecord.latest_photo_name = row.litter_photo_name || "";
           }
           shedRecord.entries.push({
             entry_date: group.entry_date,
@@ -517,6 +521,7 @@ function renderDailyEntryHierarchy(container, farms) {
                     <span>${shed.latest_weight_g ? `${shed.latest_weight_g} g` : "No weight"}</span>
                     <span>${shed.latest_mortality ? `${shed.latest_mortality} mortality` : "No mortality"}</span>
                     <span>${shed.latest_litter || "No litter note"}</span>
+                    ${shed.latest_photo_url ? `<span>Photo attached</span>` : ""}
                   </div>
                 </button>
               `
@@ -566,8 +571,22 @@ function renderDailyEntryHierarchy(container, farms) {
                         <div class="owner-hierarchy-chip-row">
                           <span class="owner-hierarchy-chip owner-hierarchy-chip-dark">${entry.opening_birds} live</span>
                           <span class="owner-hierarchy-chip owner-hierarchy-chip-dark">${entry.avg_weight_g} g</span>
+                          ${entry.litter_photo_url ? `<span class="owner-hierarchy-chip owner-hierarchy-chip-dark">Photo attached</span>` : ""}
                         </div>
                       </div>
+                      ${
+                        entry.litter_photo_url
+                          ? `
+                            <div class="owner-daily-entry-media owner-daily-entry-media-prominent">
+                              <span class="owner-daily-entry-media-label">Litter photo</span>
+                              <a class="owner-daily-entry-photo-link" href="${entry.litter_photo_url}" target="_blank" rel="noopener noreferrer">
+                                <img src="${entry.litter_photo_url}" alt="${entry.litter_photo_name || "Litter photo"}" loading="lazy" />
+                                <strong>Open full photo</strong>
+                              </a>
+                            </div>
+                          `
+                          : ""
+                      }
                       <div class="owner-daily-entry-metrics">
                         <article><span>Mortality</span><strong>${entry.mortality}</strong></article>
                         <article><span>Culls</span><strong>${entry.culls}</strong></article>
@@ -578,19 +597,6 @@ function renderDailyEntryHierarchy(container, farms) {
                         <article><span>Litter</span><strong>${entry.litter_condition || "-"}</strong></article>
                         <article><span>Uniformity</span><strong>${entry.uniformity_pct}%</strong></article>
                       </div>
-                      ${
-                        entry.litter_photo_url
-                          ? `
-                            <div class="owner-daily-entry-media">
-                              <span class="owner-daily-entry-media-label">Litter photo</span>
-                              <a class="owner-daily-entry-photo-link" href="${entry.litter_photo_url}" target="_blank" rel="noopener noreferrer">
-                                <img src="${entry.litter_photo_url}" alt="${entry.litter_photo_name || "Litter photo"}" loading="lazy" />
-                                <strong>Open photo</strong>
-                              </a>
-                            </div>
-                          `
-                          : ""
-                      }
                       ${
                         entry.litter_notes || entry.issues || entry.remarks
                           ? `<p class="owner-daily-entry-note">${[entry.litter_notes, entry.issues, entry.remarks].filter(Boolean).join(" • ")}</p>`
