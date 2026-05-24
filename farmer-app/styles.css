@@ -187,6 +187,29 @@ button {
   line-height: 1.52;
 }
 
+.fa-session-banner {
+  position: fixed;
+  top: 1rem;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 60;
+  min-width: min(92vw, 340px);
+  max-width: min(92vw, 520px);
+  padding: 0.8rem 1rem;
+  border-radius: 16px;
+  border: 1px solid rgba(49, 54, 66, 0.08);
+  background: rgba(27, 32, 41, 0.96);
+  color: #fff;
+  box-shadow: 0 18px 34px rgba(20, 20, 27, 0.16);
+  text-align: center;
+  font-size: 0.9rem;
+  line-height: 1.4;
+}
+
+.fa-session-banner.is-error {
+  background: rgba(127, 41, 34, 0.96);
+}
+
 .fa-highlights {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));

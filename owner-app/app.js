@@ -2,6 +2,7 @@ const apiOrigin = window.location.protocol === "file:" ? "http://127.0.0.1:8000"
 const ownerApiBase = `${apiOrigin}/api/owner`;
 const authApiBase = `${apiOrigin}/api/auth`;
 const ownerCachePrefix = "utsavOwnerPage:";
+let ownerAuthRecoveryPromise = null;
 
 function navigate(url) {
   if (window.location.pathname === url) return;
@@ -30,6 +31,32 @@ function setStatus(selector, message, isError = false) {
   if (!element) return;
   element.textContent = message;
   element.classList.toggle("is-error", isError);
+}
+
+function ensureSessionBanner() {
+  let banner = document.querySelector("[data-session-banner]");
+  if (banner) return banner;
+  banner = document.createElement("div");
+  banner.className = "fa-session-banner";
+  banner.setAttribute("data-session-banner", "true");
+  banner.hidden = true;
+  document.body.appendChild(banner);
+  return banner;
+}
+
+function showSessionBanner(message, isError = false) {
+  const banner = ensureSessionBanner();
+  banner.textContent = message;
+  banner.hidden = false;
+  banner.classList.toggle("is-error", isError);
+}
+
+function hideSessionBanner() {
+  const banner = document.querySelector("[data-session-banner]");
+  if (!banner) return;
+  banner.hidden = true;
+  banner.textContent = "";
+  banner.classList.remove("is-error");
 }
 
 function writeCache(key, value) {
@@ -899,10 +926,33 @@ function showAlreadyLoggedInAction() {
 
 function handlePageError(error) {
   if (error?.status === 401 || error?.status === 403) {
-    goToOwnerLogin();
+    recoverOwnerSession();
     return;
   }
   console.error(error);
+}
+
+async function recoverOwnerSession() {
+  if (ownerAuthRecoveryPromise) return ownerAuthRecoveryPromise;
+  showSessionBanner("Session check ho raha hai. Thoda wait karein.");
+  ownerAuthRecoveryPromise = (async () => {
+    try {
+      const session = await requestJson(`${authApiBase}/session`);
+      if (session.role === "owner") {
+        populateProfile(session.user);
+        hideSessionBanner();
+        return true;
+      }
+    } catch {}
+    showSessionBanner("Session expire ho gaya hai. Dobara login karein.", true);
+    window.setTimeout(() => goToOwnerLogin(), 1200);
+    return false;
+  })();
+  try {
+    return await ownerAuthRecoveryPromise;
+  } finally {
+    ownerAuthRecoveryPromise = null;
+  }
 }
 
 async function loadDashboard() {
