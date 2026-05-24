@@ -690,9 +690,13 @@
 }
 
 .owner-hierarchy-day .owner-hierarchy-chip {
-  background: rgba(163, 125, 73, 0.11);
-  border-color: rgba(163, 125, 73, 0.14);
+  padding: 0.18rem 0;
+  border-radius: 0;
+  border: 0;
+  background: transparent;
   color: var(--fa-text);
+  font-size: 0.76rem;
+  font-weight: 700;
 }
 
 .owner-hierarchy-day .owner-hierarchy-chip-muted {
