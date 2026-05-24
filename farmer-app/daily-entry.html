@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Utsav Farmer Daily Entry | दैनिक एंट्री</title>
-    <link rel="stylesheet" href="/farmer-app/styles.css?v=20260542" />
+    <link rel="stylesheet" href="/farmer-app/styles.css?v=20260543" />
   </head>
   <body class="fa-body" data-fa-page="daily-entry">
     <div class="fa-app-shell">
@@ -24,6 +24,10 @@
           <a href="./requests.html">Requests | अनुरोध</a>
           <a href="./uploads.html">Uploads | अपलोड</a>
         </nav>
+        <div class="fa-sidebar-utility">
+          <a href="./notifications.html">Notifications | सूचनाएं</a>
+          <a href="./profile.html">Profile | प्रोफाइल</a>
+        </div>
         <div class="fa-farm-strip">
           <span data-profile-farm></span>
           <strong data-profile-batch></strong>
@@ -36,18 +40,18 @@
         <header class="fa-page-head">
           <div>
             <p class="fa-eyebrow">Daily Entry | एंट्री</p>
-            <h2>Daily batch report</h2>
+            <h2>Daily report</h2>
           </div>
           <div class="fa-page-actions">
+            <a class="fa-secondary-btn" href="./dashboard.html">Dashboard</a>
             <button class="fa-secondary-btn" type="button" data-logout>Logout</button>
           </div>
         </header>
 
-        <section class="fa-module-hero">
+        <section class="fa-module-hero is-compact">
           <div class="fa-module-hero-copy">
-            <p class="fa-eyebrow">Daily Reporting | Roz ki report</p>
-            <h3>Owner ko batch ki actual condition samajhne ke liye sirf useful details dijiye.</h3>
-            <p>Form ko is tarah compact rakha gaya hai ki farmer roz jaldi entry kar sake aur owner ko shed-wise clear picture mil jaye.</p>
+            <p class="fa-eyebrow">3 Steps | Roz ki report</p>
+            <h3>Shed chuniye, aaj ki main details bhariye, phir report bhejiye.</h3>
           </div>
           <div class="fa-meta-strip">
             <article>
@@ -67,6 +71,12 @@
               <strong data-profile-officer></strong>
             </article>
           </div>
+        </section>
+
+        <section class="fa-flow-strip">
+          <article><span>1</span><strong>Shed select</strong></article>
+          <article><span>2</span><strong>Main bird report</strong></article>
+          <article><span>3</span><strong>Optional notes</strong></article>
         </section>
 
         <section class="fa-work-grid">
@@ -108,8 +118,8 @@
             <input name="editing_entry_id" type="hidden" />
             <div class="fa-form-block full">
               <div class="fa-form-block-head">
-                <p class="fa-eyebrow">Basic Detail</p>
-                <h4>Roz ki zaroori details</h4>
+                <p class="fa-eyebrow">Required Today</p>
+                <h4>Pehle yeh bhariye</h4>
               </div>
               <div class="fa-form-grid">
                 <label>
@@ -127,26 +137,26 @@
                   <input name="opening_birds" type="number" min="1" placeholder="Previous entry se auto aayega" required />
                 </label>
                 <p class="fa-field-note full" data-opening-birds-note></p>
-              </div>
-            </div>
-
-            <div class="fa-form-block full">
-              <div class="fa-form-block-head">
-                <p class="fa-eyebrow">Bird Report</p>
-                <h4>Bird position</h4>
-              </div>
-              <div class="fa-form-grid">
                 <label>
                   Mortality today | आज मरे हुए birds
                   <input name="mortality" type="number" min="0" placeholder="0" required />
                 </label>
                 <label>
-                  Culls / weak birds | निकाले गए birds
-                  <input name="culls" type="number" min="0" placeholder="0" required />
-                </label>
-                <label>
                   Feed used (bags) | आज खाया गया feed
                   <input name="feed_used_bags" type="number" min="0" placeholder="Kitne bags use hue" required />
+                </label>
+              </div>
+            </div>
+
+            <div class="fa-form-block full">
+              <div class="fa-form-block-head">
+                <p class="fa-eyebrow">Extra Bird Detail</p>
+                <h4>Agar note karna ho</h4>
+              </div>
+              <div class="fa-form-grid">
+                <label>
+                  Culls / weak birds | निकाले गए birds
+                  <input name="culls" type="number" min="0" placeholder="0" />
                 </label>
                 <label>
                   Water consumed (liters) | पानी की खपत
@@ -166,7 +176,7 @@
             <div class="fa-form-block full">
               <div class="fa-form-block-head">
                 <p class="fa-eyebrow">Shed Condition</p>
-                <h4>Shed aur environment</h4>
+                <h4>Shed aur litter ki condition</h4>
               </div>
               <div class="fa-form-grid">
                 <label>
@@ -207,8 +217,8 @@
 
             <div class="fa-form-block full">
               <div class="fa-form-block-head">
-                <p class="fa-eyebrow">Issue Note</p>
-                <h4>Owner ko kya jaana chahiye</h4>
+                <p class="fa-eyebrow">Optional Note</p>
+                <h4>Owner ko kya batana hai</h4>
               </div>
               <div class="fa-form-grid">
                 <label class="full">
@@ -261,6 +271,6 @@
       <a href="./requests.html">Requests</a>
       <a href="./uploads.html">Uploads</a>
     </nav>
-    <script src="/farmer-app/app.js?v=20260540"></script>
+    <script src="/farmer-app/app.js?v=20260543"></script>
   </body>
 </html>

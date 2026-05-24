@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Utsav Farmer Dashboard | किसान डैशबोर्ड</title>
-    <link rel="stylesheet" href="/farmer-app/styles.css?v=20260542" />
+    <link rel="stylesheet" href="/farmer-app/styles.css?v=20260543" />
   </head>
   <body class="fa-body" data-fa-page="dashboard">
     <div class="fa-app-shell">
@@ -24,6 +24,10 @@
           <a href="./requests.html">Requests | अनुरोध</a>
           <a href="./uploads.html">Uploads | अपलोड</a>
         </nav>
+        <div class="fa-sidebar-utility">
+          <a href="./notifications.html">Notifications | सूचनाएं</a>
+          <a href="./profile.html">Profile | प्रोफाइल</a>
+        </div>
         <div class="fa-farm-strip">
           <span data-profile-farm></span>
           <strong data-profile-batch></strong>
@@ -41,22 +45,19 @@
         <header class="fa-page-head">
           <div>
             <p class="fa-eyebrow">Dashboard | रिकॉर्ड</p>
-            <h2>Farm dashboard</h2>
+            <h2>Today at farm</h2>
           </div>
           <div class="fa-page-actions">
             <a class="fa-secondary-btn" href="./notifications.html">Notifications</a>
             <a class="fa-secondary-btn" href="./profile.html">Profile</a>
-            <a class="fa-secondary-btn" href="./requests.html">Request Bhejein</a>
-            <a class="fa-secondary-btn" href="./uploads.html">Upload Karein</a>
             <button class="fa-secondary-btn" type="button" data-logout>Logout</button>
           </div>
         </header>
 
-        <section class="fa-module-hero">
+        <section class="fa-module-hero is-compact">
           <div class="fa-module-hero-copy">
-            <p class="fa-eyebrow">Farm Overview | Aaj ki tasveer</p>
-            <h3>Ek nazar me batch, kaam, aur owner ko dikhne wali zaroori cheezein.</h3>
-            <p>Yahan se farmer bina extra search ke roz ka kaam shuru kar sake, isi hisaab se dashboard ko compact aur practical rakha gaya hai.</p>
+            <p class="fa-eyebrow">Start Here | Aaj ka kaam</p>
+            <h3>Sabse pehle aaj ki entry dijiye, phir feed, health, ya request update kijiye.</h3>
           </div>
           <div class="fa-meta-strip">
             <article>
@@ -78,80 +79,83 @@
           </div>
         </section>
 
-        <section class="fa-work-grid fa-work-grid-wide">
-          <section class="fa-section">
+        <section class="fa-section">
             <div class="fa-section-head">
               <div>
-                <p class="fa-eyebrow">Quick Actions | काम</p>
-              <h3>Quick actions</h3>
+                <p class="fa-eyebrow">Main Actions | Zaroori kaam</p>
+                <h3>Do the next job fast</h3>
+              </div>
             </div>
-          </div>
-          <div class="fa-quick-grid">
-            <a class="fa-quick-card" href="./daily-entry.html">
-              <span>1</span>
-              <strong>Aaj ki Entry</strong>
+          <div class="fa-quick-grid fa-quick-grid-five">
+            <a class="fa-quick-card fa-quick-card-primary" href="./daily-entry.html">
+              <span>01</span>
+              <strong>Aaj ki report</strong>
+              <p>Sabse pehle yahi bharein.</p>
             </a>
             <a class="fa-quick-card" href="./feed.html">
-              <span>2</span>
-              <strong>Feed Update</strong>
+              <span>02</span>
+              <strong>Feed update</strong>
+              <p>Stock aur inward.</p>
             </a>
             <a class="fa-quick-card" href="./health.html">
-              <span>3</span>
-              <strong>Dawai Record</strong>
+              <span>03</span>
+              <strong>Health record</strong>
+              <p>Dawai aur vaccine.</p>
             </a>
             <a class="fa-quick-card" href="./requests.html">
-              <span>4</span>
-              <strong>Request Bhejein</strong>
+              <span>04</span>
+              <strong>Request bhejein</strong>
+              <p>Jab help chahiye ho.</p>
             </a>
             <a class="fa-quick-card fa-quick-card-alert" href="./uploads.html">
-              <span>5</span>
-              <strong>Photo / Bill Bhejein</strong>
+              <span>05</span>
+              <strong>Photo / bill bhejein</strong>
+              <p>Issue photo ya document.</p>
             </a>
           </div>
-          </section>
         </section>
 
         <section class="fa-section">
           <div class="fa-section-head">
             <div>
-              <p class="fa-eyebrow">Today Snapshot | Aaj ki position</p>
-              <h3>Current view</h3>
+              <p class="fa-eyebrow">Farm Summary | Aaj ki position</p>
+              <h3>Current position</h3>
             </div>
           </div>
           <div class="fa-kpi-grid fa-kpi-grid-five" id="dashboard-kpis"></div>
-        </section>
-
-        <section class="fa-section">
-          <div class="fa-section-head">
-            <div>
-              <p class="fa-eyebrow">Running Performance | Batch Performance</p>
-              <h3>Running performance</h3>
-            </div>
-          </div>
-          <div class="fa-kpi-grid fa-kpi-grid-five" id="dashboard-performance"></div>
-        </section>
-
-        <section class="fa-section">
-          <div class="fa-section-head">
-            <div>
-              <p class="fa-eyebrow">Latest Entry | Nayi Entry</p>
-              <h3>Latest entry</h3>
-            </div>
-            <a class="fa-secondary-btn" href="./daily-entry.html">Daily Entry Kholein</a>
-          </div>
-          <div class="fa-detail-grid" id="dashboard-latest-entry"></div>
         </section>
 
         <section class="fa-work-grid">
           <section class="fa-section">
             <div class="fa-section-head">
               <div>
-                <p class="fa-eyebrow">Recent Mortality | Hal ki Mortality</p>
-                <h3>Recent mortality</h3>
+                <p class="fa-eyebrow">Running Performance | Batch Performance</p>
+                <h3>Batch performance</h3>
               </div>
             </div>
-            <div class="fa-list-card" id="dashboard-mortality-log"></div>
+            <div class="fa-kpi-grid fa-kpi-grid-five" id="dashboard-performance"></div>
           </section>
+
+          <section class="fa-section">
+            <div class="fa-section-head">
+              <div>
+                <p class="fa-eyebrow">Latest Entry | Nayi entry</p>
+                <h3>Latest report sent</h3>
+              </div>
+              <a class="fa-secondary-btn" href="./daily-entry.html">Entry kholein</a>
+            </div>
+            <div class="fa-detail-grid fa-detail-grid-compact" id="dashboard-latest-entry"></div>
+          </section>
+        </section>
+
+        <section class="fa-section">
+          <div class="fa-section-head">
+            <div>
+              <p class="fa-eyebrow">Recent Mortality | Hal ki mortality</p>
+              <h3>Recent mortality</h3>
+            </div>
+          </div>
+          <div class="fa-list-card" id="dashboard-mortality-log"></div>
         </section>
       </main>
     </div>
@@ -163,6 +167,6 @@
       <a href="./requests.html">Requests</a>
       <a href="./uploads.html">Uploads</a>
     </nav>
-    <script src="/farmer-app/app.js?v=20260540"></script>
+    <script src="/farmer-app/app.js?v=20260543"></script>
   </body>
 </html>
