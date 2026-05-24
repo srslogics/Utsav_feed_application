@@ -444,6 +444,31 @@ function resetDailyEntryFormState() {
   if (cancelBtn) cancelBtn.hidden = true;
 }
 
+function resetDailyEntryInputsForNewDate() {
+  const form = document.querySelector("[data-daily-entry-form]");
+  if (!form) return;
+  const preservedDate = form.querySelector('input[name="entry_date"]')?.value || "";
+  const preservedTemp = form.querySelector('input[name="temperature_c"]')?.value || "";
+  const preservedHumidity = form.querySelector('input[name="humidity_pct"]')?.value || "";
+
+  form.reset();
+  resetDailyEntryFormState();
+
+  const dateInput = form.querySelector('input[name="entry_date"]');
+  if (dateInput) dateInput.value = preservedDate;
+
+  const tempInput = form.querySelector('input[name="temperature_c"]');
+  if (tempInput) tempInput.value = preservedTemp;
+
+  const humidityInput = form.querySelector('input[name="humidity_pct"]');
+  if (humidityInput) humidityInput.value = preservedHumidity;
+
+  const openingBirdsNote = document.querySelector("[data-opening-birds-note]");
+  if (openingBirdsNote) openingBirdsNote.textContent = "";
+
+  setStatus("[data-daily-entry-status]", "");
+}
+
 async function loadDashboard() {
   const data = await requestJson(`${farmerApiBase}/dashboard`);
   writeCache("dashboard", data);
@@ -554,11 +579,17 @@ logoutButtons.forEach((button) => {
 const dailyEntryForm = document.querySelector("[data-daily-entry-form]");
 if (dailyEntryForm) {
   const cancelEditButton = dailyEntryForm.querySelector("[data-daily-cancel-edit]");
+  const dateInput = dailyEntryForm.querySelector('input[name="entry_date"]');
+
   cancelEditButton?.addEventListener("click", () => {
     dailyEntryForm.reset();
     setDefaultDates();
     resetDailyEntryFormState();
     setStatus("[data-daily-entry-status]", "");
+  });
+
+  dateInput?.addEventListener("change", () => {
+    resetDailyEntryInputsForNewDate();
   });
 
   dailyEntryForm.addEventListener("submit", async (event) => {
