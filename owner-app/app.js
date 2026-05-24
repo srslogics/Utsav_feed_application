@@ -261,6 +261,40 @@ function renderDailyEntryHierarchy(container, farms) {
     );
     const totalReportedSheds = dailyGroups.reduce((count, group) => count + (group.shed_count || 0), 0);
     const farmKey = `farm-${index}-${farm.farmer_code || farm.farm_name || farm.farmer_name || "unknown"}`;
+    const shedMap = new Map();
+    dailyGroups.forEach((group) => {
+      (group.rows || []).forEach((row) => {
+        const key = row.shed_name || "Unknown shed";
+        if (!shedMap.has(key)) {
+          shedMap.set(key, {
+            shed_name: key,
+            entry_count: 0,
+            latest_entry_date: "",
+            latest_weight_g: 0,
+            latest_mortality: 0,
+            latest_litter: "",
+            entries: [],
+          });
+        }
+        const shedRecord = shedMap.get(key);
+        if (row.has_entry) {
+          shedRecord.entry_count += 1;
+          if (!shedRecord.latest_entry_date) {
+            shedRecord.latest_entry_date = group.entry_date;
+            shedRecord.latest_weight_g = Number(row.avg_weight_g) || 0;
+            shedRecord.latest_mortality = Number(row.mortality) || 0;
+            shedRecord.latest_litter = row.litter_condition || "";
+          }
+          shedRecord.entries.push({
+            entry_date: group.entry_date,
+            ...row,
+          });
+        }
+      });
+    });
+    const shedRecords = Array.from(shedMap.values()).sort((a, b) =>
+      a.shed_name.localeCompare(b.shed_name, undefined, { numeric: true, sensitivity: "base" })
+    );
     return {
       ...farm,
       farmKey,
@@ -270,6 +304,7 @@ function renderDailyEntryHierarchy(container, farms) {
       watchCount,
       totalReportedSheds,
       historyDays: dailyGroups.length,
+      shedRecords,
     };
   });
 
@@ -305,8 +340,8 @@ function renderDailyEntryHierarchy(container, farms) {
   const state = {
     search: "",
     mode: "latest",
-    selectedDates: Object.fromEntries(preparedFarms.map((farm) => [farm.farmKey, farm.latestGroup?.entry_date || ""])),
-    openFarms: Object.fromEntries(preparedFarms.slice(0, 1).map((farm) => [farm.farmKey, true])),
+    selectedFarmKey: "",
+    selectedShedName: "",
   };
 
   const filterLabels = {
@@ -333,126 +368,67 @@ function renderDailyEntryHierarchy(container, farms) {
 
   const renderControls = (visibleFarms) => {
     if (!controls) return;
-    controls.innerHTML = `
-      <div class="owner-daily-controls-bar">
-        <label class="owner-daily-search">
-          <span>Search farmer or farm</span>
-          <input
-            type="search"
-            value="${state.search}"
-            placeholder="Search by farm, farmer, code, cluster"
-            data-owner-daily-search
-          />
-        </label>
-        <div class="owner-daily-mode-group" role="tablist" aria-label="Daily entry filters">
-          ${Object.entries(filterLabels)
-            .map(
-              ([mode, label]) => `
-                <button
-                  type="button"
-                  class="owner-daily-mode-chip ${state.mode === mode ? "is-active" : ""}"
-                  data-owner-daily-mode="${mode}"
-                >
-                  ${label}
-                </button>
-              `
-            )
-            .join("")}
-        </div>
-        <div class="owner-daily-results">
-          <strong>${visibleFarms.length}</strong>
-          <span>farms visible</span>
-        </div>
-      </div>
-    `;
-  };
+    const selectedFarm = preparedFarms.find((farm) => farm.farmKey === state.selectedFarmKey);
+    const selectedShed = selectedFarm?.shedRecords.find((shed) => shed.shed_name === state.selectedShedName);
 
-  const renderDaySheet = (dayGroup) => {
-    const rows = dayGroup.rows || [];
-    const reportedRows = rows.filter((row) => row.has_entry);
-    const totalLive = reportedRows.reduce((sum, row) => sum + (Number(row.opening_birds) || 0), 0);
-    const totalMortality = reportedRows.reduce((sum, row) => sum + (Number(row.mortality) || 0), 0);
-    const totalFeed = reportedRows.reduce((sum, row) => sum + (Number(row.feed_used_bags) || 0), 0);
-    const issueRows = reportedRows.filter((row) => row.issues || row.remarks).length;
-    const avgWeight =
-      reportedRows.length > 0
-        ? Math.round(reportedRows.reduce((sum, row) => sum + (Number(row.avg_weight_g) || 0), 0) / reportedRows.length)
-        : 0;
-
-    return `
-      <section class="owner-hierarchy-day">
-        <div class="owner-hierarchy-day-head">
-          <div class="owner-hierarchy-title">
-            <span>Date</span>
-            <h5>${dayGroup.entry_date}</h5>
-          </div>
-          <div class="owner-hierarchy-chip-row">
-            <span class="owner-hierarchy-chip">${dayGroup.shed_count} sheds reported</span>
-            <span class="owner-hierarchy-chip owner-hierarchy-chip-muted">Daily shed register</span>
-          </div>
-        </div>
-        <div class="owner-day-snapshot">
-          <article>
-            <span>Live birds</span>
-            <strong>${totalLive || "-"}</strong>
-          </article>
-          <article>
-            <span>Mortality</span>
-            <strong>${totalMortality || 0}</strong>
-          </article>
-          <article>
-            <span>Feed used</span>
-            <strong>${totalFeed ? `${totalFeed} bags` : "-"}</strong>
-          </article>
-          <article>
-            <span>Avg weight</span>
-            <strong>${avgWeight ? `${avgWeight} g` : "-"}</strong>
-          </article>
-          <article>
-            <span>Issues</span>
-            <strong>${issueRows}</strong>
-          </article>
-        </div>
-        <div class="owner-day-sheet">
-          <div class="owner-day-sheet-head">
-            <span>Shed</span>
-            <span>Live</span>
-            <span>Mort.</span>
-            <span>Culls</span>
-            <span>Feed</span>
-            <span>Water</span>
-            <span>Weight</span>
-            <span>Temp</span>
-            <span>Humidity</span>
-            <span>Litter</span>
-          </div>
-          <div class="owner-day-sheet-body">
-            ${rows
+    if (!selectedFarm) {
+      controls.innerHTML = `
+        <div class="owner-daily-controls-bar">
+          <label class="owner-daily-search">
+            <span>Search farmer or farm</span>
+            <input
+              type="search"
+              value="${state.search}"
+              placeholder="Search by farm, farmer, code, cluster"
+              data-owner-daily-search
+            />
+          </label>
+          <div class="owner-daily-mode-group" role="tablist" aria-label="Daily entry filters">
+            ${Object.entries(filterLabels)
               .map(
-                (row) => `
-                  <article class="owner-day-sheet-row ${row.has_entry ? "" : "is-empty"}">
-                    <span class="owner-day-sheet-cell shed">${row.shed_name}</span>
-                    <span class="owner-day-sheet-cell">${row.has_entry ? row.opening_birds : "-"}</span>
-                    <span class="owner-day-sheet-cell">${row.has_entry ? row.mortality : "-"}</span>
-                    <span class="owner-day-sheet-cell">${row.has_entry ? row.culls : "-"}</span>
-                    <span class="owner-day-sheet-cell">${row.has_entry ? `${row.feed_used_bags} bags` : "-"}</span>
-                    <span class="owner-day-sheet-cell">${row.has_entry ? `${row.water_liters} L` : "-"}</span>
-                    <span class="owner-day-sheet-cell">${row.has_entry ? `${row.avg_weight_g} g` : "-"}</span>
-                    <span class="owner-day-sheet-cell">${row.has_entry ? `${row.temperature_c} C` : "-"}</span>
-                    <span class="owner-day-sheet-cell">${row.has_entry ? `${row.humidity_pct}%` : "-"}</span>
-                    <span class="owner-day-sheet-cell">${row.has_entry ? row.litter_condition || "-" : "No entry"}</span>
-                    ${
-                      row.has_entry && (row.issues || row.remarks)
-                        ? `<p class="owner-day-sheet-note">${[row.issues, row.remarks].filter(Boolean).join(" • ")}</p>`
-                        : ""
-                    }
-                  </article>
+                ([mode, label]) => `
+                  <button
+                    type="button"
+                    class="owner-daily-mode-chip ${state.mode === mode ? "is-active" : ""}"
+                    data-owner-daily-mode="${mode}"
+                  >
+                    ${label}
+                  </button>
                 `
               )
               .join("")}
           </div>
+          <div class="owner-daily-results">
+            <strong>${visibleFarms.length}</strong>
+            <span>farms visible</span>
+          </div>
         </div>
-      </section>
+      `;
+      return;
+    }
+
+    controls.innerHTML = `
+      <div class="owner-daily-pathbar">
+        <div class="owner-daily-breadcrumbs">
+          <button type="button" class="owner-daily-crumb ${selectedShed ? "" : "is-active"}" data-owner-back="farms">Farms</button>
+          <span>/</span>
+          <button type="button" class="owner-daily-crumb ${selectedFarm && !selectedShed ? "is-active" : ""}" data-owner-back="sheds">
+            ${selectedFarm.farm_name || selectedFarm.farmer_name || "Selected farm"}
+          </button>
+          ${
+            selectedShed
+              ? `<span>/</span><span class="owner-daily-crumb is-active">${selectedShed.shed_name}</span>`
+              : ""
+          }
+        </div>
+        <div class="owner-daily-path-actions">
+          ${
+            selectedShed
+              ? `<button type="button" class="fa-secondary-btn" data-owner-back="sheds">Back to sheds</button>`
+              : `<button type="button" class="fa-secondary-btn" data-owner-back="farms">Back to farms</button>`
+          }
+        </div>
+      </div>
     `;
   };
 
@@ -465,108 +441,156 @@ function renderDailyEntryHierarchy(container, farms) {
       return;
     }
 
-    container.innerHTML = visibleFarms
-      .map((farm, farmIndex) => {
-        const availableDates = farm.daily_groups || [];
-        const selectedDate = state.selectedDates[farm.farmKey];
-        const selectedGroup =
-          availableDates.find((group) => group.entry_date === selectedDate) || farm.latestGroup || availableDates[0] || null;
-        const recentDates = availableDates.slice(0, 3);
-        const olderDates = availableDates.slice(3);
-        const anyVisibleOpen = visibleFarms.some((visibleFarm) => state.openFarms[visibleFarm.farmKey]);
-        const openByDefault = state.openFarms[farm.farmKey] || (!anyVisibleOpen && farmIndex === 0);
+    if (!state.selectedFarmKey) {
+      container.innerHTML = `
+        <div class="owner-daily-level-grid owner-daily-farm-grid">
+          ${visibleFarms
+            .map(
+              (farm) => `
+                <button type="button" class="owner-daily-level-card owner-daily-farm-card-button" data-owner-select-farm="${farm.farmKey}">
+                  <div class="owner-daily-level-head">
+                    <div>
+                      <span>Farmer / Farm</span>
+                      <h4>${farm.farm_name || "-"}</h4>
+                      <p>${[farm.farmer_name, farm.farmer_code, farm.cluster].filter(Boolean).join(" • ")}</p>
+                    </div>
+                  </div>
+                  <div class="owner-daily-level-meta">
+                    <span>${farm.current_batch ? `Batch ${farm.current_batch}` : "No batch"}</span>
+                    <span>${farm.shed_count || 0} sheds</span>
+                    <span>${farm.historyDays} days</span>
+                    <span>${farm.latest_entry_date ? `Latest ${farm.latest_entry_date}` : "No entry yet"}</span>
+                  </div>
+                </button>
+              `
+            )
+            .join("")}
+        </div>
+      `;
+      return;
+    }
 
-        return `
-          <details class="owner-hierarchy-farm owner-daily-farm-card" data-owner-farm-card="${farm.farmKey}" ${openByDefault ? "open" : ""}>
-            <summary class="owner-hierarchy-farm-head">
-              <div class="owner-hierarchy-title">
-                <span>Farmer / Farm</span>
-                <h4>${farm.farm_name || "-"}</h4>
-                <p>${[farm.farmer_name, farm.farmer_code, farm.cluster].filter(Boolean).join(" • ")}</p>
-              </div>
-              <div class="owner-hierarchy-chip-row">
-                <span class="owner-hierarchy-chip">${farm.current_batch ? `Batch ${farm.current_batch}` : "No batch"}</span>
-                <span class="owner-hierarchy-chip">${farm.bird_age_days || 0} days</span>
-                <span class="owner-hierarchy-chip">${farm.shed_count || 0} sheds</span>
-                <span class="owner-hierarchy-chip ${farm.pendingSheds > 0 ? "owner-hierarchy-chip-alert" : "owner-hierarchy-chip-muted"}">
-                  ${farm.pendingSheds > 0 ? `${farm.pendingSheds} pending today` : "All reported"}
-                </span>
-                <span class="owner-hierarchy-chip owner-hierarchy-chip-muted">${farm.latest_entry_date ? `Latest ${farm.latest_entry_date}` : "No entry yet"}</span>
-              </div>
-            </summary>
-            <div class="owner-hierarchy-days owner-daily-farm-body">
-              <div class="owner-daily-farm-meta">
-                <article>
-                  <span>History</span>
-                  <strong>${farm.historyDays} days</strong>
-                </article>
-                <article>
-                  <span>Reported sheds</span>
-                  <strong>${farm.totalReportedSheds}</strong>
-                </article>
-                <article>
-                  <span>Today status</span>
-                  <strong>${farm.todayGroup ? `${farm.todayGroup.shed_count}/${farm.shed_count || 0}` : `0/${farm.shed_count || 0}`}</strong>
-                </article>
-                <article>
-                  <span>Watch items</span>
-                  <strong>${farm.watchCount}</strong>
-                </article>
-              </div>
-              ${
-                selectedGroup
-                  ? `
-                    <div class="owner-day-switcher owner-day-switcher-compact">
-                      <div class="owner-day-tabs">
-                        ${recentDates
-                          .map(
-                            (dayGroup) => `
-                              <button
-                                class="owner-day-tab ${selectedGroup.entry_date === dayGroup.entry_date ? "is-active" : ""}"
-                                type="button"
-                                data-owner-farm-key="${farm.farmKey}"
-                                data-owner-day-date="${dayGroup.entry_date}"
-                              >
-                                <strong>${dayGroup.entry_date}</strong>
-                                <span>${dayGroup.shed_count} sheds</span>
-                              </button>
-                            `
-                          )
-                          .join("")}
+    const selectedFarm = preparedFarms.find((farm) => farm.farmKey === state.selectedFarmKey);
+    if (!selectedFarm) {
+      state.selectedFarmKey = "";
+      state.selectedShedName = "";
+      renderFarms();
+      return;
+    }
+
+    if (!state.selectedShedName) {
+      container.innerHTML = `
+        <section class="owner-daily-focus-card">
+          <div class="owner-hierarchy-farm-head owner-daily-static-head">
+            <div class="owner-hierarchy-title">
+              <span>Selected farm</span>
+              <h4>${selectedFarm.farm_name || "-"}</h4>
+              <p>${[selectedFarm.farmer_name, selectedFarm.farmer_code, selectedFarm.cluster].filter(Boolean).join(" • ")}</p>
+            </div>
+            <div class="owner-hierarchy-chip-row">
+              <span class="owner-hierarchy-chip">${selectedFarm.current_batch ? `Batch ${selectedFarm.current_batch}` : "No batch"}</span>
+              <span class="owner-hierarchy-chip">${selectedFarm.bird_age_days || 0} days</span>
+              <span class="owner-hierarchy-chip">${selectedFarm.shed_count || 0} sheds</span>
+            </div>
+          </div>
+          <div class="owner-daily-farm-meta">
+            <article><span>History</span><strong>${selectedFarm.historyDays} days</strong></article>
+            <article><span>Reported sheds</span><strong>${selectedFarm.totalReportedSheds}</strong></article>
+            <article><span>Today status</span><strong>${selectedFarm.todayGroup ? `${selectedFarm.todayGroup.shed_count}/${selectedFarm.shed_count || 0}` : `0/${selectedFarm.shed_count || 0}`}</strong></article>
+            <article><span>Watch items</span><strong>${selectedFarm.watchCount}</strong></article>
+          </div>
+        </section>
+        <div class="owner-daily-level-grid owner-daily-shed-grid">
+          ${selectedFarm.shedRecords
+            .map(
+              (shed) => `
+                <button type="button" class="owner-daily-level-card owner-daily-shed-card" data-owner-select-shed="${shed.shed_name}">
+                  <div class="owner-daily-level-head">
+                    <div>
+                      <span>Shed</span>
+                      <h4>${shed.shed_name}</h4>
+                      <p>${shed.entry_count ? `${shed.entry_count} reporting days` : "No entries yet"}</p>
+                    </div>
+                  </div>
+                  <div class="owner-daily-level-meta">
+                    <span>${shed.latest_entry_date ? `Latest ${shed.latest_entry_date}` : "No latest entry"}</span>
+                    <span>${shed.latest_weight_g ? `${shed.latest_weight_g} g` : "No weight"}</span>
+                    <span>${shed.latest_mortality ? `${shed.latest_mortality} mortality` : "No mortality"}</span>
+                    <span>${shed.latest_litter || "No litter note"}</span>
+                  </div>
+                </button>
+              `
+            )
+            .join("")}
+        </div>
+      `;
+      return;
+    }
+
+    const selectedShed = selectedFarm.shedRecords.find((shed) => shed.shed_name === state.selectedShedName);
+    if (!selectedShed) {
+      state.selectedShedName = "";
+      renderFarms();
+      return;
+    }
+
+    container.innerHTML = `
+      <section class="owner-daily-focus-card">
+        <div class="owner-hierarchy-farm-head owner-daily-static-head">
+          <div class="owner-hierarchy-title">
+            <span>Shed history</span>
+            <h4>${selectedShed.shed_name}</h4>
+            <p>${[selectedFarm.farm_name, selectedFarm.farmer_name, selectedFarm.current_batch ? `Batch ${selectedFarm.current_batch}` : ""]
+              .filter(Boolean)
+              .join(" • ")}</p>
+          </div>
+          <div class="owner-hierarchy-chip-row">
+            <span class="owner-hierarchy-chip">${selectedShed.entry_count} reported days</span>
+            <span class="owner-hierarchy-chip">${selectedFarm.historyDays} cycle days</span>
+            <span class="owner-hierarchy-chip owner-hierarchy-chip-muted">${selectedShed.latest_entry_date ? `Latest ${selectedShed.latest_entry_date}` : "No entry yet"}</span>
+          </div>
+        </div>
+      </section>
+      <div class="owner-daily-entry-list">
+        ${
+          selectedShed.entries.length
+            ? selectedShed.entries
+                .map(
+                  (entry) => `
+                    <article class="owner-daily-entry-card">
+                      <div class="owner-daily-entry-head">
+                        <div class="owner-hierarchy-title">
+                          <span>Date</span>
+                          <h5>${entry.entry_date}</h5>
+                        </div>
+                        <div class="owner-hierarchy-chip-row">
+                          <span class="owner-hierarchy-chip owner-hierarchy-chip-dark">${entry.opening_birds} live</span>
+                          <span class="owner-hierarchy-chip owner-hierarchy-chip-dark">${entry.avg_weight_g} g</span>
+                        </div>
+                      </div>
+                      <div class="owner-daily-entry-metrics">
+                        <article><span>Mortality</span><strong>${entry.mortality}</strong></article>
+                        <article><span>Culls</span><strong>${entry.culls}</strong></article>
+                        <article><span>Feed</span><strong>${entry.feed_used_bags} bags</strong></article>
+                        <article><span>Water</span><strong>${entry.water_liters} L</strong></article>
+                        <article><span>Temp</span><strong>${entry.temperature_c} C</strong></article>
+                        <article><span>Humidity</span><strong>${entry.humidity_pct}%</strong></article>
+                        <article><span>Litter</span><strong>${entry.litter_condition || "-"}</strong></article>
+                        <article><span>Uniformity</span><strong>${entry.uniformity_pct}%</strong></article>
                       </div>
                       ${
-                        olderDates.length
-                          ? `
-                            <div class="owner-day-select-wrap">
-                              <label>
-                                <span>Full history</span>
-                                <select data-owner-farm-select="${farm.farmKey}">
-                                  <option value="">Select reporting date</option>
-                                  ${availableDates
-                                    .map(
-                                      (dayGroup) => `
-                                        <option value="${dayGroup.entry_date}" ${selectedGroup.entry_date === dayGroup.entry_date ? "selected" : ""}>
-                                          ${dayGroup.entry_date} • ${dayGroup.shed_count} sheds
-                                        </option>
-                                      `
-                                    )
-                                    .join("")}
-                                </select>
-                              </label>
-                            </div>
-                          `
+                        entry.issues || entry.remarks
+                          ? `<p class="owner-daily-entry-note">${[entry.issues, entry.remarks].filter(Boolean).join(" • ")}</p>`
                           : ""
                       }
-                    </div>
-                    ${renderDaySheet(selectedGroup)}
+                    </article>
                   `
-                  : `<div class="fa-empty-state">Is farm ke liye abhi koi daily entry nahi hai.</div>`
-              }
-            </div>
-          </details>
-        `;
-      })
-      .join("");
+                )
+                .join("")
+            : `<div class="fa-empty-state">Is shed ke liye abhi koi dated entry available nahi hai.</div>`
+        }
+      </div>
+    `;
   };
 
   renderFarms();
@@ -580,39 +604,40 @@ function renderDailyEntryHierarchy(container, farms) {
     };
     controls.onclick = (event) => {
       const modeButton = event.target.closest("[data-owner-daily-mode]");
-      if (!modeButton) return;
-      state.mode = modeButton.getAttribute("data-owner-daily-mode") || "latest";
+      if (modeButton) {
+        state.mode = modeButton.getAttribute("data-owner-daily-mode") || "latest";
+        renderFarms();
+        return;
+      }
+      const backButton = event.target.closest("[data-owner-back]");
+      if (!backButton) return;
+      const level = backButton.getAttribute("data-owner-back");
+      if (level === "farms") {
+        state.selectedFarmKey = "";
+        state.selectedShedName = "";
+      } else if (level === "sheds") {
+        state.selectedShedName = "";
+      }
       renderFarms();
     };
   }
 
   container.onclick = (event) => {
-    const dayButton = event.target.closest("[data-owner-day-date]");
-    if (!dayButton) return;
-    const farmKey = dayButton.getAttribute("data-owner-farm-key");
-    const entryDate = dayButton.getAttribute("data-owner-day-date");
-    if (!farmKey || !entryDate) return;
-    state.selectedDates[farmKey] = entryDate;
-    renderFarms();
+    const farmButton = event.target.closest("[data-owner-select-farm]");
+    if (farmButton) {
+      state.selectedFarmKey = farmButton.getAttribute("data-owner-select-farm") || "";
+      state.selectedShedName = "";
+      renderFarms();
+      return;
+    }
+    const shedButton = event.target.closest("[data-owner-select-shed]");
+    if (shedButton) {
+      state.selectedShedName = shedButton.getAttribute("data-owner-select-shed") || "";
+      renderFarms();
+    }
   };
 
-  container.onchange = (event) => {
-    const daySelect = event.target.closest("[data-owner-farm-select]");
-    if (!daySelect) return;
-    const farmKey = daySelect.getAttribute("data-owner-farm-select");
-    const entryDate = daySelect.value;
-    if (!farmKey || !entryDate) return;
-    state.selectedDates[farmKey] = entryDate;
-    renderFarms();
-  };
-
-  container.ontoggle = (event) => {
-    const farmCard = event.target.closest(".owner-daily-farm-card");
-    if (!farmCard) return;
-    const farmKey = farmCard.getAttribute("data-owner-farm-card");
-    if (!farmKey) return;
-    state.openFarms[farmKey] = farmCard.open;
-  };
+  container.onchange = null;
 }
 
 function renderDashboardData(data) {
