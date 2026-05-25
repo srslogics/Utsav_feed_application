@@ -5,6 +5,7 @@ import os
 import re
 from datetime import date
 from datetime import datetime
+from datetime import timedelta
 from pathlib import Path
 from typing import Callable
 from urllib.error import URLError
@@ -68,6 +69,7 @@ LEGACY_DEMO_FIELD_PHONES = {
 WEATHER_CACHE_TTL_SECONDS = 900
 GEOCODE_CACHE_TTL_SECONDS = 86400
 SESSION_MAX_AGE_SECONDS = int(os.getenv("SESSION_MAX_AGE_SECONDS", str(60 * 60 * 24 * 30)))
+PHOTO_RETENTION_HOURS = int(os.getenv("PHOTO_RETENTION_HOURS", "48"))
 LOCATION_COORDINATE_OVERRIDES = {
     "korba-cluster": {"latitude": 22.3595, "longitude": 82.7501, "label": "Korba"},
     "korba": {"latitude": 22.3595, "longitude": 82.7501, "label": "Korba"},
@@ -131,6 +133,23 @@ def cache_set(store: dict[str, dict], key: str, value, ttl_seconds: int):
         "value": value,
         "expires_at": datetime.utcnow().timestamp() + ttl_seconds,
     }
+
+
+def photo_retention_cutoff(now: datetime | None = None) -> datetime:
+    reference = now or datetime.utcnow()
+    return reference - timedelta(hours=PHOTO_RETENTION_HOURS)
+
+
+def photo_is_available(created_at: datetime | None) -> bool:
+    if not created_at:
+        return False
+    return created_at >= photo_retention_cutoff()
+
+
+def photo_url_for(stored_name: str | None, created_at: datetime | None) -> str:
+    if not stored_name or not photo_is_available(created_at):
+        return ""
+    return f"/uploads/{stored_name}"
 
 
 def session_serializer() -> URLSafeSerializer:
@@ -921,7 +940,7 @@ def make_daily_entry_history(records: list[DailyEntry]) -> list[dict]:
                 [
                     f"Litter {record.litter_condition}",
                     record.litter_notes or "",
-                    "Photo attached" if record.litter_photo_name else "",
+                    "Photo attached" if photo_is_available(record.created_at) and record.litter_photo_name else "",
                 ]
             )
             or f"Water {record.water_liters} L • Avg wt {record.avg_weight_g} g • Temp {record.temperature_c} C",
@@ -946,8 +965,8 @@ def serialize_daily_entry_record(record: DailyEntry) -> dict:
         "humidity_pct": record.humidity_pct,
         "litter_condition": record.litter_condition,
         "litter_notes": record.litter_notes or "",
-        "litter_photo_name": record.litter_photo_name or "",
-        "litter_photo_url": f"/uploads/{record.litter_photo_stored}" if record.litter_photo_stored else "",
+        "litter_photo_name": record.litter_photo_name or "" if photo_is_available(record.created_at) else "",
+        "litter_photo_url": photo_url_for(record.litter_photo_stored, record.created_at),
         "power_cut_hours": record.power_cut_hours,
         "dg_hours": record.dg_hours,
         "uniformity_pct": record.uniformity_pct,
@@ -983,7 +1002,13 @@ def make_issue_photo_history(records: list[IssuePhoto]) -> list[dict]:
         {
             "label": f"{record.entry_date} / {record.issue_type} / {record.shed}",
             "value": record.status,
-            "note": f"{record.priority} priority • {record.notes} • File: {record.file_name}",
+            "note": join_present(
+                [
+                    f"{record.priority} priority",
+                    record.notes,
+                    f"File: {record.file_name}" if photo_is_available(record.created_at) else "Photo expired",
+                ]
+            ),
         }
         for record in records
     ]
@@ -1114,8 +1139,8 @@ def build_owner_daily_entry_hierarchy(farmers: list[User], entries: list[DailyEn
                         "humidity_pct": record.humidity_pct if record else None,
                         "litter_condition": record.litter_condition if record else "",
                         "litter_notes": record.litter_notes or "" if record else "",
-                        "litter_photo_name": record.litter_photo_name or "" if record else "",
-                        "litter_photo_url": f"/uploads/{record.litter_photo_stored}" if record and record.litter_photo_stored else "",
+                        "litter_photo_name": (record.litter_photo_name or "") if record and photo_is_available(record.created_at) else "",
+                        "litter_photo_url": photo_url_for(record.litter_photo_stored, record.created_at) if record else "",
                         "issues": record.issues or "" if record else "",
                         "remarks": record.remarks or "" if record else "",
                     }
@@ -1215,7 +1240,14 @@ def summarize_owner_issue_photos(records: list[IssuePhoto], db: Session) -> list
             {
                 "label": f"{farmer.farm_name} / {record.issue_type}",
                 "value": record.status,
-                "note": f"{record.entry_date} • {record.shed} • {record.priority}",
+                "note": join_present(
+                    [
+                        record.entry_date,
+                        record.shed,
+                        record.priority,
+                        "Photo expired" if not photo_is_available(record.created_at) else "",
+                    ]
+                ),
             }
         )
     return items[:10]
@@ -1770,6 +1802,66 @@ def app_file_response(app_dir: str, file_name: str) -> FileResponse:
     return FileResponse(file_path)
 
 
+def remove_file_if_exists(stored_name: str | None):
+    if not stored_name:
+        return
+    file_path = UPLOADS_DIR / stored_name
+    if file_path.exists():
+        file_path.unlink()
+
+
+def purge_expired_photo_uploads(db: Session):
+    cutoff = photo_retention_cutoff()
+    changed = False
+
+    expired_daily_entries = list(
+        db.scalars(
+            select(DailyEntry).where(
+                DailyEntry.litter_photo_stored.is_not(None),
+                DailyEntry.created_at < cutoff,
+            )
+        )
+    )
+    for record in expired_daily_entries:
+        remove_file_if_exists(record.litter_photo_stored)
+        if record.litter_photo_name or record.litter_photo_stored:
+            record.litter_photo_name = None
+            record.litter_photo_stored = None
+            changed = True
+
+    expired_issue_photos = list(
+        db.scalars(select(IssuePhoto).where(IssuePhoto.created_at < cutoff))
+    )
+    for record in expired_issue_photos:
+        remove_file_if_exists(record.stored_name)
+        db.delete(record)
+        changed = True
+
+    if changed:
+        db.commit()
+
+
+def file_response_for_upload(file_name: str, db: Session) -> FileResponse:
+    purge_expired_photo_uploads(db)
+    file_path = UPLOADS_DIR / file_name
+    if not file_path.exists():
+        raise HTTPException(status_code=404, detail="Not Found")
+
+    document_record = db.scalar(select(DocumentUpload).where(DocumentUpload.stored_name == file_name))
+    if document_record:
+        return FileResponse(file_path)
+
+    litter_record = db.scalar(select(DailyEntry).where(DailyEntry.litter_photo_stored == file_name))
+    if litter_record and photo_is_available(litter_record.created_at):
+        return FileResponse(file_path)
+
+    issue_record = db.scalar(select(IssuePhoto).where(IssuePhoto.stored_name == file_name))
+    if issue_record and photo_is_available(issue_record.created_at):
+        return FileResponse(file_path)
+
+    raise HTTPException(status_code=404, detail="Not Found")
+
+
 for route_path, file_name in WEBSITE_FILES.items():
     app.add_api_route(route_path, lambda file_name=file_name: public_file_response(file_name), methods=["GET"])
 
@@ -1777,6 +1869,14 @@ for route_path, file_name in WEBSITE_FILES.items():
 @app.on_event("startup")
 def on_startup() -> None:
     init_database()
+    with session_scope() as db:
+        purge_expired_photo_uploads(db)
+
+
+@app.get("/uploads/{file_name:path}")
+def get_upload(file_name: str):
+    with session_scope() as db:
+        return file_response_for_upload(file_name, db)
 
 
 @app.api_route("/api/health", methods=["GET", "HEAD"])
@@ -2920,5 +3020,4 @@ def owner_app_files(file_name: str, request: Request):
     return app_file_response("owner-app", clean_name)
 
 
-app.mount("/uploads", StaticFiles(directory=UPLOADS_DIR), name="uploads")
 app.mount("/assets", StaticFiles(directory=PROJECT_ROOT / "assets"), name="assets")
