@@ -49,8 +49,8 @@
 
         <section class="fa-module-hero is-compact">
           <div class="fa-module-hero-copy">
-            <p class="fa-eyebrow">Photo & Bill Upload | Photo aur document</p>
-            <h3>Photo aur document alag bhejiye, taaki owner ko seedha proof mile.</h3>
+            <p class="fa-eyebrow">Photo, Bill & Document Upload</p>
+            <h3>Photo, bill, aur document alag bhejiye, taaki owner ko seedha proof mile.</h3>
           </div>
           <div class="fa-meta-strip">
             <article>
@@ -135,20 +135,31 @@
           <section class="fa-section">
             <div class="fa-section-head">
               <div>
-                <p class="fa-eyebrow">Documents & Bills</p>
-                <h3>Upload document</h3>
+                <p class="fa-eyebrow">Bills & Documents</p>
+                <h3>Upload bills or document</h3>
               </div>
             </div>
             <form class="fa-form fa-request-form" data-document-upload-form enctype="multipart/form-data">
             <label>
+              Upload category
+              <select name="upload_category" required>
+                <option value="">Choose category</option>
+                <option value="Bill">Bill</option>
+                <option value="Document">Document</option>
+              </select>
+            </label>
+            <label>
               Document type | document ka type
               <select name="doc_type" required>
                 <option value="">Select document type</option>
+                <option>General Bill</option>
                 <option>Feed Bill</option>
                 <option>Medicine Bill</option>
+                <option>Diesel Bill</option>
                 <option>Equipment Invoice</option>
                 <option>Utility Bill</option>
                 <option>Farm Document</option>
+                <option>Other Document</option>
               </select>
             </label>
             <label>
@@ -192,6 +203,6 @@
       <a href="./requests.html">Requests</a>
       <a class="is-active" href="./uploads.html">Uploads</a>
     </nav>
-    <script src="/farmer-app/app.js?v=20260548"></script>
+    <script src="/farmer-app/app.js?v=20260549"></script>
   </body>
 </html>

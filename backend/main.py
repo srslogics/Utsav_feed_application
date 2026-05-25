@@ -992,6 +992,7 @@ def make_document_history(records: list[DocumentUpload]) -> list[dict]:
             "label": f"{record.entry_date} / {record.doc_type}",
             "value": record.status,
             "note": f"{record.title} • {record.amount or 'No amount'} • File: {record.file_name}",
+            "file_url": f"/uploads/{record.stored_name}" if record.stored_name else "",
         }
         for record in records
     ]
@@ -1283,9 +1284,94 @@ def summarize_owner_documents(records: list[DocumentUpload], db: Session) -> lis
                 "label": f"{farmer.farm_name} / {record.doc_type}",
                 "value": record.status,
                 "note": f"{record.entry_date} • {record.title} • {record.amount or 'No amount'}",
+                "file_url": f"/uploads/{record.stored_name}" if record.stored_name else "",
             }
         )
     return items[:10]
+
+
+def build_owner_file_library(
+    farmers: list[User],
+    documents: list[DocumentUpload],
+    issue_photos: list[IssuePhoto],
+    daily_entries: list[DailyEntry],
+) -> list[dict]:
+    documents_by_farmer: dict[int, list[dict]] = {}
+    photos_by_farmer: dict[int, list[dict]] = {}
+
+    for record in documents:
+        documents_by_farmer.setdefault(record.farmer_id, []).append(
+            {
+                "entry_date": record.entry_date,
+                "doc_type": record.doc_type,
+                "title": record.title,
+                "amount": record.amount or "",
+                "notes": record.notes or "",
+                "file_name": record.file_name,
+                "file_url": f"/uploads/{record.stored_name}" if record.stored_name else "",
+                "status": record.status,
+            }
+        )
+
+    for record in issue_photos:
+        if not photo_is_available(record.created_at):
+            continue
+        photos_by_farmer.setdefault(record.farmer_id, []).append(
+            {
+                "entry_date": record.entry_date,
+                "kind": "Issue photo",
+                "title": record.issue_type,
+                "shed": record.shed,
+                "priority": record.priority,
+                "notes": record.notes or "",
+                "file_name": record.file_name,
+                "file_url": photo_url_for(record.stored_name, record.created_at),
+            }
+        )
+
+    for record in daily_entries:
+        photo_url = photo_url_for(record.litter_photo_stored, record.created_at)
+        if not photo_url:
+            continue
+        photos_by_farmer.setdefault(record.farmer_id, []).append(
+            {
+                "entry_date": record.entry_date,
+                "kind": "Litter photo",
+                "title": record.litter_condition or "Litter update",
+                "shed": record.shed,
+                "priority": "",
+                "notes": record.litter_notes or "",
+                "file_name": record.litter_photo_name or "",
+                "file_url": photo_url,
+            }
+        )
+
+    library: list[dict] = []
+    for farmer in farmers:
+        farm_documents = sorted(
+            documents_by_farmer.get(farmer.id, []),
+            key=lambda item: item["entry_date"],
+            reverse=True,
+        )
+        farm_photos = sorted(
+            photos_by_farmer.get(farmer.id, []),
+            key=lambda item: item["entry_date"],
+            reverse=True,
+        )
+        library.append(
+            {
+                "farm_name": farmer.farm_name or "",
+                "farmer_name": farmer.name or "",
+                "farmer_code": farmer.farmer_code or "",
+                "cluster": farmer.cluster or "",
+                "current_batch": farmer.active_batch or "",
+                "documents_count": len(farm_documents),
+                "photos_count": len(farm_photos),
+                "documents": farm_documents,
+                "photos": farm_photos,
+            }
+        )
+    return library
 
 
 def split_csv_text(value: str) -> list[str]:
@@ -2784,6 +2870,37 @@ def owner_finance(request: Request):
         ],
         "documents": document_items,
         "feed_inward": inward_items,
+    }
+
+
+@app.get("/api/owner/files")
+def owner_files(request: Request):
+    user = get_current_user(request, "owner")
+    with session_scope() as db:
+        farmers = [farm for farm in db.scalars(select(User).where(User.role == "farmer").order_by(User.farm_name)) if valid_farmer_user(farm)]
+        farmer_ids = [farm.id for farm in farmers]
+        documents = list(db.scalars(select(DocumentUpload).where(DocumentUpload.farmer_id.in_(farmer_ids)).order_by(DocumentUpload.created_at.desc()))) if farmer_ids else []
+        issue_photos = list(db.scalars(select(IssuePhoto).where(IssuePhoto.farmer_id.in_(farmer_ids)).order_by(IssuePhoto.created_at.desc()))) if farmer_ids else []
+        daily_entries = list(
+            db.scalars(
+                select(DailyEntry)
+                .where(
+                    DailyEntry.farmer_id.in_(farmer_ids),
+                    DailyEntry.litter_photo_stored.is_not(None),
+                )
+                .order_by(DailyEntry.created_at.desc())
+            )
+        ) if farmer_ids else []
+        library = build_owner_file_library(farmers, documents, issue_photos, daily_entries)
+
+    return {
+        "profile": serialize_profile(user),
+        "kpis": [
+            {"label": "Farms", "value": str(len(farmers)), "note": "Farms with upload visibility"},
+            {"label": "Documents", "value": str(sum(item["documents_count"] for item in library)), "note": "Bills and documents uploaded"},
+            {"label": "Images", "value": str(sum(item["photos_count"] for item in library)), "note": "Issue and litter photos available"},
+        ],
+        "farms": library,
     }
 
 

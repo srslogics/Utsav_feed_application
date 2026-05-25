@@ -579,6 +579,11 @@ async function handleUploadSubmit(form, url, selector, afterSuccess) {
   form.addEventListener("submit", async (event) => {
     event.preventDefault();
     const formData = new FormData(form);
+    const uploadCategory = formData.get("upload_category");
+    const currentDocType = formData.get("doc_type");
+    if (uploadCategory && currentDocType) {
+      formData.set("doc_type", `${uploadCategory} / ${currentDocType}`);
+    }
     try {
       await requestJson(url, {
         method: "POST",

@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Utsav Owner Files</title>
+    <link rel="stylesheet" href="/farmer-app/styles.css?v=20260549" />
+    <link rel="stylesheet" href="/owner-app/styles.css?v=20260550" />
+  </head>
+  <body class="fa-body owner-body" data-owner-page="files">
+    <div class="fa-app-shell">
+      <aside class="fa-sidebar">
+        <div class="fa-brand">
+          <div class="fa-brand-mark">UF</div>
+          <div>
+            <p class="fa-eyebrow">Owner Workspace</p>
+            <h1>Utsav Owner</h1>
+          </div>
+        </div>
+        <nav class="fa-nav">
+          <a href="./dashboard.html">Dashboard</a>
+          <a href="./farms.html">Farms</a>
+          <a class="is-active" href="./files.html">Files</a>
+          <a href="./parties.html">Parties</a>
+          <a href="./operations-daily.html">Operations</a>
+          <a href="./finance.html">Finance</a>
+        </nav>
+      </aside>
+
+      <main class="fa-content">
+        <header class="fa-page-head">
+          <div>
+            <p class="fa-eyebrow">Farm Files</p>
+            <h2>Farm files</h2>
+          </div>
+          <div class="fa-page-actions">
+            <button class="fa-secondary-btn" type="button" data-owner-logout>Logout</button>
+          </div>
+        </header>
+
+        <section class="owner-hero owner-hero-compact">
+          <div class="owner-hero-copy">
+            <p class="fa-eyebrow">Farm -> Files</p>
+            <h3>Pick a farm first, then review only that farm’s bills, documents, and images.</h3>
+            <p>Keep file review clean by separating uploaded bills and documents from photo records, while still staying inside one farm context.</p>
+          </div>
+          <div class="owner-hero-rail owner-hero-links">
+            <article>
+              <span>Flow</span>
+              <strong>Farm first, then documents and images</strong>
+            </article>
+            <article>
+              <span>Images</span>
+              <strong>Litter photos and issue photos together</strong>
+            </article>
+          </div>
+        </section>
+
+        <section class="fa-section">
+          <div class="fa-section-head">
+            <div>
+              <p class="fa-eyebrow">Files Snapshot</p>
+              <h3>Upload visibility</h3>
+            </div>
+          </div>
+          <div class="fa-kpi-grid" id="owner-files-kpis"></div>
+        </section>
+
+        <section class="fa-section">
+          <div class="fa-section-head">
+            <div>
+              <p class="fa-eyebrow">Farm Files</p>
+              <h3>Farm file library</h3>
+            </div>
+          </div>
+          <div id="owner-files-browser"></div>
+        </section>
+      </main>
+    </div>
+    <nav class="fa-bottom-nav owner-bottom-nav owner-bottom-nav-five">
+      <a href="./dashboard.html">Home</a>
+      <a href="./farms.html">Farms</a>
+      <a class="is-active" href="./files.html">Files</a>
+      <a href="./operations-daily.html">Ops</a>
+      <a href="./finance.html">Finance</a>
+    </nav>
+    <script src="/owner-app/app.js?v=20260549"></script>
+  </body>
+</html>

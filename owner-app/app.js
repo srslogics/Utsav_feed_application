@@ -702,6 +702,158 @@ function renderFinanceData(data) {
   renderList(document.querySelector("#owner-finance-inward"), data.feed_inward);
 }
 
+function renderOwnerFilesData(data) {
+  if (!data) return;
+  populateProfile(data.profile);
+  renderKpis(document.querySelector("#owner-files-kpis"), data.kpis || []);
+
+  const container = document.querySelector("#owner-files-browser");
+  if (!container) return;
+  const farms = data.farms || [];
+  if (!farms.length) {
+    container.innerHTML = `<div class="fa-empty-state">Abhi kisi farm se files available nahi hain.</div>`;
+    return;
+  }
+
+  const state = { selectedFarmCode: "" };
+
+  const render = () => {
+    const selectedFarm = farms.find((farm) => farm.farmer_code === state.selectedFarmCode);
+    if (!selectedFarm) {
+      container.innerHTML = `
+        <div class="owner-daily-level-grid owner-daily-farm-grid">
+          ${farms
+            .map(
+              (farm) => `
+                <button type="button" class="owner-daily-level-card owner-daily-farm-card-button" data-owner-file-farm="${farm.farmer_code || ""}">
+                  <div class="owner-daily-level-head">
+                    <div>
+                      <span>Farm</span>
+                      <h4>${farm.farm_name || "-"}</h4>
+                      <p>${[farm.farmer_name, farm.farmer_code, farm.cluster].filter(Boolean).join(" • ")}</p>
+                    </div>
+                  </div>
+                  <div class="owner-daily-level-meta">
+                    <span>${farm.current_batch ? `Batch ${farm.current_batch}` : "No batch"}</span>
+                    <span>${farm.documents_count} documents</span>
+                    <span>${farm.photos_count} images</span>
+                  </div>
+                </button>
+              `
+            )
+            .join("")}
+        </div>
+      `;
+      return;
+    }
+
+    container.innerHTML = `
+      <div class="owner-daily-pathbar">
+        <div class="owner-daily-breadcrumbs">
+          <button type="button" class="owner-daily-crumb" data-owner-file-back="farms">Farms</button>
+          <span>/</span>
+          <span class="owner-daily-crumb is-active">${selectedFarm.farm_name || "-"}</span>
+        </div>
+        <div class="owner-daily-path-actions">
+          <button type="button" class="fa-secondary-btn" data-owner-file-back="farms">Back to farms</button>
+        </div>
+      </div>
+      <section class="owner-daily-focus-card">
+        <div class="owner-hierarchy-farm-head owner-daily-static-head">
+          <div class="owner-hierarchy-title">
+            <span>Selected farm</span>
+            <h4>${selectedFarm.farm_name || "-"}</h4>
+            <p>${[selectedFarm.farmer_name, selectedFarm.farmer_code, selectedFarm.cluster].filter(Boolean).join(" • ")}</p>
+          </div>
+          <div class="owner-hierarchy-chip-row">
+            <span class="owner-hierarchy-chip">${selectedFarm.current_batch ? `Batch ${selectedFarm.current_batch}` : "No batch"}</span>
+            <span class="owner-hierarchy-chip">${selectedFarm.documents_count} documents</span>
+            <span class="owner-hierarchy-chip">${selectedFarm.photos_count} images</span>
+          </div>
+        </div>
+      </section>
+      <div class="owner-grid-two owner-files-grid">
+        <section class="fa-section">
+          <div class="fa-section-head">
+            <div>
+              <p class="fa-eyebrow">Bills & Documents</p>
+              <h3>Documents</h3>
+            </div>
+          </div>
+          <div class="fa-list-card">
+            ${
+              selectedFarm.documents.length
+                ? selectedFarm.documents
+                    .map(
+                      (item) => `
+                        <div class="fa-list-row">
+                          <div>
+                            <span>${item.entry_date} / ${item.doc_type}</span>
+                            <p>${[item.title, item.amount || "", item.notes || ""].filter(Boolean).join(" • ")}</p>
+                          </div>
+                          ${
+                            item.file_url
+                              ? `<a class="fa-secondary-btn" href="${item.file_url}" target="_blank" rel="noopener noreferrer">Open file</a>`
+                              : `<strong>${item.status}</strong>`
+                          }
+                        </div>
+                      `
+                    )
+                    .join("")
+                : `<div class="fa-empty-state">Is farm ke documents abhi available nahi hain.</div>`
+            }
+          </div>
+        </section>
+        <section class="fa-section">
+          <div class="fa-section-head">
+            <div>
+              <p class="fa-eyebrow">Images</p>
+              <h3>Farm images</h3>
+            </div>
+          </div>
+          <div class="owner-file-photo-grid">
+            ${
+              selectedFarm.photos.length
+                ? selectedFarm.photos
+                    .map(
+                      (item) => `
+                        <article class="owner-file-photo-card">
+                          <span>${item.entry_date} / ${item.kind}</span>
+                          <strong>${item.title || "-"}</strong>
+                          <p>${[item.shed, item.priority || "", item.notes || ""].filter(Boolean).join(" • ")}</p>
+                          <a class="owner-daily-entry-photo-link" href="${item.file_url}" target="_blank" rel="noopener noreferrer">
+                            <img src="${item.file_url}" alt="${item.file_name || item.title || "Farm image"}" loading="lazy" />
+                            <strong>Open image</strong>
+                          </a>
+                        </article>
+                      `
+                    )
+                    .join("")
+                : `<div class="fa-empty-state">Is farm ke images abhi available nahi hain.</div>`
+            }
+          </div>
+        </section>
+      </div>
+    `;
+  };
+
+  render();
+
+  container.onclick = (event) => {
+    const farmButton = event.target.closest("[data-owner-file-farm]");
+    if (farmButton) {
+      state.selectedFarmCode = farmButton.getAttribute("data-owner-file-farm") || "";
+      render();
+      return;
+    }
+    const backButton = event.target.closest("[data-owner-file-back]");
+    if (backButton) {
+      state.selectedFarmCode = "";
+      render();
+    }
+  };
+}
+
 function renderOwnerPartyDirectory(container, items) {
   if (!container) return;
   if (!items.length) {
@@ -1030,6 +1182,12 @@ async function loadParties() {
   renderPartiesData(data);
 }
 
+async function loadFiles() {
+  const data = await requestJson(`${ownerApiBase}/files`);
+  writeCache("files", data);
+  renderOwnerFilesData(data);
+}
+
 const loginForm = document.querySelector("[data-owner-login]");
 if (loginForm) {
   requireOwnerSession({ allowLoginPage: true }).then((user) => {
@@ -1271,5 +1429,9 @@ if (page) {
   if (page === "parties") {
     renderPartiesData(readCache("parties"));
     loadParties().catch(handlePageError);
+  }
+  if (page === "files") {
+    renderOwnerFilesData(readCache("files"));
+    loadFiles().catch(handlePageError);
   }
 }
