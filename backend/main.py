@@ -635,6 +635,17 @@ class OwnerSaleReadyRulePayload(BaseModel):
     notes: str = ""
 
 
+class OwnerOperationalCostPayload(BaseModel):
+    farmer_code: str
+    entry_date: str
+    expense_category: str
+    item_name: str
+    shed: str = ""
+    vendor_name: str = ""
+    amount: str = ""
+    notes: str = ""
+
+
 class FarmerProfileUpdatePayload(BaseModel):
     farmer_name: str
     phone: str
@@ -1406,6 +1417,7 @@ def summarize_owner_operational_costs(records: list[OperationalCost], db: Sessio
                         record.notes,
                     ]
                 ),
+                "file_url": f"/uploads/{record.stored_name}" if record.stored_name else "",
             }
         )
     return items[:12]
@@ -2987,6 +2999,54 @@ def owner_update_farmer_batch(payload: OwnerBatchEntryPayload, request: Request)
     }
 
 
+@app.post("/api/owner/operational-costs")
+async def owner_add_operational_cost(
+    request: Request,
+    farmer_code: str = Form(...),
+    entry_date: str = Form(...),
+    expense_category: str = Form(...),
+    item_name: str = Form(...),
+    shed: str = Form(""),
+    vendor_name: str = Form(""),
+    amount: str = Form(""),
+    notes: str = Form(""),
+    file: UploadFile | None = File(None),
+):
+    get_current_user(request, "owner")
+    stored_name = None
+    original_name = None
+    if file and file.filename:
+        timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
+        original_name = file.filename or "owner-expense-proof"
+        suffix = Path(original_name).suffix or ".bin"
+        stored_name = f"{timestamp}-{safe_slug(item_name)}{suffix}"
+        destination = UPLOADS_DIR / stored_name
+        destination.write_bytes(await file.read())
+    with session_scope() as db:
+        farmer = db.scalar(select(User).where(User.role == "farmer", User.farmer_code == farmer_code))
+        if not valid_farmer_user(farmer):
+            raise HTTPException(status_code=404, detail="Farmer not found.")
+
+        db.add(
+            OperationalCost(
+                farmer_id=farmer.id,
+                entry_date=entry_date or today_string(),
+                expense_category=expense_category,
+                item_name=item_name,
+                shed=shed.strip(),
+                vendor_name=vendor_name.strip(),
+                amount=amount.strip(),
+                notes=notes.strip(),
+                file_name=original_name,
+                stored_name=stored_name,
+                status="Submitted by owner finance",
+            )
+        )
+        db.commit()
+
+    return {"success": True, "message": "Operational cost saved successfully."}
+
+
 @app.get("/api/owner/operations")
 def owner_operations(request: Request):
     user = get_current_user(request, "owner")
@@ -3060,6 +3120,17 @@ def owner_finance(request: Request):
         "documents": document_items,
         "operational_costs": operational_cost_items,
         "feed_inward": inward_items,
+        "farmer_options": [
+            {
+                "farmer_code": farm.farmer_code or "",
+                "farm_name": farm.farm_name or "",
+                "farmer_name": farm.name or "",
+                "active_batch": farm.active_batch or "",
+                "current_shed": farm.current_shed or "",
+                "active_sheds": farm.active_sheds or 1,
+            }
+            for farm in farmers
+        ],
     }
 
 

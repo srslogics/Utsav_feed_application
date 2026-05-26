@@ -124,6 +124,11 @@ function renderList(container, items) {
           <div>
             <span>${item.label}</span>
             ${item.note ? `<p>${item.note}</p>` : ""}
+            ${
+              item.file_url
+                ? `<div class="fa-inline-actions"><a class="fa-secondary-btn" href="${item.file_url}" target="_blank" rel="noopener noreferrer">Open receipt</a></div>`
+                : ""
+            }
           </div>
           <strong>${item.value}</strong>
         </div>
@@ -803,6 +808,43 @@ function renderFinanceData(data) {
   renderList(document.querySelector("#owner-finance-documents"), data.documents);
   renderList(document.querySelector("#owner-finance-inward"), data.feed_inward);
   renderList(document.querySelector("#owner-finance-operational-costs"), data.operational_costs || []);
+  populateOwnerFinanceFarmSelect(data.farmer_options || []);
+  setOwnerFinanceDefaultDate();
+}
+
+function populateOwnerFinanceFarmSelect(items) {
+  const select = document.querySelector("[data-owner-finance-farm-select]");
+  if (!select) return;
+  const currentValue = select.value;
+  select.innerHTML = [
+    `<option value="">Choose farm</option>`,
+    ...items.map(
+      (item) =>
+        `<option value="${item.farmer_code || ""}" data-current-shed="${item.current_shed || ""}">
+          ${(item.farm_name || item.farmer_name || "").trim()}${item.farmer_code ? ` • ${item.farmer_code}` : ""}
+        </option>`
+    ),
+  ].join("");
+  if (currentValue) select.value = currentValue;
+  syncOwnerFinanceFarmMeta();
+}
+
+function syncOwnerFinanceFarmMeta() {
+  const select = document.querySelector("[data-owner-finance-farm-select]");
+  const shedInput = document.querySelector("[data-owner-finance-shed]");
+  if (!select || !shedInput) return;
+  const selected = select.options[select.selectedIndex];
+  const currentShed = selected?.dataset.currentShed || "";
+  if (!shedInput.value || shedInput.dataset.autofilled === "true") {
+    shedInput.value = currentShed;
+    shedInput.dataset.autofilled = currentShed ? "true" : "false";
+  }
+}
+
+function setOwnerFinanceDefaultDate() {
+  const input = document.querySelector('[data-owner-operational-cost-form] input[name="entry_date"]');
+  if (!input || input.value) return;
+  input.value = new Date().toISOString().slice(0, 10);
 }
 
 function renderOwnerFilesData(data) {
@@ -1500,6 +1542,53 @@ if (batchEntryForm) {
       loadFarms().catch(console.error);
     } catch {
       setStatus(".owner-batch-note", "Batch entry save nahi ho paaya. Farmer aur batch details dobara check karein.", true);
+    }
+  });
+}
+
+const ownerOperationalCostForm = document.querySelector("[data-owner-operational-cost-form]");
+if (ownerOperationalCostForm) {
+  const farmSelect = ownerOperationalCostForm.querySelector("[data-owner-finance-farm-select]");
+  const shedInput = ownerOperationalCostForm.querySelector("[data-owner-finance-shed]");
+  farmSelect?.addEventListener("change", syncOwnerFinanceFarmMeta);
+  shedInput?.addEventListener("input", () => {
+    shedInput.dataset.autofilled = "false";
+  });
+  setOwnerFinanceDefaultDate();
+
+  ownerOperationalCostForm.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    const formData = new FormData(ownerOperationalCostForm);
+    const farmCode = `${formData.get("farmer_code") || ""}`.trim();
+    const itemName = `${formData.get("item_name") || ""}`.trim();
+
+    if (!farmCode) {
+      setStatus(".owner-finance-cost-note", "Pehle farm select karein.", true);
+      return;
+    }
+
+    if (!itemName) {
+      setStatus(".owner-finance-cost-note", "Item ya service ka naam daalein.", true);
+      return;
+    }
+
+    try {
+      await requestJson(`${ownerApiBase}/operational-costs`, {
+        method: "POST",
+        body: formData,
+      });
+
+      const selectedFarmLabel =
+        farmSelect?.options[farmSelect.selectedIndex]?.textContent?.trim() || "Selected farm";
+      ownerOperationalCostForm.reset();
+      if (farmSelect && farmCode) farmSelect.value = farmCode;
+      if (shedInput) shedInput.dataset.autofilled = "true";
+      syncOwnerFinanceFarmMeta();
+      setOwnerFinanceDefaultDate();
+      setStatus(".owner-finance-cost-note", `${selectedFarmLabel} ke liye operational cost save ho gaya.`);
+      loadFinance().catch(console.error);
+    } catch {
+      setStatus(".owner-finance-cost-note", "Operational cost save nahi ho paaya. Farm aur expense details dobara check karein.", true);
     }
   });
 }
