@@ -1113,12 +1113,12 @@ button {
   }
 
   .fa-login-panel {
-    order: 2;
-    margin-top: 0;
+    display: none;
   }
 
   .fa-auth-card {
     order: 1;
+    padding: 1rem;
   }
 
   .fa-copy h2 {
@@ -1149,9 +1149,9 @@ button {
 
   .fa-brand {
     width: 100%;
-    padding: 0.58rem 0.75rem;
+    padding: 0.46rem 0.62rem;
     border: 1px solid rgba(78, 58, 46, 0.08);
-    border-radius: 18px;
+    border-radius: 16px;
     background: rgba(255, 252, 248, 0.88);
     box-shadow: 0 8px 20px rgba(39, 27, 19, 0.05);
   }
@@ -1164,13 +1164,12 @@ button {
   }
 
   .fa-brand h1 {
-    font-size: 1.18rem;
-    line-height: 1.06;
+    font-size: 1rem;
+    line-height: 1.04;
   }
 
   .fa-brand .fa-eyebrow {
-    font-size: 0.58rem;
-    letter-spacing: 0.12em;
+    display: none;
   }
 
   .fa-section,
@@ -1180,8 +1179,9 @@ button {
     border-radius: 20px;
   }
 
+  .fa-module-hero,
   .fa-module-hero.is-compact {
-    padding: 0.72rem 0.76rem;
+    display: none;
   }
 
   .fa-content {
@@ -1204,10 +1204,10 @@ button {
     position: sticky;
     top: 0.4rem;
     z-index: 18;
-    padding: 0.62rem 0.72rem;
-    gap: 0.5rem;
+    padding: 0.48rem 0.62rem;
+    gap: 0.38rem;
     border: 1px solid rgba(78, 58, 46, 0.08);
-    border-radius: 18px;
+    border-radius: 16px;
     background: rgba(255, 252, 248, 0.9);
     box-shadow: 0 10px 24px rgba(39, 27, 19, 0.05);
     backdrop-filter: blur(12px);
@@ -1223,11 +1223,11 @@ button {
   }
 
   .fa-page-actions {
-    width: 100%;
+    width: auto;
     display: flex;
-    gap: 0.45rem;
-    overflow-x: auto;
-    padding-bottom: 0.1rem;
+    gap: 0.35rem;
+    overflow: visible;
+    padding-bottom: 0;
     scrollbar-width: none;
   }
 
@@ -1236,9 +1236,9 @@ button {
   }
 
   .fa-page-actions .fa-secondary-btn {
-    min-height: 34px;
-    padding: 0.46rem 0.7rem;
-    font-size: 0.74rem;
+    min-height: 32px;
+    padding: 0.38rem 0.62rem;
+    font-size: 0.7rem;
     width: auto;
     white-space: nowrap;
     flex: 0 0 auto;
@@ -1307,6 +1307,10 @@ button {
   .fa-flow-strip {
     grid-template-columns: 1fr;
     gap: 0.62rem;
+  }
+
+  .fa-flow-strip {
+    display: none;
   }
 
   .fa-form-actions {
@@ -1388,12 +1392,12 @@ button {
   .fa-bottom-nav {
     grid-template-columns: repeat(6, minmax(0, 1fr));
     gap: 0.16rem;
-    padding: 0.4rem 0.36rem calc(0.42rem + env(safe-area-inset-bottom));
+    padding: 0.28rem 0.28rem calc(0.34rem + env(safe-area-inset-bottom));
   }
 
   .fa-bottom-nav a {
-    min-height: 36px;
-    padding: 0.36rem 0.12rem;
+    min-height: 32px;
+    padding: 0.3rem 0.1rem;
     font-size: 0.58rem;
     line-height: 1.08;
   }

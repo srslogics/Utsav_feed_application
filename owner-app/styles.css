@@ -1472,13 +1472,35 @@
 }
 
 @media (max-width: 620px) {
+  .owner-body .fa-login-panel {
+    display: none;
+  }
+
+  .owner-body .fa-auth-card {
+    padding: 1rem;
+  }
+
   .owner-dashboard-shortcuts {
-    gap: 0.55rem;
+    display: flex;
+    gap: 0.42rem;
+    overflow-x: auto;
+    padding-bottom: 0.05rem;
+    scrollbar-width: none;
+  }
+
+  .owner-dashboard-shortcuts::-webkit-scrollbar {
+    display: none;
+  }
+
+  .owner-dashboard-shortcuts {
+    gap: 0.42rem;
   }
 
   .owner-dashboard-shortcut {
-    padding: 0.72rem 0.8rem;
-    border-radius: 16px;
+    flex: 0 0 74%;
+    min-width: 180px;
+    padding: 0.62rem 0.72rem;
+    border-radius: 14px;
   }
 
   .owner-dashboard-shortcut span {
@@ -1545,9 +1567,7 @@
   }
 
   .owner-hero {
-    padding: 0.76rem;
-    gap: 0.56rem;
-    border-radius: 18px;
+    display: none;
   }
 
   .owner-hero-copy h3 {
@@ -1616,11 +1636,11 @@
   }
 
   .owner-body .fa-page-actions {
-    width: 100%;
+    width: auto;
     display: flex;
-    gap: 0.45rem;
-    overflow-x: auto;
-    padding-bottom: 0.1rem;
+    gap: 0.35rem;
+    overflow: visible;
+    padding-bottom: 0;
     align-items: center;
     scrollbar-width: none;
   }
@@ -1631,9 +1651,9 @@
 
   .owner-body .fa-page-actions .fa-secondary-btn {
     width: auto;
-    min-height: 36px;
-    padding: 0.52rem 0.76rem;
-    font-size: 0.8rem;
+    min-height: 32px;
+    padding: 0.38rem 0.62rem;
+    font-size: 0.72rem;
     white-space: nowrap;
     flex: 0 0 auto;
   }
@@ -1689,8 +1709,8 @@
   }
 
   .owner-bottom-nav a {
-    min-height: 36px;
-    padding: 0.36rem 0.12rem;
+    min-height: 32px;
+    padding: 0.3rem 0.1rem;
     font-size: 0.56rem;
     line-height: 1.08;
   }
