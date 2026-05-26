@@ -3376,6 +3376,7 @@ def owner_finance(request: Request):
     user = get_current_user(request, "owner")
     with session_scope() as db:
         farmers = [farm for farm in db.scalars(select(User).where(User.role == "farmer").order_by(User.farm_name)) if valid_farmer_user(farm)]
+        parties = list(db.scalars(select(PartyContact).where(PartyContact.is_active == True).order_by(PartyContact.name)))
         farmer_ids = [farm.id for farm in farmers]
         farmer_map = {farm.id: farm for farm in farmers}
         documents = list(db.scalars(select(DocumentUpload).where(DocumentUpload.farmer_id.in_(farmer_ids)).order_by(DocumentUpload.created_at.desc()))) if farmer_ids else []
@@ -3425,6 +3426,14 @@ def owner_finance(request: Request):
                 "active_sheds": farm.active_sheds or 1,
             }
             for farm in farmers
+        ],
+        "party_options": [
+            {
+                "name": party.name,
+                "phone": format_phone_display(party.phone),
+                "market_area": party.market_area or "",
+            }
+            for party in parties
         ],
     }
 

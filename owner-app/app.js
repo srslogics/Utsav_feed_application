@@ -812,6 +812,7 @@ function renderFinanceData(data) {
   renderList(document.querySelector("#owner-finance-sales"), data.sales || []);
   populateOwnerFinanceFarmSelect(data.farmer_options || []);
   populateOwnerSaleFarmSelect(data.farmer_options || []);
+  populateOwnerSalePartySelect(data.party_options || []);
   setOwnerFinanceDefaultDate();
   setOwnerSaleDefaultDate();
 }
@@ -1114,6 +1115,23 @@ function populateOwnerSaleFarmSelect(items) {
         `<option value="${item.farmer_code || ""}">
           ${(item.farm_name || item.farmer_name || "").trim()}${item.farmer_code ? ` • ${item.farmer_code}` : ""}
         </option>`
+    ),
+  ].join("");
+  if (currentValue) select.value = currentValue;
+}
+
+function populateOwnerSalePartySelect(items) {
+  const select = document.querySelector("[data-owner-sale-party-select]");
+  if (!select) return;
+  const currentValue = select.value;
+  select.innerHTML = [
+    `<option value="">Choose party</option>`,
+    ...items.map(
+      (item) => `
+        <option value="${item.name || ""}">
+          ${(item.name || "").trim()}${item.phone ? ` • ${item.phone}` : ""}${item.market_area ? ` • ${item.market_area}` : ""}
+        </option>
+      `
     ),
   ].join("");
   if (currentValue) select.value = currentValue;
