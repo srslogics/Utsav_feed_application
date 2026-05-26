@@ -820,7 +820,7 @@ function populateOwnerFinanceFarmSelect(items) {
     `<option value="">Choose farm</option>`,
     ...items.map(
       (item) =>
-        `<option value="${item.farmer_code || ""}" data-current-shed="${item.current_shed || ""}">
+        `<option value="${item.farmer_code || ""}" data-current-shed="${item.current_shed || ""}" data-active-sheds="${item.active_sheds || 1}">
           ${(item.farm_name || item.farmer_name || "").trim()}${item.farmer_code ? ` • ${item.farmer_code}` : ""}
         </option>`
     ),
@@ -829,16 +829,37 @@ function populateOwnerFinanceFarmSelect(items) {
   syncOwnerFinanceFarmMeta();
 }
 
+function buildOwnerFinanceShedOptions(currentShed, activeSheds) {
+  const sheds = [];
+  const shedCount = Number(activeSheds || 0);
+  for (let index = 1; index <= shedCount; index += 1) {
+    sheds.push(`Shed ${index}`);
+  }
+  const cleanedCurrentShed = `${currentShed || ""}`.trim();
+  if (cleanedCurrentShed && !sheds.includes(cleanedCurrentShed)) {
+    sheds.unshift(cleanedCurrentShed);
+  }
+  return sheds;
+}
+
 function syncOwnerFinanceFarmMeta() {
   const select = document.querySelector("[data-owner-finance-farm-select]");
-  const shedInput = document.querySelector("[data-owner-finance-shed]");
-  if (!select || !shedInput) return;
+  const shedSelect = document.querySelector("[data-owner-finance-sheds]");
+  const shedValueInput = document.querySelector("[data-owner-finance-shed-value]");
+  if (!select || !shedSelect || !shedValueInput) return;
   const selected = select.options[select.selectedIndex];
   const currentShed = selected?.dataset.currentShed || "";
-  if (!shedInput.value || shedInput.dataset.autofilled === "true") {
-    shedInput.value = currentShed;
-    shedInput.dataset.autofilled = currentShed ? "true" : "false";
+  const activeSheds = selected?.dataset.activeSheds || "1";
+  const sheds = buildOwnerFinanceShedOptions(currentShed, activeSheds);
+  if (!selected?.value) {
+    shedSelect.innerHTML = `<option value="">Choose farm first</option>`;
+    shedValueInput.value = "";
+    return;
   }
+  shedSelect.innerHTML = sheds
+    .map((shed) => `<option value="${shed}">${shed}</option>`)
+    .join("");
+  shedValueInput.value = "";
 }
 
 function setOwnerFinanceDefaultDate() {
@@ -1549,10 +1570,15 @@ if (batchEntryForm) {
 const ownerOperationalCostForm = document.querySelector("[data-owner-operational-cost-form]");
 if (ownerOperationalCostForm) {
   const farmSelect = ownerOperationalCostForm.querySelector("[data-owner-finance-farm-select]");
-  const shedInput = ownerOperationalCostForm.querySelector("[data-owner-finance-shed]");
+  const shedSelect = ownerOperationalCostForm.querySelector("[data-owner-finance-sheds]");
+  const shedValueInput = ownerOperationalCostForm.querySelector("[data-owner-finance-shed-value]");
   farmSelect?.addEventListener("change", syncOwnerFinanceFarmMeta);
-  shedInput?.addEventListener("input", () => {
-    shedInput.dataset.autofilled = "false";
+  shedSelect?.addEventListener("change", () => {
+    if (!shedValueInput) return;
+    shedValueInput.value = Array.from(shedSelect.selectedOptions)
+      .map((option) => option.value)
+      .filter(Boolean)
+      .join(", ");
   });
   setOwnerFinanceDefaultDate();
 
@@ -1582,7 +1608,6 @@ if (ownerOperationalCostForm) {
         farmSelect?.options[farmSelect.selectedIndex]?.textContent?.trim() || "Selected farm";
       ownerOperationalCostForm.reset();
       if (farmSelect && farmCode) farmSelect.value = farmCode;
-      if (shedInput) shedInput.dataset.autofilled = "true";
       syncOwnerFinanceFarmMeta();
       setOwnerFinanceDefaultDate();
       setStatus(".owner-finance-cost-note", `${selectedFarmLabel} ke liye operational cost save ho gaya.`);

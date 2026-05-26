@@ -105,8 +105,11 @@
               <input name="item_name" type="text" placeholder="Jaise diesel refill, motor repair, labour" required />
             </label>
             <label>
-              Shed
-              <input name="shed" type="text" placeholder="Optional shed name" data-owner-finance-shed />
+              Sheds (optional)
+              <input name="shed" type="hidden" data-owner-finance-shed-value />
+              <select data-owner-finance-sheds multiple size="4">
+                <option value="">Choose farm first</option>
+              </select>
             </label>
             <label>
               Vendor / party
@@ -171,6 +174,6 @@
       <a href="./operations-daily.html">Ops</a>
       <a class="is-active" href="./finance.html">Finance</a>
     </nav>
-    <script src="/owner-app/app.js?v=20260556"></script>
+    <script src="/owner-app/app.js?v=20260557"></script>
   </body>
 </html>
