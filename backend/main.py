@@ -1142,6 +1142,8 @@ def build_owner_daily_entry_hierarchy(farmers: list[User], entries: list[DailyEn
                         "litter_notes": record.litter_notes or "" if record else "",
                         "litter_photo_name": (record.litter_photo_name or "") if record and photo_is_available(record.created_at) else "",
                         "litter_photo_url": photo_url_for(record.litter_photo_stored, record.created_at) if record else "",
+                        "power_cut_hours": record.power_cut_hours if record else None,
+                        "dg_hours": record.dg_hours if record else None,
                         "issues": record.issues or "" if record else "",
                         "remarks": record.remarks or "" if record else "",
                     }
@@ -1188,7 +1190,12 @@ def summarize_owner_feed(records: list[FeedStock], db: Session) -> list[dict]:
     return items[:10]
 
 
-def summarize_owner_health(medicine_records: list[MedicineStock], vaccine_records: list[VaccinationLog], db: Session) -> list[dict]:
+def summarize_owner_health(
+    medicine_records: list[MedicineStock],
+    medicine_logs: list[MedicineLog],
+    vaccine_records: list[VaccinationLog],
+    db: Session,
+) -> list[dict]:
     items: list[dict] = []
     for record in medicine_records[:5]:
         farmer = db.get(User, record.farmer_id)
@@ -1199,6 +1206,17 @@ def summarize_owner_health(medicine_records: list[MedicineStock], vaccine_record
                 "label": f"{farmer.farm_name} / {record.name}",
                 "value": record.status,
                 "note": f"{record.quantity} • {record.notes or 'No note'}",
+            }
+        )
+    for record in medicine_logs[:5]:
+        farmer = db.get(User, record.farmer_id)
+        if not valid_farmer_user(farmer):
+            continue
+        items.append(
+            {
+                "label": f"{farmer.farm_name} / {record.name}",
+                "value": record.status,
+                "note": f"{record.entry_date} • {record.quantity} • {record.notes or 'No note'}",
             }
         )
     for record in vaccine_records[:5]:
@@ -2555,6 +2573,7 @@ def owner_dashboard(request: Request):
         field_visits = list(db.scalars(select(FieldVisit).where(FieldVisit.farmer_id.in_(farmer_ids)).order_by(FieldVisit.visit_date.desc(), FieldVisit.created_at.desc()))) if farmer_ids else []
         feed_stock = list(db.scalars(select(FeedStock).where(FeedStock.farmer_id.in_(farmer_ids)))) if farmer_ids else []
         medicine_stock = list(db.scalars(select(MedicineStock).where(MedicineStock.farmer_id.in_(farmer_ids)).order_by(MedicineStock.created_at.desc()))) if farmer_ids else []
+        medicine_log = list(db.scalars(select(MedicineLog).where(MedicineLog.farmer_id.in_(farmer_ids)).order_by(MedicineLog.entry_date.desc(), MedicineLog.created_at.desc()))) if farmer_ids else []
         vaccine_log = list(db.scalars(select(VaccinationLog).where(VaccinationLog.farmer_id.in_(farmer_ids)).order_by(VaccinationLog.entry_date.desc(), VaccinationLog.created_at.desc()))) if farmer_ids else []
 
         latest_entries = latest_entries_by_shed(daily_entries)
@@ -2565,7 +2584,7 @@ def owner_dashboard(request: Request):
         total_feed_bags = sum(item.bags for item in feed_stock)
         latest_reporting = summarize_owner_latest_entries(daily_entries, db)
         feed_visibility = summarize_owner_feed(feed_stock, db)
-        health_watch = summarize_owner_health(medicine_stock, vaccine_log, db)
+        health_watch = summarize_owner_health(medicine_stock, medicine_log, vaccine_log, db)
         priority_items = summarize_owner_requests(support_requests, db)[:5] + summarize_owner_issue_photos(issue_photos, db)[:5]
         field_activity = summarize_owner_field_visits(field_visits, db)[:6]
         uploads = summarize_owner_documents(documents, db)[:6]

@@ -597,6 +597,8 @@ function renderDailyEntryHierarchy(container, farms) {
                         <article><span>Humidity</span><strong>${entry.humidity_pct}%</strong></article>
                         <article><span>Litter</span><strong>${entry.litter_condition || "-"}</strong></article>
                         <article><span>Uniformity</span><strong>${entry.uniformity_pct}%</strong></article>
+                        <article><span>Power cut</span><strong>${entry.power_cut_hours ?? 0} hr</strong></article>
+                        <article><span>DG run</span><strong>${entry.dg_hours ?? 0} hr</strong></article>
                       </div>
                       ${
                         entry.litter_notes || entry.issues || entry.remarks

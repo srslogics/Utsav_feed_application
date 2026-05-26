@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Utsav Owner Dashboard</title>
     <link rel="stylesheet" href="/farmer-app/styles.css?v=20260549" />
-    <link rel="stylesheet" href="/owner-app/styles.css?v=20260550" />
+    <link rel="stylesheet" href="/owner-app/styles.css?v=20260551" />
   </head>
   <body class="fa-body owner-body" data-owner-page="dashboard">
     <div class="fa-app-shell">
@@ -43,53 +43,36 @@
           </div>
         </header>
 
-        <section class="owner-hero owner-hero-compact">
-          <div class="owner-hero-copy">
-            <p class="fa-eyebrow">Integration Command View</p>
-            <h3>Daily control across farms, sheds, field teams, and finance.</h3>
-            <p>Track what needs attention first, then move straight into farm actions, daily entries, uploads, and settlements without hunting across pages.</p>
-          </div>
-          <div class="owner-hero-rail owner-hero-links">
-            <a href="./farms.html">
-              <span>Farm Directory</span>
-              <strong>Manage farms and farmer accounts</strong>
-            </a>
-            <a href="./operations-daily.html">
-              <span>Operations</span>
-              <strong>Review daily entries and issue flow</strong>
-            </a>
-            <a href="./finance.html">
-              <span>Finance</span>
-              <strong>Check inward, bills, and documents</strong>
-            </a>
-          </div>
+        <section class="owner-dashboard-shortcuts">
+          <a class="owner-dashboard-shortcut" href="./operations-daily.html">
+            <span>Operations</span>
+            <strong>Check daily shed entries</strong>
+          </a>
+          <a class="owner-dashboard-shortcut" href="./farms.html">
+            <span>Farms</span>
+            <strong>Manage farmers and batches</strong>
+          </a>
+          <a class="owner-dashboard-shortcut" href="./files.html">
+            <span>Files</span>
+            <strong>Open bills, documents, and images</strong>
+          </a>
         </section>
 
         <section class="fa-section">
           <div class="fa-section-head">
             <div>
-              <p class="fa-eyebrow">Command Snapshot</p>
-              <h3>Key numbers</h3>
+              <p class="fa-eyebrow">Dashboard Snapshot</p>
+              <h3>Main numbers</h3>
             </div>
           </div>
           <div class="fa-kpi-grid fa-kpi-grid-six" id="owner-kpis"></div>
-        </section>
-
-        <section class="fa-section">
-          <div class="fa-section-head">
-            <div>
-              <p class="fa-eyebrow">Running Farms</p>
-              <h3>Farm summary</h3>
-            </div>
-          </div>
-          <div class="fa-detail-grid" id="owner-farms"></div>
         </section>
 
         <section class="owner-grid-two">
           <section class="fa-section">
             <div class="fa-section-head">
               <div>
-                <p class="fa-eyebrow">Priority Queue</p>
+                <p class="fa-eyebrow">Immediate Attention</p>
                 <h3>Priority items</h3>
               </div>
             </div>
@@ -99,11 +82,11 @@
           <section class="fa-section">
             <div class="fa-section-head">
               <div>
-                <p class="fa-eyebrow">Field Activity</p>
-                <h3>Field updates</h3>
+                <p class="fa-eyebrow">Latest Reporting</p>
+                <h3>Daily entries</h3>
               </div>
             </div>
-            <div class="fa-list-card" id="owner-field-activity"></div>
+            <div class="fa-list-card" id="owner-latest-reporting"></div>
           </section>
         </section>
 
@@ -111,40 +94,18 @@
           <section class="fa-section">
             <div class="fa-section-head">
               <div>
-                <p class="fa-eyebrow">Latest Farm Reporting</p>
-                <h3>Daily records</h3>
+                <p class="fa-eyebrow">Farm Directory</p>
+                <h3>Farms</h3>
               </div>
             </div>
-            <div class="fa-list-card" id="owner-latest-reporting"></div>
-          </section>
-
-          <section class="fa-section">
-            <div class="fa-section-head">
-              <div>
-                <p class="fa-eyebrow">Feed Visibility</p>
-                <h3>Feed stock</h3>
-              </div>
-            </div>
-            <div class="fa-list-card" id="owner-feed-visibility"></div>
-          </section>
-        </section>
-
-        <section class="owner-grid-two owner-grid-two-bottom">
-          <section class="fa-section">
-            <div class="fa-section-head">
-              <div>
-                <p class="fa-eyebrow">Health Watch</p>
-                <h3>Health updates</h3>
-              </div>
-            </div>
-            <div class="fa-list-card" id="owner-health-watch"></div>
+            <div class="fa-detail-grid" id="owner-farms"></div>
           </section>
 
           <section class="fa-section">
             <div class="fa-section-head">
               <div>
                 <p class="fa-eyebrow">Latest Uploads</p>
-                <h3>Uploads</h3>
+                <h3>Files received</h3>
               </div>
             </div>
             <div class="fa-list-card" id="owner-uploads"></div>
@@ -159,6 +120,6 @@
       <a href="./operations-daily.html">Ops</a>
       <a href="./finance.html">Finance</a>
     </nav>
-    <script src="/owner-app/app.js?v=20260549"></script>
+    <script src="/owner-app/app.js?v=20260551"></script>
   </body>
 </html>
