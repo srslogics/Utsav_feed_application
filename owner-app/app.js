@@ -132,6 +132,108 @@ function renderList(container, items) {
     .join("");
 }
 
+function renderOwnerFarmPerformance(container, items) {
+  if (!container) return;
+  if (!items?.length) {
+    container.innerHTML = `<div class="fa-empty-state">Abhi performance data available nahi hai.</div>`;
+    return;
+  }
+
+  const state = { selectedFarmCode: "" };
+
+  const render = () => {
+    const selectedFarm = items.find((item) => item.farmer_code === state.selectedFarmCode);
+    if (!selectedFarm) {
+      container.innerHTML = `
+        <div class="owner-performance-grid">
+          ${items
+            .map(
+              (item) => `
+                <button type="button" class="owner-performance-card" data-owner-performance-farm="${item.farmer_code || ""}">
+                  <div class="owner-performance-card-head">
+                    <div>
+                      <span>Farm</span>
+                      <h4>${item.farm_name || "-"}</h4>
+                      <p>${[item.farmer_name, item.current_batch ? `Batch ${item.current_batch}` : "", item.cluster].filter(Boolean).join(" • ")}</p>
+                    </div>
+                  </div>
+                  <div class="owner-performance-meta">
+                    <span>${item.shed_count || 0} sheds</span>
+                    <span>${item.history_days || 0} days</span>
+                    <span>${item.latest_entry_date ? `Latest ${item.latest_entry_date}` : "No entry"}</span>
+                  </div>
+                  <div class="owner-performance-mini-metrics">
+                    <article><span>FCR</span><strong>${item.summary?.running_fcr || "-"}</strong></article>
+                    <article><span>Livability</span><strong>${item.summary?.livability || "-"}</strong></article>
+                    <article><span>Live wt</span><strong>${item.summary?.current_live_weight || "-"}</strong></article>
+                  </div>
+                </button>
+              `
+            )
+            .join("")}
+        </div>
+      `;
+      return;
+    }
+
+    container.innerHTML = `
+      <div class="owner-daily-pathbar">
+        <div class="owner-daily-breadcrumbs">
+          <button type="button" class="owner-daily-crumb" data-owner-performance-back="farms">Farm performance</button>
+          <span>/</span>
+          <span class="owner-daily-crumb is-active">${selectedFarm.farm_name || "-"}</span>
+        </div>
+        <div class="owner-daily-path-actions">
+          <button type="button" class="fa-secondary-btn" data-owner-performance-back="farms">Back to farms</button>
+        </div>
+      </div>
+      <section class="owner-performance-batch-card">
+        <div class="owner-hierarchy-farm-head owner-daily-static-head">
+          <div class="owner-hierarchy-title">
+            <span>Batch performance</span>
+            <h4>${selectedFarm.current_batch ? `Batch ${selectedFarm.current_batch}` : selectedFarm.farm_name || "-"}</h4>
+            <p>${[selectedFarm.farm_name, selectedFarm.farmer_name, selectedFarm.cluster].filter(Boolean).join(" • ")}</p>
+          </div>
+          <div class="owner-hierarchy-chip-row">
+            <span class="owner-hierarchy-chip">${selectedFarm.shed_count || 0} sheds</span>
+            <span class="owner-hierarchy-chip">${selectedFarm.history_days || 0} days</span>
+            <span class="owner-hierarchy-chip owner-hierarchy-chip-muted">${selectedFarm.latest_entry_date ? `Latest ${selectedFarm.latest_entry_date}` : "No latest entry"}</span>
+          </div>
+        </div>
+        <div class="fa-kpi-grid fa-kpi-grid-five">
+          ${(selectedFarm.batch_metrics || [])
+            .map(
+              (metric) => `
+                <article class="fa-kpi-card">
+                  <span>${metric.label}</span>
+                  <strong>${metric.value}</strong>
+                  <p>${metric.note || ""}</p>
+                </article>
+              `
+            )
+            .join("")}
+        </div>
+      </section>
+    `;
+  };
+
+  render();
+
+  container.onclick = (event) => {
+    const farmButton = event.target.closest("[data-owner-performance-farm]");
+    if (farmButton) {
+      state.selectedFarmCode = farmButton.getAttribute("data-owner-performance-farm") || "";
+      render();
+      return;
+    }
+    const backButton = event.target.closest("[data-owner-performance-back]");
+    if (backButton) {
+      state.selectedFarmCode = "";
+      render();
+    }
+  };
+}
+
 function renderOwnerFarmerAccounts(container, items) {
   if (!container) return;
   if (!items.length) {
@@ -666,12 +768,10 @@ function renderDashboardData(data) {
   if (!data) return;
   populateProfile(data.profile);
   renderKpis(document.querySelector("#owner-kpis"), data.kpis);
-  renderGrid(document.querySelector("#owner-farms"), data.farms);
+  renderOwnerFarmPerformance(document.querySelector("#owner-performance"), data.farm_performance || []);
+  renderList(document.querySelector("#owner-farms"), data.farms || []);
   renderList(document.querySelector("#owner-priority"), data.priority);
-  renderList(document.querySelector("#owner-field-activity"), data.field_activity);
   renderList(document.querySelector("#owner-latest-reporting"), data.latest_reporting);
-  renderList(document.querySelector("#owner-feed-visibility"), data.feed_visibility);
-  renderList(document.querySelector("#owner-health-watch"), data.health_watch);
   renderList(document.querySelector("#owner-uploads"), data.uploads);
 }
 

@@ -1059,6 +1059,37 @@ def build_performance_metrics(entries: list[DailyEntry]) -> list[dict]:
     ]
 
 
+def build_owner_farm_performance(farmers: list[User], entries: list[DailyEntry]) -> list[dict]:
+    entries_by_farmer: dict[int, list[DailyEntry]] = {}
+    for entry in entries:
+        entries_by_farmer.setdefault(entry.farmer_id, []).append(entry)
+
+    items: list[dict] = []
+    for farmer in farmers:
+        farmer_entries = entries_by_farmer.get(farmer.id, [])
+        metrics = build_performance_metrics(farmer_entries)
+        metric_map = {item["label"]: item for item in metrics}
+        items.append(
+            {
+                "farm_name": farmer.farm_name or "",
+                "farmer_name": farmer.name or "",
+                "farmer_code": farmer.farmer_code or "",
+                "cluster": farmer.cluster or "",
+                "current_batch": farmer.active_batch or "",
+                "shed_count": farmer.active_sheds or 0,
+                "history_days": len({entry.entry_date for entry in farmer_entries}),
+                "latest_entry_date": farmer_entries[0].entry_date if farmer_entries else "",
+                "summary": {
+                    "running_fcr": metric_map.get("Running FCR", {}).get("value", "-"),
+                    "livability": metric_map.get("Livability", {}).get("value", "-"),
+                    "current_live_weight": metric_map.get("Current live weight", {}).get("value", "-"),
+                },
+                "batch_metrics": metrics,
+            }
+        )
+    return items
+
+
 def summarize_owner_latest_entries(entries: list[DailyEntry], db: Session) -> list[dict]:
     latest_by_farmer: dict[int, DailyEntry] = {}
     for entry in entries:
@@ -2588,6 +2619,7 @@ def owner_dashboard(request: Request):
         priority_items = summarize_owner_requests(support_requests, db)[:5] + summarize_owner_issue_photos(issue_photos, db)[:5]
         field_activity = summarize_owner_field_visits(field_visits, db)[:6]
         uploads = summarize_owner_documents(documents, db)[:6]
+        farm_performance = build_owner_farm_performance(farmers, daily_entries)
 
     return {
         "profile": serialize_profile(user),
@@ -2602,10 +2634,10 @@ def owner_dashboard(request: Request):
         "farms": [
             {
                 "label": farm.farm_name or "-",
-                "value": farm.farmer_code or "-",
-                "note": f"{farm.name} • {farm.cluster or ''} • {farm.farm_capacity or '-'}",
+                "value": farm.active_batch or farm.farmer_code or "-",
+                "note": join_present([farm.name, farm.cluster or "", farm.current_shed or ""]),
             }
-            for farm in farmers
+            for farm in farmers[:6]
         ],
         "priority": priority_items,
         "field_activity": field_activity,
@@ -2613,6 +2645,7 @@ def owner_dashboard(request: Request):
         "latest_reporting": latest_reporting,
         "feed_visibility": feed_visibility,
         "health_watch": health_watch,
+        "farm_performance": farm_performance,
     }
 
 
