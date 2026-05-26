@@ -805,11 +805,246 @@ function renderFinanceData(data) {
   if (!data) return;
   populateProfile(data.profile);
   renderKpis(document.querySelector("#owner-finance-kpis"), data.kpis);
+  renderKpis(document.querySelector("#owner-finance-category-breakdown"), data.category_breakdown || []);
   renderList(document.querySelector("#owner-finance-documents"), data.documents);
   renderList(document.querySelector("#owner-finance-inward"), data.feed_inward);
   renderList(document.querySelector("#owner-finance-operational-costs"), data.operational_costs || []);
+  renderList(document.querySelector("#owner-finance-sales"), data.sales || []);
   populateOwnerFinanceFarmSelect(data.farmer_options || []);
+  populateOwnerSaleFarmSelect(data.farmer_options || []);
   setOwnerFinanceDefaultDate();
+  setOwnerSaleDefaultDate();
+}
+
+function renderOwnerReportsData(data) {
+  if (!data) return;
+  populateProfile(data.profile);
+  renderKpis(document.querySelector("#owner-reports-kpis"), data.summary_kpis || []);
+  renderOwnerReportsBrowser(document.querySelector("#owner-reports-browser-content"), data.reports || []);
+}
+
+function renderOwnerReportsBrowser(container, reports) {
+  if (!container) return;
+  if (!reports.length) {
+    container.innerHTML = `<div class="fa-empty-state">Abhi kisi farm ke liye report data available nahi hai.</div>`;
+    return;
+  }
+
+  const state = { selectedFarmCode: "" };
+
+  const render = () => {
+    const selected = reports.find((item) => item.farmer_code === state.selectedFarmCode);
+    if (!selected) {
+      container.innerHTML = `
+        <div class="owner-performance-grid owner-reports-grid">
+          ${reports
+            .map(
+              (item) => `
+                <button type="button" class="owner-performance-card owner-report-card" data-owner-report-farm="${item.farmer_code || ""}">
+                  <div class="owner-performance-card-head">
+                    <div>
+                      <span>Farm report</span>
+                      <h4>${item.farm_name || "-"}</h4>
+                      <p>${[item.farmer_name, item.farmer_code, item.current_batch ? `Batch ${item.current_batch}` : "", item.cluster].filter(Boolean).join(" • ")}</p>
+                    </div>
+                  </div>
+                  <div class="owner-performance-meta">
+                    <span>${item.shed_count || 0} sheds</span>
+                    <span>${item.bird_age_days || 0} days</span>
+                    <span>${item.latest_entry_date ? `Latest ${item.latest_entry_date}` : "No entry"}</span>
+                  </div>
+                  <div class="owner-performance-mini-metrics">
+                    <article><span>Sales</span><strong>Rs ${(item.summary?.sales_total || 0).toLocaleString("en-IN", { maximumFractionDigits: 0 })}</strong></article>
+                    <article><span>Cost</span><strong>Rs ${(item.summary?.operational_cost_total || 0).toLocaleString("en-IN", { maximumFractionDigits: 0 })}</strong></article>
+                    <article><span>Net</span><strong>Rs ${(item.summary?.net_position || 0).toLocaleString("en-IN", { maximumFractionDigits: 0 })}</strong></article>
+                  </div>
+                </button>
+              `
+            )
+            .join("")}
+        </div>
+      `;
+      return;
+    }
+
+    container.innerHTML = `
+      <div class="owner-daily-pathbar">
+        <div class="owner-daily-breadcrumbs">
+          <button type="button" class="owner-daily-crumb" data-owner-report-back="farms">Reports</button>
+          <span>/</span>
+          <span class="owner-daily-crumb is-active">${selected.farm_name || "-"}</span>
+        </div>
+        <div class="owner-daily-path-actions">
+          <button type="button" class="fa-secondary-btn" data-owner-report-back="farms">Back to farms</button>
+        </div>
+      </div>
+      <section class="owner-performance-batch-card owner-report-panel">
+        <div class="owner-hierarchy-farm-head owner-daily-static-head">
+          <div class="owner-hierarchy-title">
+            <span>Selected farm report</span>
+            <h4>${selected.farm_name || "-"}</h4>
+            <p>${[selected.farmer_name, selected.farmer_code, selected.cluster].filter(Boolean).join(" • ")}</p>
+          </div>
+          <div class="owner-hierarchy-chip-row">
+            <span class="owner-hierarchy-chip">${selected.current_batch ? `Batch ${selected.current_batch}` : "No batch"}</span>
+            <span class="owner-hierarchy-chip">${selected.shed_count || 0} sheds</span>
+            <span class="owner-hierarchy-chip owner-hierarchy-chip-muted">${selected.latest_entry_date ? `Latest ${selected.latest_entry_date}` : "No entry yet"}</span>
+          </div>
+        </div>
+
+        <div class="fa-kpi-grid fa-kpi-grid-four">
+          ${(selected.report_kpis || [])
+            .map(
+              (metric) => `
+                <article class="fa-kpi-card">
+                  <span>${metric.label}</span>
+                  <strong>${metric.value}</strong>
+                  <p>${metric.note || ""}</p>
+                </article>
+              `
+            )
+            .join("")}
+        </div>
+
+        <div class="owner-grid-two owner-report-sections">
+          <section class="fa-section owner-report-subsection">
+            <div class="fa-section-head">
+              <div>
+                <p class="fa-eyebrow">Batch Performance</p>
+                <h3>Running metrics</h3>
+              </div>
+            </div>
+            <div class="fa-kpi-grid">
+              ${(selected.performance_kpis || [])
+                .map(
+                  (metric) => `
+                    <article class="fa-kpi-card">
+                      <span>${metric.label}</span>
+                      <strong>${metric.value}</strong>
+                      <p>${metric.note || ""}</p>
+                    </article>
+                  `
+                )
+                .join("")}
+            </div>
+          </section>
+
+          <section class="fa-section owner-report-subsection">
+            <div class="fa-section-head">
+              <div>
+                <p class="fa-eyebrow">Cost Breakup</p>
+                <h3>Expense categories</h3>
+              </div>
+            </div>
+            <div class="fa-kpi-grid">
+              ${selected.expense_breakdown?.length
+                ? selected.expense_breakdown
+                    .map(
+                      (metric) => `
+                        <article class="fa-kpi-card">
+                          <span>${metric.label}</span>
+                          <strong>${metric.value}</strong>
+                          <p>${metric.note || ""}</p>
+                        </article>
+                      `
+                    )
+                    .join("")
+                : `<div class="fa-empty-state">Is farm ke liye abhi expense breakup available nahi hai.</div>`}
+            </div>
+          </section>
+        </div>
+
+        <div class="owner-grid-two owner-report-sections">
+          <section class="fa-section owner-report-subsection">
+            <div class="fa-section-head">
+              <div>
+                <p class="fa-eyebrow">Expenses</p>
+                <h3>Recent expense records</h3>
+              </div>
+            </div>
+            <div class="fa-list-card">
+              ${selected.recent_expenses?.length ? renderOwnerInlineList(selected.recent_expenses) : `<div class="fa-empty-state">Abhi expense record available nahi hai.</div>`}
+            </div>
+          </section>
+
+          <section class="fa-section owner-report-subsection">
+            <div class="fa-section-head">
+              <div>
+                <p class="fa-eyebrow">Sales</p>
+                <h3>Recent sale records</h3>
+              </div>
+            </div>
+            <div class="fa-list-card">
+              ${selected.recent_sales?.length ? renderOwnerInlineList(selected.recent_sales) : `<div class="fa-empty-state">Abhi sale record available nahi hai.</div>`}
+            </div>
+          </section>
+        </div>
+
+        <div class="owner-grid-two owner-report-sections">
+          <section class="fa-section owner-report-subsection">
+            <div class="fa-section-head">
+              <div>
+                <p class="fa-eyebrow">Files</p>
+                <h3>Latest bills and documents</h3>
+              </div>
+            </div>
+            <div class="fa-list-card">
+              ${selected.recent_documents?.length ? renderOwnerInlineList(selected.recent_documents) : `<div class="fa-empty-state">Abhi files available nahi hain.</div>`}
+            </div>
+          </section>
+
+          <section class="fa-section owner-report-subsection">
+            <div class="fa-section-head">
+              <div>
+                <p class="fa-eyebrow">Feed Inward</p>
+                <h3>Recent inward records</h3>
+              </div>
+            </div>
+            <div class="fa-list-card">
+              ${selected.recent_feed_inward?.length ? renderOwnerInlineList(selected.recent_feed_inward) : `<div class="fa-empty-state">Abhi feed inward record available nahi hai.</div>`}
+            </div>
+          </section>
+        </div>
+      </section>
+    `;
+  };
+
+  render();
+
+  container.onclick = (event) => {
+    const farmButton = event.target.closest("[data-owner-report-farm]");
+    if (farmButton) {
+      state.selectedFarmCode = farmButton.getAttribute("data-owner-report-farm") || "";
+      render();
+      return;
+    }
+    const backButton = event.target.closest("[data-owner-report-back]");
+    if (backButton) {
+      state.selectedFarmCode = "";
+      render();
+    }
+  };
+}
+
+function renderOwnerInlineList(items) {
+  return items
+    .map(
+      (item) => `
+        <div class="fa-list-row">
+          <div>
+            <span>${item.label}</span>
+            ${item.note ? `<p>${item.note}</p>` : ""}
+            ${
+              item.file_url
+                ? `<div class="fa-inline-actions"><a class="fa-secondary-btn" href="${item.file_url}" target="_blank" rel="noopener noreferrer">Open file</a></div>`
+                : ""
+            }
+          </div>
+          <strong>${item.value}</strong>
+        </div>
+      `
+    )
+    .join("");
 }
 
 function populateOwnerFinanceFarmSelect(items) {
@@ -864,6 +1099,28 @@ function syncOwnerFinanceFarmMeta() {
 
 function setOwnerFinanceDefaultDate() {
   const input = document.querySelector('[data-owner-operational-cost-form] input[name="entry_date"]');
+  if (!input || input.value) return;
+  input.value = new Date().toISOString().slice(0, 10);
+}
+
+function populateOwnerSaleFarmSelect(items) {
+  const select = document.querySelector("[data-owner-sale-farm-select]");
+  if (!select) return;
+  const currentValue = select.value;
+  select.innerHTML = [
+    `<option value="">Choose farm</option>`,
+    ...items.map(
+      (item) =>
+        `<option value="${item.farmer_code || ""}">
+          ${(item.farm_name || item.farmer_name || "").trim()}${item.farmer_code ? ` • ${item.farmer_code}` : ""}
+        </option>`
+    ),
+  ].join("");
+  if (currentValue) select.value = currentValue;
+}
+
+function setOwnerSaleDefaultDate() {
+  const input = document.querySelector('[data-owner-sale-form] input[name="entry_date"]');
   if (!input || input.value) return;
   input.value = new Date().toISOString().slice(0, 10);
 }
@@ -1354,6 +1611,12 @@ async function loadFiles() {
   renderOwnerFilesData(data);
 }
 
+async function loadReports() {
+  const data = await requestJson(`${ownerApiBase}/reports`);
+  writeCache("reports", data);
+  renderOwnerReportsData(data);
+}
+
 const loginForm = document.querySelector("[data-owner-login]");
 if (loginForm) {
   requireOwnerSession({ allowLoginPage: true }).then((user) => {
@@ -1618,6 +1881,45 @@ if (ownerOperationalCostForm) {
   });
 }
 
+const ownerSaleForm = document.querySelector("[data-owner-sale-form]");
+if (ownerSaleForm) {
+  setOwnerSaleDefaultDate();
+  ownerSaleForm.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    const formData = new FormData(ownerSaleForm);
+    const farmCode = `${formData.get("farmer_code") || ""}`.trim();
+    const billNumber = `${formData.get("bill_number") || ""}`.trim();
+    const partyName = `${formData.get("party_name") || ""}`.trim();
+    const totalWeight = `${formData.get("total_weight_kg") || ""}`.trim();
+    const farmSelect = ownerSaleForm.querySelector("[data-owner-sale-farm-select]");
+
+    if (!farmCode) {
+      setStatus(".owner-sale-note", "Pehle farm select karein.", true);
+      return;
+    }
+    if (!billNumber || !partyName || !totalWeight) {
+      setStatus(".owner-sale-note", "Bill no., party name, aur kgs daalna zaroori hai.", true);
+      return;
+    }
+
+    try {
+      await requestJson(`${ownerApiBase}/sales`, {
+        method: "POST",
+        body: formData,
+      });
+      const selectedFarmLabel =
+        farmSelect?.options[farmSelect.selectedIndex]?.textContent?.trim() || "Selected farm";
+      ownerSaleForm.reset();
+      if (farmSelect && farmCode) farmSelect.value = farmCode;
+      setOwnerSaleDefaultDate();
+      setStatus(".owner-sale-note", `${selectedFarmLabel} ke liye sale record save ho gaya.`);
+      loadFinance().catch(console.error);
+    } catch {
+      setStatus(".owner-sale-note", "Sale record save nahi ho paaya. Details dobara check karein.", true);
+    }
+  });
+}
+
 document.querySelectorAll("[data-owner-logout]").forEach((button) => {
   button.addEventListener("click", async () => {
     await requestJson(`${authApiBase}/logout`, { method: "POST" });
@@ -1650,5 +1952,9 @@ if (page) {
   if (page === "files") {
     renderOwnerFilesData(readCache("files"));
     loadFiles().catch(handlePageError);
+  }
+  if (page === "reports") {
+    renderOwnerReportsData(readCache("reports"));
+    loadReports().catch(handlePageError);
   }
 }

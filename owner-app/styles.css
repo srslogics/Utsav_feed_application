@@ -25,6 +25,12 @@
   gap: 0.8rem;
 }
 
+.fa-kpi-grid-four {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.8rem;
+}
+
 .owner-body .fa-sidebar {
   background:
     radial-gradient(circle at top right, rgba(204, 176, 133, 0.14), transparent 28%),
@@ -259,6 +265,10 @@
   grid-template-columns: repeat(5, minmax(0, 1fr));
 }
 
+.owner-bottom-nav-six {
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+}
+
 .owner-dashboard-shortcuts {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -386,6 +396,26 @@
 .owner-performance-batch-card {
   display: grid;
   gap: 0.8rem;
+}
+
+.owner-reports-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.owner-report-card .owner-performance-mini-metrics article strong {
+  font-size: 0.92rem;
+}
+
+.owner-report-panel {
+  gap: 0.72rem;
+}
+
+.owner-report-sections {
+  align-items: start;
+}
+
+.owner-report-subsection {
+  padding: 0.9rem;
 }
 
 .owner-grid-two {
@@ -1356,11 +1386,19 @@
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
+  .fa-kpi-grid-four {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
   .owner-dashboard-shortcuts {
     grid-template-columns: 1fr;
   }
 
   .owner-performance-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .owner-reports-grid {
     grid-template-columns: 1fr;
   }
 
@@ -1708,6 +1746,10 @@
     grid-template-columns: repeat(5, minmax(0, 1fr));
   }
 
+  .owner-bottom-nav-six {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+  }
+
   .owner-bottom-nav a {
     min-height: 32px;
     padding: 0.3rem 0.1rem;
@@ -1716,7 +1758,8 @@
   }
 
   .owner-body .fa-detail-grid,
-  .fa-kpi-grid-six {
+  .fa-kpi-grid-six,
+  .fa-kpi-grid-four {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
@@ -1837,12 +1880,17 @@
     grid-template-columns: repeat(5, minmax(0, 1fr));
   }
 
+  .owner-bottom-nav-six {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+  }
+
   .owner-bottom-nav a {
     font-size: 0.54rem;
   }
 
   .owner-body .fa-detail-grid,
-  .fa-kpi-grid-six {
+  .fa-kpi-grid-six,
+  .fa-kpi-grid-four {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }

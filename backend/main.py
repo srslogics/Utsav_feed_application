@@ -407,6 +407,22 @@ class OperationalCost(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
 
 
+class SaleRecord(Base):
+    __tablename__ = "sale_records"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    farmer_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)
+    entry_date: Mapped[str] = mapped_column(String(20), index=True)
+    bill_number: Mapped[str] = mapped_column(String(120))
+    party_name: Mapped[str] = mapped_column(String(160))
+    total_weight_kg: Mapped[str] = mapped_column(String(80))
+    amount: Mapped[str] = mapped_column(String(80), default="")
+    file_name: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    stored_name: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    status: Mapped[str] = mapped_column(String(80), default="Submitted to owner finance")
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
+
+
 class IssuePhoto(Base):
     __tablename__ = "issue_photos"
 
@@ -646,6 +662,15 @@ class OwnerOperationalCostPayload(BaseModel):
     notes: str = ""
 
 
+class OwnerSalePayload(BaseModel):
+    farmer_code: str
+    entry_date: str
+    bill_number: str
+    party_name: str
+    total_weight_kg: str
+    amount: str = ""
+
+
 class FarmerProfileUpdatePayload(BaseModel):
     farmer_name: str
     phone: str
@@ -665,6 +690,14 @@ class OperationalCostPayload(BaseModel):
     vendor_name: str = ""
     amount: str = ""
     notes: str = ""
+
+
+class SalePayload(BaseModel):
+    entry_date: str
+    bill_number: str
+    party_name: str
+    total_weight_kg: str
+    amount: str = ""
 
 
 def safe_slug(value: str) -> str:
@@ -1057,6 +1090,24 @@ def make_operational_cost_history(records: list[OperationalCost]) -> list[dict]:
     ]
 
 
+def make_sales_history(records: list[SaleRecord]) -> list[dict]:
+    return [
+        {
+            "label": f"{record.entry_date} / Bill {record.bill_number}",
+            "value": record.amount or "Amount pending",
+            "note": join_present(
+                [
+                    record.party_name,
+                    f"{record.total_weight_kg} kg",
+                    f"File: {record.file_name}" if record.file_name else "",
+                ]
+            ),
+            "file_url": f"/uploads/{record.stored_name}" if record.stored_name else "",
+        }
+        for record in records
+    ]
+
+
 def make_issue_photo_history(records: list[IssuePhoto]) -> list[dict]:
     return [
         {
@@ -1147,6 +1198,84 @@ def build_owner_farm_performance(farmers: list[User], entries: list[DailyEntry])
             }
         )
     return items
+
+
+def build_owner_farm_reports(
+    farmers: list[User],
+    entries: list[DailyEntry],
+    operational_costs: list[OperationalCost],
+    sales: list[SaleRecord],
+    documents: list[DocumentUpload],
+    feed_inward: list[FeedInward],
+) -> list[dict]:
+    entries_by_farmer: dict[int, list[DailyEntry]] = {}
+    costs_by_farmer: dict[int, list[OperationalCost]] = {}
+    sales_by_farmer: dict[int, list[SaleRecord]] = {}
+    documents_by_farmer: dict[int, list[DocumentUpload]] = {}
+    inward_by_farmer: dict[int, list[FeedInward]] = {}
+
+    for item in entries:
+        entries_by_farmer.setdefault(item.farmer_id, []).append(item)
+    for item in operational_costs:
+        costs_by_farmer.setdefault(item.farmer_id, []).append(item)
+    for item in sales:
+        sales_by_farmer.setdefault(item.farmer_id, []).append(item)
+    for item in documents:
+        documents_by_farmer.setdefault(item.farmer_id, []).append(item)
+    for item in feed_inward:
+        inward_by_farmer.setdefault(item.farmer_id, []).append(item)
+
+    reports: list[dict] = []
+    for farmer in farmers:
+        farmer_entries = entries_by_farmer.get(farmer.id, [])
+        farmer_costs = costs_by_farmer.get(farmer.id, [])
+        farmer_sales = sales_by_farmer.get(farmer.id, [])
+        farmer_documents = documents_by_farmer.get(farmer.id, [])
+        farmer_inward = inward_by_farmer.get(farmer.id, [])
+
+        total_operational_cost = sum(parse_amount_value(item.amount) for item in farmer_costs)
+        total_sale_amount = sum(parse_amount_value(item.amount) for item in farmer_sales)
+        total_sale_weight = sum(parse_amount_value(item.total_weight_kg) for item in farmer_sales)
+        total_bill_amount = sum(parse_amount_value(item.amount) for item in farmer_documents)
+        total_feed_inward_bags = sum(float(item.bags or 0) for item in farmer_inward)
+        net_position = total_sale_amount - total_operational_cost
+
+        reports.append(
+            {
+                "farm_name": farmer.farm_name or "",
+                "farmer_name": farmer.name or "",
+                "farmer_code": farmer.farmer_code or "",
+                "cluster": farmer.cluster or "",
+                "current_batch": farmer.active_batch or "",
+                "bird_age_days": farmer.bird_age_days or 0,
+                "shed_count": farmer.active_sheds or 0,
+                "latest_entry_date": farmer_entries[0].entry_date if farmer_entries else "",
+                "summary": {
+                    "operational_cost_total": total_operational_cost,
+                    "sales_total": total_sale_amount,
+                    "sales_weight_kg": total_sale_weight,
+                    "net_position": net_position,
+                },
+                "report_kpis": [
+                    {"label": "Active batch", "value": farmer.active_batch or "-", "note": f"{farmer.bird_age_days or 0} days • {farmer.active_sheds or 0} sheds"},
+                    {"label": "History days", "value": str(len({entry.entry_date for entry in farmer_entries})), "note": farmer_entries[0].entry_date if farmer_entries else "No entry yet"},
+                    {"label": "Operational cost", "value": f"Rs {total_operational_cost:,.0f}", "note": f"{len(farmer_costs)} expense entries"},
+                    {"label": "Sales amount", "value": f"Rs {total_sale_amount:,.0f}", "note": f"{len(farmer_sales)} sale entries"},
+                    {"label": "Sale weight", "value": f"{total_sale_weight:,.0f} kg", "note": "Total sold weight reported"},
+                    {"label": "Net position", "value": f"Rs {net_position:,.0f}", "note": "Sales amount minus operational cost"},
+                    {"label": "Uploaded bill amount", "value": f"Rs {total_bill_amount:,.0f}", "note": f"{len(farmer_documents)} uploaded bills/documents"},
+                    {"label": "Feed inward", "value": f"{total_feed_inward_bags:,.0f} bags", "note": f"{len(farmer_inward)} inward entries"},
+                ],
+                "performance_kpis": build_performance_metrics(farmer_entries),
+                "expense_breakdown": summarize_operational_cost_breakdown(farmer_costs),
+                "recent_expenses": make_operational_cost_history(farmer_costs[:10]),
+                "recent_sales": make_sales_history(farmer_sales[:10]),
+                "recent_documents": make_document_history(farmer_documents[:10]),
+                "recent_feed_inward": make_feed_history(farmer_inward[:10]),
+                "recent_daily_entries": [serialize_daily_entry_record(entry) for entry in farmer_entries[:10]],
+            }
+        )
+    return reports
 
 
 def summarize_owner_latest_entries(entries: list[DailyEntry], db: Session) -> list[dict]:
@@ -1421,6 +1550,88 @@ def summarize_owner_operational_costs(records: list[OperationalCost], db: Sessio
             }
         )
     return items[:12]
+
+
+def summarize_owner_sales(records: list[SaleRecord], db: Session) -> list[dict]:
+    items: list[dict] = []
+    for record in records:
+        farmer = db.get(User, record.farmer_id)
+        if not valid_farmer_user(farmer):
+            continue
+        items.append(
+            {
+                "label": f"{farmer.farm_name} / Bill {record.bill_number}",
+                "value": record.amount or "Amount pending",
+                "note": join_present(
+                    [
+                        record.entry_date,
+                        record.party_name,
+                        f"{record.total_weight_kg} kg",
+                    ]
+                ),
+                "file_url": f"/uploads/{record.stored_name}" if record.stored_name else "",
+            }
+        )
+    return items[:12]
+
+
+def parse_amount_value(raw_value: str | None) -> float:
+    digits = re.sub(r"[^0-9.]", "", raw_value or "")
+    if not digits:
+        return 0.0
+    try:
+        return float(digits)
+    except ValueError:
+        return 0.0
+
+
+def normalize_operational_cost_bucket(category: str | None) -> str:
+    value = (category or "").strip().lower()
+    if "chick" in value:
+        return "Chicks amount"
+    if "feed purchase" in value or value == "feed":
+        return "Feed amount"
+    if "feed transport" in value:
+        return "Feed transport"
+    if "medicine" in value or "supplement" in value:
+        return "Medicine amount"
+    if "vaccine" in value:
+        return "Vaccine amount"
+    if "diesel" in value or "fuel" in value:
+        return "Diesel / fuel"
+    if "labour" in value:
+        return "Labour amount"
+    if "litter" in value:
+        return "Litter material"
+    if "transport" in value or "logistics" in value:
+        return "Transport / logistics"
+    if "water" in value or "utility" in value:
+        return "Water / utility"
+    if "electric" in value:
+        return "Electric repair"
+    if "maintenance" in value:
+        return "Maintenance"
+    if "farm supply" in value:
+        return "Farm supply"
+    return "Other operational cost"
+
+
+def summarize_operational_cost_breakdown(records: list[OperationalCost]) -> list[dict]:
+    totals: dict[str, float] = {}
+    counts: dict[str, int] = {}
+    for record in records:
+        bucket = normalize_operational_cost_bucket(record.expense_category)
+        totals[bucket] = totals.get(bucket, 0.0) + parse_amount_value(record.amount)
+        counts[bucket] = counts.get(bucket, 0) + 1
+    ordered = sorted(totals.items(), key=lambda item: item[1], reverse=True)
+    return [
+        {
+            "label": label,
+            "value": f"Rs {value:,.0f}",
+            "note": f"{counts.get(label, 0)} entries",
+        }
+        for label, value in ordered
+    ]
 
 
 def build_owner_file_library(
@@ -2074,6 +2285,10 @@ def file_response_for_upload(file_name: str, db: Session) -> FileResponse:
     if operational_cost_record:
         return FileResponse(file_path)
 
+    sale_record = db.scalar(select(SaleRecord).where(SaleRecord.stored_name == file_name))
+    if sale_record:
+        return FileResponse(file_path)
+
     litter_record = db.scalar(select(DailyEntry).where(DailyEntry.litter_photo_stored == file_name))
     if litter_record and photo_is_available(litter_record.created_at):
         return FileResponse(file_path)
@@ -2506,12 +2721,14 @@ def farmer_requests(request: Request):
         requests = list(db.scalars(select(SupportRequest).where(SupportRequest.farmer_id == user.id).order_by(SupportRequest.created_at.desc())))
         documents = list(db.scalars(select(DocumentUpload).where(DocumentUpload.farmer_id == user.id).order_by(DocumentUpload.created_at.desc())))
         operational_costs = list(db.scalars(select(OperationalCost).where(OperationalCost.farmer_id == user.id).order_by(OperationalCost.entry_date.desc(), OperationalCost.created_at.desc())))
+        sales = list(db.scalars(select(SaleRecord).where(SaleRecord.farmer_id == user.id).order_by(SaleRecord.entry_date.desc(), SaleRecord.created_at.desc())))
         issue_photos = list(db.scalars(select(IssuePhoto).where(IssuePhoto.farmer_id == user.id).order_by(IssuePhoto.created_at.desc())))
     return {
         "profile": serialize_profile(user),
         "history": make_request_history(requests),
         "documents": make_document_history(documents),
         "operational_costs": make_operational_cost_history(operational_costs),
+        "sales": make_sales_history(sales),
         "issue_photos": make_issue_photo_history(issue_photos),
     }
 
@@ -2580,6 +2797,44 @@ async def add_operational_cost(
                 vendor_name=vendor_name,
                 amount=amount,
                 notes=notes,
+                file_name=original_name,
+                stored_name=stored_name,
+                status="Submitted to owner finance",
+            )
+        )
+        db.commit()
+    return {"success": True}
+
+
+@app.post("/api/farmer/sales")
+async def add_sale_record(
+    request: Request,
+    entry_date: str = Form(...),
+    bill_number: str = Form(...),
+    party_name: str = Form(...),
+    total_weight_kg: str = Form(...),
+    amount: str = Form(""),
+    file: UploadFile | None = File(None),
+):
+    user = get_current_user(request, "farmer")
+    stored_name = None
+    original_name = None
+    if file and file.filename:
+        timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
+        original_name = file.filename or "sale-bill"
+        suffix = Path(original_name).suffix or ".bin"
+        stored_name = f"{timestamp}-{safe_slug(f'sale-{bill_number}-{party_name}')}{suffix}"
+        destination = UPLOADS_DIR / stored_name
+        destination.write_bytes(await file.read())
+    with session_scope() as db:
+        db.add(
+            SaleRecord(
+                farmer_id=user.id,
+                entry_date=entry_date or today_string(),
+                bill_number=bill_number.strip(),
+                party_name=party_name.strip(),
+                total_weight_kg=total_weight_kg.strip(),
+                amount=amount.strip(),
                 file_name=original_name,
                 stored_name=stored_name,
                 status="Submitted to owner finance",
@@ -3047,6 +3302,50 @@ async def owner_add_operational_cost(
     return {"success": True, "message": "Operational cost saved successfully."}
 
 
+@app.post("/api/owner/sales")
+async def owner_add_sale_record(
+    request: Request,
+    farmer_code: str = Form(...),
+    entry_date: str = Form(...),
+    bill_number: str = Form(...),
+    party_name: str = Form(...),
+    total_weight_kg: str = Form(...),
+    amount: str = Form(""),
+    file: UploadFile | None = File(None),
+):
+    get_current_user(request, "owner")
+    stored_name = None
+    original_name = None
+    if file and file.filename:
+        timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
+        original_name = file.filename or "owner-sale-bill"
+        suffix = Path(original_name).suffix or ".bin"
+        stored_name = f"{timestamp}-{safe_slug(f'sale-{bill_number}-{party_name}')}{suffix}"
+        destination = UPLOADS_DIR / stored_name
+        destination.write_bytes(await file.read())
+    with session_scope() as db:
+        farmer = db.scalar(select(User).where(User.role == "farmer", User.farmer_code == farmer_code))
+        if not valid_farmer_user(farmer):
+            raise HTTPException(status_code=404, detail="Farmer not found.")
+
+        db.add(
+            SaleRecord(
+                farmer_id=farmer.id,
+                entry_date=entry_date or today_string(),
+                bill_number=bill_number.strip(),
+                party_name=party_name.strip(),
+                total_weight_kg=total_weight_kg.strip(),
+                amount=amount.strip(),
+                file_name=original_name,
+                stored_name=stored_name,
+                status="Submitted by owner finance",
+            )
+        )
+        db.commit()
+
+    return {"success": True, "message": "Sale saved successfully."}
+
+
 @app.get("/api/owner/operations")
 def owner_operations(request: Request):
     user = get_current_user(request, "owner")
@@ -3081,9 +3380,12 @@ def owner_finance(request: Request):
         farmer_map = {farm.id: farm for farm in farmers}
         documents = list(db.scalars(select(DocumentUpload).where(DocumentUpload.farmer_id.in_(farmer_ids)).order_by(DocumentUpload.created_at.desc()))) if farmer_ids else []
         operational_costs = list(db.scalars(select(OperationalCost).where(OperationalCost.farmer_id.in_(farmer_ids)).order_by(OperationalCost.entry_date.desc(), OperationalCost.created_at.desc()))) if farmer_ids else []
+        sales = list(db.scalars(select(SaleRecord).where(SaleRecord.farmer_id.in_(farmer_ids)).order_by(SaleRecord.entry_date.desc(), SaleRecord.created_at.desc()))) if farmer_ids else []
         feed_inward = list(db.scalars(select(FeedInward).where(FeedInward.farmer_id.in_(farmer_ids)).order_by(FeedInward.inward_date.desc(), FeedInward.created_at.desc()))) if farmer_ids else []
         document_items = summarize_owner_documents(documents, db)
         operational_cost_items = summarize_owner_operational_costs(operational_costs, db)
+        sales_items = summarize_owner_sales(sales, db)
+        operational_cost_breakdown = summarize_operational_cost_breakdown(operational_costs)
         inward_items = [
             {
                 "label": f"{farmer_map[item.farmer_id].farm_name if item.farmer_id in farmer_map else '-'} / {item.shed}",
@@ -3092,32 +3394,25 @@ def owner_finance(request: Request):
             }
             for item in feed_inward[:10]
         ]
-    total_doc_amount = 0
-    for doc in documents:
-        digits = re.sub(r"[^0-9.]", "", doc.amount or "")
-        if digits:
-            try:
-                total_doc_amount += float(digits)
-            except ValueError:
-                pass
-    total_operational_cost = 0
-    for item in operational_costs:
-        digits = re.sub(r"[^0-9.]", "", item.amount or "")
-        if digits:
-            try:
-                total_operational_cost += float(digits)
-            except ValueError:
-                pass
+    total_doc_amount = sum(parse_amount_value(doc.amount) for doc in documents)
+    total_operational_cost = sum(parse_amount_value(item.amount) for item in operational_costs)
+    total_sale_amount = sum(parse_amount_value(item.amount) for item in sales)
+    total_sale_weight_kg = sum(parse_amount_value(item.total_weight_kg) for item in sales)
     return {
         "profile": serialize_profile(user),
         "kpis": [
             {"label": "Uploaded bills", "value": str(len(documents)), "note": "Documents received from farms"},
             {"label": "Reported bills amount", "value": f"Rs {total_doc_amount:,.0f}", "note": "Parsed from bill uploads"},
+            {"label": "Sale entries", "value": str(len(sales)), "note": "Farm sale records received"},
+            {"label": "Sale weight", "value": f"{total_sale_weight_kg:,.0f} kg", "note": "Total reported sale weight"},
+            {"label": "Sale amount", "value": f"Rs {total_sale_amount:,.0f}", "note": "Parsed from sale records"},
             {"label": "Operational cost entries", "value": str(len(operational_costs)), "note": "Farm expense records received"},
             {"label": "Operational cost total", "value": f"Rs {total_operational_cost:,.0f}", "note": "Parsed from farm expense entries"},
             {"label": "Feed inward entries", "value": str(len(feed_inward)), "note": "Recent inward records"},
         ],
+        "category_breakdown": operational_cost_breakdown,
         "documents": document_items,
+        "sales": sales_items,
         "operational_costs": operational_cost_items,
         "feed_inward": inward_items,
         "farmer_options": [
@@ -3131,6 +3426,34 @@ def owner_finance(request: Request):
             }
             for farm in farmers
         ],
+    }
+
+
+@app.get("/api/owner/reports")
+def owner_reports(request: Request):
+    user = get_current_user(request, "owner")
+    with session_scope() as db:
+        farmers = [farm for farm in db.scalars(select(User).where(User.role == "farmer").order_by(User.farm_name)) if valid_farmer_user(farm)]
+        farmer_ids = [farm.id for farm in farmers]
+        daily_entries = list(db.scalars(select(DailyEntry).where(DailyEntry.farmer_id.in_(farmer_ids)).order_by(DailyEntry.entry_date.desc(), DailyEntry.created_at.desc()))) if farmer_ids else []
+        operational_costs = list(db.scalars(select(OperationalCost).where(OperationalCost.farmer_id.in_(farmer_ids)).order_by(OperationalCost.entry_date.desc(), OperationalCost.created_at.desc()))) if farmer_ids else []
+        sales = list(db.scalars(select(SaleRecord).where(SaleRecord.farmer_id.in_(farmer_ids)).order_by(SaleRecord.entry_date.desc(), SaleRecord.created_at.desc()))) if farmer_ids else []
+        documents = list(db.scalars(select(DocumentUpload).where(DocumentUpload.farmer_id.in_(farmer_ids)).order_by(DocumentUpload.created_at.desc()))) if farmer_ids else []
+        feed_inward = list(db.scalars(select(FeedInward).where(FeedInward.farmer_id.in_(farmer_ids)).order_by(FeedInward.inward_date.desc(), FeedInward.created_at.desc()))) if farmer_ids else []
+        reports = build_owner_farm_reports(farmers, daily_entries, operational_costs, sales, documents, feed_inward)
+
+    total_operational_cost = sum(parse_amount_value(item.amount) for item in operational_costs)
+    total_sales_amount = sum(parse_amount_value(item.amount) for item in sales)
+    total_sale_weight_kg = sum(parse_amount_value(item.total_weight_kg) for item in sales)
+    return {
+        "profile": serialize_profile(user),
+        "summary_kpis": [
+            {"label": "Farms", "value": str(len(farmers)), "note": "Farms available for report"},
+            {"label": "Operational cost", "value": f"Rs {total_operational_cost:,.0f}", "note": "Combined cost across farms"},
+            {"label": "Sales amount", "value": f"Rs {total_sales_amount:,.0f}", "note": "Combined sale amount across farms"},
+            {"label": "Sale weight", "value": f"{total_sale_weight_kg:,.0f} kg", "note": "Combined sold weight across farms"},
+        ],
+        "reports": reports,
     }
 
 

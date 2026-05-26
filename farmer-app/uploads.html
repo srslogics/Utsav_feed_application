@@ -148,12 +148,17 @@
                 Expense category
                 <select name="expense_category" required>
                   <option value="">Choose category</option>
+                  <option>Chicks purchase</option>
+                  <option>Feed purchase</option>
                   <option>Feed transport</option>
+                  <option>Medicine purchase</option>
                   <option>Medicine / supplement</option>
+                  <option>Vaccine expense</option>
                   <option>Diesel / fuel</option>
                   <option>Electric repair</option>
                   <option>Labour payment</option>
                   <option>Litter material</option>
+                  <option>Transport / logistics</option>
                   <option>Maintenance</option>
                   <option>Water / utility</option>
                   <option>Farm supply</option>
@@ -199,6 +204,55 @@
               </div>
             </div>
             <div class="fa-list-card" id="operational-cost-history"></div>
+          </section>
+        </section>
+
+        <section class="fa-work-grid">
+          <section class="fa-section">
+            <div class="fa-section-head">
+              <div>
+                <p class="fa-eyebrow">Sales</p>
+                <h3>Record hens sale</h3>
+              </div>
+            </div>
+            <form class="fa-form fa-request-form" data-sale-record-form enctype="multipart/form-data">
+              <label>
+                Date | तारीख
+                <input name="entry_date" type="date" required />
+              </label>
+              <label>
+                Bill no.
+                <input name="bill_number" type="text" placeholder="Jaise INV-2045" required />
+              </label>
+              <label>
+                Party name
+                <input name="party_name" type="text" placeholder="Buyer ya party ka naam" required />
+              </label>
+              <label>
+                Kgs
+                <input name="total_weight_kg" type="text" placeholder="Jaise 5,200" required />
+              </label>
+              <label>
+                Amount | रकम
+                <input name="amount" type="text" placeholder="Optional sale amount" />
+              </label>
+              <label>
+                Bill / receipt
+                <input name="file" type="file" accept=".pdf,.jpg,.jpeg,.png,.webp" />
+              </label>
+              <button class="fa-primary-btn" type="submit">Sale record save karein</button>
+            </form>
+            <p class="fa-status-message" data-sale-record-status></p>
+          </section>
+
+          <section class="fa-section">
+            <div class="fa-section-head">
+              <div>
+                <p class="fa-eyebrow">Sales History</p>
+                <h3>Sale records</h3>
+              </div>
+            </div>
+            <div class="fa-list-card" id="sales-history"></div>
           </section>
         </section>
 
@@ -274,6 +328,6 @@
       <a href="./requests.html">Requests</a>
       <a class="is-active" href="./uploads.html">Uploads</a>
     </nav>
-    <script src="/farmer-app/app.js?v=20260553"></script>
+    <script src="/farmer-app/app.js?v=20260554"></script>
   </body>
 </html>

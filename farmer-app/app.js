@@ -263,6 +263,11 @@ function renderList(container, items) {
           <div>
             <span>${item.label}</span>
             ${item.note ? `<p>${item.note}</p>` : ""}
+            ${
+              item.file_url
+                ? `<div class="fa-inline-actions"><a class="fa-secondary-btn" href="${item.file_url}" target="_blank" rel="noopener noreferrer">Open file</a></div>`
+                : ""
+            }
           </div>
           <strong>${item.value}</strong>
         </div>
@@ -398,6 +403,7 @@ function renderUploadsData(data) {
   if (!data) return;
   populateProfile(data.profile);
   renderList(document.querySelector("#operational-cost-history"), data.operational_costs || []);
+  renderList(document.querySelector("#sales-history"), data.sales || []);
   renderList(document.querySelector("#document-history"), data.documents);
   renderList(document.querySelector("#issue-photo-history"), data.issue_photos);
 }
@@ -787,6 +793,11 @@ if (documentUploadForm) {
 const operationalCostForm = document.querySelector("[data-operational-cost-form]");
 if (operationalCostForm) {
   handleUploadSubmit(operationalCostForm, `${farmerApiBase}/operational-costs`, "[data-operational-cost-status]", loadUploads);
+}
+
+const saleRecordForm = document.querySelector("[data-sale-record-form]");
+if (saleRecordForm) {
+  handleUploadSubmit(saleRecordForm, `${farmerApiBase}/sales`, "[data-sale-record-status]", loadUploads);
 }
 
 const issuePhotoForm = document.querySelector("[data-issue-photo-form]");
