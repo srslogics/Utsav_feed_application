@@ -802,6 +802,7 @@ function renderFinanceData(data) {
   renderKpis(document.querySelector("#owner-finance-kpis"), data.kpis);
   renderList(document.querySelector("#owner-finance-documents"), data.documents);
   renderList(document.querySelector("#owner-finance-inward"), data.feed_inward);
+  renderList(document.querySelector("#owner-finance-operational-costs"), data.operational_costs || []);
 }
 
 function renderOwnerFilesData(data) {

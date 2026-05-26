@@ -397,6 +397,7 @@ function renderRequestsData(data) {
 function renderUploadsData(data) {
   if (!data) return;
   populateProfile(data.profile);
+  renderList(document.querySelector("#operational-cost-history"), data.operational_costs || []);
   renderList(document.querySelector("#document-history"), data.documents);
   renderList(document.querySelector("#issue-photo-history"), data.issue_photos);
 }
@@ -781,6 +782,11 @@ if (requestForm) {
 const documentUploadForm = document.querySelector("[data-document-upload-form]");
 if (documentUploadForm) {
   handleUploadSubmit(documentUploadForm, `${farmerApiBase}/documents`, "[data-document-status]", loadUploads);
+}
+
+const operationalCostForm = document.querySelector("[data-operational-cost-form]");
+if (operationalCostForm) {
+  handleUploadSubmit(operationalCostForm, `${farmerApiBase}/operational-costs`, "[data-operational-cost-status]", loadUploads);
 }
 
 const issuePhotoForm = document.querySelector("[data-issue-photo-form]");

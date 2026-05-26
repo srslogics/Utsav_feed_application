@@ -389,6 +389,24 @@ class DocumentUpload(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
 
 
+class OperationalCost(Base):
+    __tablename__ = "operational_costs"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    farmer_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)
+    entry_date: Mapped[str] = mapped_column(String(20), index=True)
+    expense_category: Mapped[str] = mapped_column(String(120))
+    item_name: Mapped[str] = mapped_column(String(200))
+    shed: Mapped[str] = mapped_column(String(40), default="")
+    vendor_name: Mapped[str] = mapped_column(String(160), default="")
+    amount: Mapped[str] = mapped_column(String(80), default="")
+    notes: Mapped[str] = mapped_column(Text, default="")
+    file_name: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    stored_name: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    status: Mapped[str] = mapped_column(String(80), default="Submitted to owner finance")
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
+
+
 class IssuePhoto(Base):
     __tablename__ = "issue_photos"
 
@@ -626,6 +644,16 @@ class FarmerProfileUpdatePayload(BaseModel):
     field_officer: str = ""
     farm_capacity: str = ""
     active_sheds: int = Field(default=1, ge=1)
+
+
+class OperationalCostPayload(BaseModel):
+    entry_date: str
+    expense_category: str
+    item_name: str
+    shed: str = ""
+    vendor_name: str = ""
+    amount: str = ""
+    notes: str = ""
 
 
 def safe_slug(value: str) -> str:
@@ -998,6 +1026,26 @@ def make_document_history(records: list[DocumentUpload]) -> list[dict]:
     ]
 
 
+def make_operational_cost_history(records: list[OperationalCost]) -> list[dict]:
+    return [
+        {
+            "label": f"{record.entry_date} / {record.expense_category}",
+            "value": record.amount or "No amount",
+            "note": join_present(
+                [
+                    record.item_name,
+                    record.shed,
+                    record.vendor_name,
+                    record.notes,
+                    f"File: {record.file_name}" if record.file_name else "",
+                ]
+            ),
+            "file_url": f"/uploads/{record.stored_name}" if record.stored_name else "",
+        }
+        for record in records
+    ]
+
+
 def make_issue_photo_history(records: list[IssuePhoto]) -> list[dict]:
     return [
         {
@@ -1337,6 +1385,30 @@ def summarize_owner_documents(records: list[DocumentUpload], db: Session) -> lis
             }
         )
     return items[:10]
+
+
+def summarize_owner_operational_costs(records: list[OperationalCost], db: Session) -> list[dict]:
+    items: list[dict] = []
+    for record in records:
+        farmer = db.get(User, record.farmer_id)
+        if not valid_farmer_user(farmer):
+            continue
+        items.append(
+            {
+                "label": f"{farmer.farm_name} / {record.expense_category}",
+                "value": record.amount or "No amount",
+                "note": join_present(
+                    [
+                        record.entry_date,
+                        record.item_name,
+                        record.shed,
+                        record.vendor_name,
+                        record.notes,
+                    ]
+                ),
+            }
+        )
+    return items[:12]
 
 
 def build_owner_file_library(
@@ -1986,6 +2058,10 @@ def file_response_for_upload(file_name: str, db: Session) -> FileResponse:
     if document_record:
         return FileResponse(file_path)
 
+    operational_cost_record = db.scalar(select(OperationalCost).where(OperationalCost.stored_name == file_name))
+    if operational_cost_record:
+        return FileResponse(file_path)
+
     litter_record = db.scalar(select(DailyEntry).where(DailyEntry.litter_photo_stored == file_name))
     if litter_record and photo_is_available(litter_record.created_at):
         return FileResponse(file_path)
@@ -2417,8 +2493,15 @@ def farmer_requests(request: Request):
     with session_scope() as db:
         requests = list(db.scalars(select(SupportRequest).where(SupportRequest.farmer_id == user.id).order_by(SupportRequest.created_at.desc())))
         documents = list(db.scalars(select(DocumentUpload).where(DocumentUpload.farmer_id == user.id).order_by(DocumentUpload.created_at.desc())))
+        operational_costs = list(db.scalars(select(OperationalCost).where(OperationalCost.farmer_id == user.id).order_by(OperationalCost.entry_date.desc(), OperationalCost.created_at.desc())))
         issue_photos = list(db.scalars(select(IssuePhoto).where(IssuePhoto.farmer_id == user.id).order_by(IssuePhoto.created_at.desc())))
-    return {"profile": serialize_profile(user), "history": make_request_history(requests), "documents": make_document_history(documents), "issue_photos": make_issue_photo_history(issue_photos)}
+    return {
+        "profile": serialize_profile(user),
+        "history": make_request_history(requests),
+        "documents": make_document_history(documents),
+        "operational_costs": make_operational_cost_history(operational_costs),
+        "issue_photos": make_issue_photo_history(issue_photos),
+    }
 
 
 @app.post("/api/farmer/requests")
@@ -2448,6 +2531,48 @@ async def upload_document(
     destination.write_bytes(await file.read())
     with session_scope() as db:
         db.add(DocumentUpload(farmer_id=user.id, entry_date=today_string(), doc_type=doc_type, title=title, amount=amount, notes=notes, file_name=original_name, stored_name=stored_name, status="Submitted to owner system"))
+        db.commit()
+    return {"success": True}
+
+
+@app.post("/api/farmer/operational-costs")
+async def add_operational_cost(
+    request: Request,
+    entry_date: str = Form(...),
+    expense_category: str = Form(...),
+    item_name: str = Form(...),
+    shed: str = Form(""),
+    vendor_name: str = Form(""),
+    amount: str = Form(""),
+    notes: str = Form(""),
+    file: UploadFile | None = File(None),
+):
+    user = get_current_user(request, "farmer")
+    stored_name = None
+    original_name = None
+    if file and file.filename:
+        timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
+        original_name = file.filename or "expense-proof"
+        suffix = Path(original_name).suffix or ".bin"
+        stored_name = f"{timestamp}-{safe_slug(item_name)}{suffix}"
+        destination = UPLOADS_DIR / stored_name
+        destination.write_bytes(await file.read())
+    with session_scope() as db:
+        db.add(
+            OperationalCost(
+                farmer_id=user.id,
+                entry_date=entry_date or today_string(),
+                expense_category=expense_category,
+                item_name=item_name,
+                shed=shed,
+                vendor_name=vendor_name,
+                amount=amount,
+                notes=notes,
+                file_name=original_name,
+                stored_name=stored_name,
+                status="Submitted to owner finance",
+            )
+        )
         db.commit()
     return {"success": True}
 
@@ -2895,8 +3020,10 @@ def owner_finance(request: Request):
         farmer_ids = [farm.id for farm in farmers]
         farmer_map = {farm.id: farm for farm in farmers}
         documents = list(db.scalars(select(DocumentUpload).where(DocumentUpload.farmer_id.in_(farmer_ids)).order_by(DocumentUpload.created_at.desc()))) if farmer_ids else []
+        operational_costs = list(db.scalars(select(OperationalCost).where(OperationalCost.farmer_id.in_(farmer_ids)).order_by(OperationalCost.entry_date.desc(), OperationalCost.created_at.desc()))) if farmer_ids else []
         feed_inward = list(db.scalars(select(FeedInward).where(FeedInward.farmer_id.in_(farmer_ids)).order_by(FeedInward.inward_date.desc(), FeedInward.created_at.desc()))) if farmer_ids else []
         document_items = summarize_owner_documents(documents, db)
+        operational_cost_items = summarize_owner_operational_costs(operational_costs, db)
         inward_items = [
             {
                 "label": f"{farmer_map[item.farmer_id].farm_name if item.farmer_id in farmer_map else '-'} / {item.shed}",
@@ -2913,14 +3040,25 @@ def owner_finance(request: Request):
                 total_doc_amount += float(digits)
             except ValueError:
                 pass
+    total_operational_cost = 0
+    for item in operational_costs:
+        digits = re.sub(r"[^0-9.]", "", item.amount or "")
+        if digits:
+            try:
+                total_operational_cost += float(digits)
+            except ValueError:
+                pass
     return {
         "profile": serialize_profile(user),
         "kpis": [
             {"label": "Uploaded bills", "value": str(len(documents)), "note": "Documents received from farms"},
-            {"label": "Reported amount", "value": f"Rs {total_doc_amount:,.0f}", "note": "Parsed from upload entries"},
+            {"label": "Reported bills amount", "value": f"Rs {total_doc_amount:,.0f}", "note": "Parsed from bill uploads"},
+            {"label": "Operational cost entries", "value": str(len(operational_costs)), "note": "Farm expense records received"},
+            {"label": "Operational cost total", "value": f"Rs {total_operational_cost:,.0f}", "note": "Parsed from farm expense entries"},
             {"label": "Feed inward entries", "value": str(len(feed_inward)), "note": "Recent inward records"},
         ],
         "documents": document_items,
+        "operational_costs": operational_cost_items,
         "feed_inward": inward_items,
     }
 

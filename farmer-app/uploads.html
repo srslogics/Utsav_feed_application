@@ -135,6 +135,77 @@
           <section class="fa-section">
             <div class="fa-section-head">
               <div>
+                <p class="fa-eyebrow">Operational Cost</p>
+                <h3>Record farm expense</h3>
+              </div>
+            </div>
+            <form class="fa-form fa-request-form" data-operational-cost-form enctype="multipart/form-data">
+              <label>
+                Date | तारीख
+                <input name="entry_date" type="date" required />
+              </label>
+              <label>
+                Expense category
+                <select name="expense_category" required>
+                  <option value="">Choose category</option>
+                  <option>Feed transport</option>
+                  <option>Medicine / supplement</option>
+                  <option>Diesel / fuel</option>
+                  <option>Electric repair</option>
+                  <option>Labour payment</option>
+                  <option>Litter material</option>
+                  <option>Maintenance</option>
+                  <option>Water / utility</option>
+                  <option>Farm supply</option>
+                  <option>Other operational cost</option>
+                </select>
+              </label>
+              <label>
+                Item / service
+                <input name="item_name" type="text" placeholder="Jaise generator diesel, repair work, labour" required />
+              </label>
+              <label>
+                Shed | शेड
+                <select name="shed">
+                  <option value="">Whole farm / common expense</option>
+                </select>
+              </label>
+              <label>
+                Vendor / party
+                <input name="vendor_name" type="text" placeholder="Shop ya vendor ka naam" />
+              </label>
+              <label>
+                Amount | रकम
+                <input name="amount" type="text" placeholder="Jaise Rs 4,500" />
+              </label>
+              <label>
+                Bill / receipt
+                <input name="file" type="file" accept=".pdf,.jpg,.jpeg,.png,.webp" />
+              </label>
+              <label class="full">
+                Notes | नोट
+                <textarea name="notes" placeholder="Owner ko samajhne layak chhota note likhein"></textarea>
+              </label>
+              <button class="fa-primary-btn" type="submit">Operational cost save karein</button>
+            </form>
+            <p class="fa-status-message" data-operational-cost-status></p>
+          </section>
+
+          <section class="fa-section">
+            <div class="fa-section-head">
+              <div>
+                <p class="fa-eyebrow">Operational Cost History</p>
+                <h3>Expense history</h3>
+              </div>
+            </div>
+            <div class="fa-list-card" id="operational-cost-history"></div>
+          </section>
+        </section>
+
+        <section class="fa-work-grid">
+          <section class="fa-section">
+            <div class="fa-section-head">
+              <div>
                 <p class="fa-eyebrow">Bills & Documents</p>
                 <h3>Upload bills or document</h3>
               </div>
@@ -203,6 +274,6 @@
       <a href="./requests.html">Requests</a>
       <a class="is-active" href="./uploads.html">Uploads</a>
     </nav>
-    <script src="/farmer-app/app.js?v=20260549"></script>
+    <script src="/farmer-app/app.js?v=20260553"></script>
   </body>
 </html>
