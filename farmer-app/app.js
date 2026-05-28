@@ -276,6 +276,37 @@ function renderList(container, items) {
     .join("");
 }
 
+function formatBagCount(value) {
+  const numeric = Number(value ?? 0);
+  if (Number.isNaN(numeric)) return value ?? "0";
+  return Number.isInteger(numeric) ? String(numeric) : numeric.toFixed(2).replace(/\.?0+$/, "");
+}
+
+function splitFeedUsage(totalBags) {
+  const numeric = Math.max(Number(totalBags ?? 0), 0);
+  const fullBags = Math.floor(numeric);
+  const extraKg = (numeric - fullBags) * 50;
+  return {
+    fullBags,
+    extraKg: Number(extraKg.toFixed(2)),
+  };
+}
+
+function composeFeedUsageBags(form) {
+  const fullBagsInput = form.querySelector('input[name="feed_used_full_bags"]');
+  const extraKgInput = form.querySelector('input[name="feed_used_extra_kg"]');
+  const hiddenInput = form.querySelector('input[name="feed_used_bags"]');
+  if (!hiddenInput) return { ok: true, bags: 0 };
+  const fullBags = Math.max(Number(fullBagsInput?.value || 0), 0);
+  const extraKg = Math.max(Number(extraKgInput?.value || 0), 0);
+  if (extraKg >= 50) {
+    return { ok: false, message: "Khule bag se extra feed 50 kg se kam hona chahiye." };
+  }
+  const totalBags = Number((fullBags + extraKg / 50).toFixed(4));
+  hiddenInput.value = String(totalBags);
+  return { ok: true, bags: totalBags };
+}
+
 function renderDailyEntryRecords(container, records) {
   if (!container) return;
   if (!records?.length) {
@@ -288,7 +319,7 @@ function renderDailyEntryRecords(container, records) {
         <div class="fa-list-row">
           <div>
             <span>${record.entry_date} / ${record.shed}</span>
-            <p>Mortality ${record.mortality} • Feed ${record.feed_used_bags} bags • Litter ${record.litter_condition}</p>
+            <p>Mortality ${record.mortality} • Feed ${record.feed_used_label || `${formatBagCount(record.feed_used_bags)} bags`} • Litter ${record.litter_condition}</p>
           </div>
           <div class="fa-form-actions">
             <strong>${record.avg_weight_g} g</strong>
@@ -355,7 +386,10 @@ function renderDailyEntryData(data) {
       form.querySelector('input[name="opening_birds"]').value = match.opening_birds;
       form.querySelector('input[name="mortality"]').value = match.mortality;
       form.querySelector('input[name="culls"]').value = match.culls;
-      form.querySelector('input[name="feed_used_bags"]').value = match.feed_used_bags;
+      const feedUsage = splitFeedUsage(match.feed_used_bags);
+      form.querySelector('input[name="feed_used_full_bags"]').value = feedUsage.fullBags;
+      form.querySelector('input[name="feed_used_extra_kg"]').value = formatBagCount(feedUsage.extraKg);
+      form.querySelector('input[name="feed_used_bags"]').value = formatBagCount(match.feed_used_bags);
       form.querySelector('input[name="water_liters"]').value = match.water_liters;
       form.querySelector('input[name="avg_weight_g"]').value = match.avg_weight_g;
       form.querySelector('input[name="temperature_c"]').value = match.temperature_c;
@@ -657,6 +691,11 @@ if (dailyEntryForm) {
 
   dailyEntryForm.addEventListener("submit", async (event) => {
     event.preventDefault();
+    const feedUsage = composeFeedUsageBags(dailyEntryForm);
+    if (!feedUsage.ok) {
+      setStatus("[data-daily-entry-status]", feedUsage.message, true);
+      return;
+    }
     const formData = new FormData(dailyEntryForm);
     const editingEntryId = formData.get("editing_entry_id");
     try {

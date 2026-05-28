@@ -114,6 +114,31 @@ def format_phone_display(value: str) -> str:
     return value
 
 
+def format_bag_count(value: float | int | None) -> str:
+    if value is None:
+        return "0"
+    numeric = float(value)
+    if numeric.is_integer():
+        return str(int(numeric))
+    return f"{numeric:.2f}".rstrip("0").rstrip(".")
+
+
+def format_feed_usage(value: float | int | None) -> str:
+    if value is None:
+        return "0 bags"
+    numeric = max(float(value), 0.0)
+    full_bags = int(numeric)
+    extra_kg = (numeric - full_bags) * FEED_BAG_WEIGHT_KG
+    parts: list[str] = []
+    if full_bags:
+        parts.append(f"{full_bags} bags")
+    if extra_kg > 0.0001:
+        parts.append(f"{format_bag_count(extra_kg)} kg")
+    if not parts:
+        parts.append("0 bags")
+    return " + ".join(parts)
+
+
 def slug_text(value: str) -> str:
     slug = re.sub(r"[^a-z0-9]+", "-", (value or "").strip().lower()).strip("-")
     return slug or "unassigned"
@@ -272,7 +297,7 @@ class DailyEntry(Base):
     opening_birds: Mapped[int] = mapped_column(Integer)
     mortality: Mapped[int] = mapped_column(Integer)
     culls: Mapped[int] = mapped_column(Integer)
-    feed_used_bags: Mapped[int] = mapped_column(Integer)
+    feed_used_bags: Mapped[float] = mapped_column(Float)
     water_liters: Mapped[int] = mapped_column(Integer)
     avg_weight_g: Mapped[int] = mapped_column(Integer)
     temperature_c: Mapped[float] = mapped_column(Float)
@@ -577,7 +602,7 @@ class DailyEntryPayload(BaseModel):
     opening_birds: int = Field(gt=0)
     mortality: int = Field(ge=0)
     culls: int = Field(ge=0)
-    feed_used_bags: int = Field(ge=0)
+    feed_used_bags: float = Field(ge=0)
     water_liters: int = Field(ge=0)
     avg_weight_g: int = Field(ge=0)
     temperature_c: float
@@ -1008,7 +1033,7 @@ def make_daily_entry_history(records: list[DailyEntry]) -> list[dict]:
     return [
         {
             "label": f"{record.entry_date} / {record.shed}",
-            "value": f"{record.mortality} mortality • {record.feed_used_bags} feed bags",
+            "value": f"{record.mortality} mortality • {format_feed_usage(record.feed_used_bags)} feed",
             "note": join_present(
                 [
                     f"Litter {record.litter_condition}",
@@ -1032,6 +1057,7 @@ def serialize_daily_entry_record(record: DailyEntry) -> dict:
         "mortality": record.mortality,
         "culls": record.culls,
         "feed_used_bags": record.feed_used_bags,
+        "feed_used_label": format_feed_usage(record.feed_used_bags),
         "water_liters": record.water_liters,
         "avg_weight_g": record.avg_weight_g,
         "temperature_c": record.temperature_c,
@@ -1164,7 +1190,7 @@ def build_performance_metrics(entries: list[DailyEntry]) -> list[dict]:
     return [
         {"label": "Running FCR", "value": f"{running_fcr:.2f}", "note": "Estimated from submitted cycle feed and current live weight"},
         {"label": "Livability", "value": f"{livability:.1f}%", "note": f"{int(current_live_birds):,} live birds from {int(placement_birds):,} placed"},
-        {"label": "Feed consumed", "value": f"{total_feed_kg:,.0f} kg", "note": f"{total_feed_bags:,.0f} total bags recorded in cycle ({FEED_BAG_WEIGHT_KG} kg per bag)"},
+        {"label": "Feed consumed", "value": f"{total_feed_kg:,.0f} kg", "note": f"{format_bag_count(total_feed_bags)} total bags recorded in cycle ({FEED_BAG_WEIGHT_KG} kg per bag)"},
         {"label": "Current live weight", "value": f"{weighted_live_weight_kg:,.0f} kg", "note": f"Average body weight {avg_weight_g:,.0f} g"},
         {"label": "Feed per bird", "value": f"{feed_per_bird_kg:.2f} kg", "note": f"Mortality {int(total_mortality):,} • culls {int(total_culls):,}"},
     ]
@@ -1295,7 +1321,7 @@ def summarize_owner_latest_entries(entries: list[DailyEntry], db: Session) -> li
                 "label": f"{farmer.farm_name} / {entry.shed}",
                 "value": f"{entry.entry_date}",
                 "note": (
-                    f"Mortality {entry.mortality} • Feed {entry.feed_used_bags} bags • "
+                    f"Mortality {entry.mortality} • Feed {format_feed_usage(entry.feed_used_bags)} • "
                     f"Water {entry.water_liters} L • Avg wt {entry.avg_weight_g} g"
                 ),
                 "farmer_code": farmer.farmer_code or "",
@@ -1354,6 +1380,7 @@ def build_owner_daily_entry_hierarchy(farmers: list[User], entries: list[DailyEn
                         "mortality": record.mortality if record else None,
                         "culls": record.culls if record else None,
                         "feed_used_bags": record.feed_used_bags if record else None,
+                        "feed_used_label": format_feed_usage(record.feed_used_bags) if record else "",
                         "water_liters": record.water_liters if record else None,
                         "avg_weight_g": record.avg_weight_g if record else None,
                         "temperature_c": record.temperature_c if record else None,
@@ -2215,6 +2242,7 @@ def init_database() -> None:
             connection.execute(text("ALTER TABLE daily_entries ADD COLUMN IF NOT EXISTS litter_notes TEXT DEFAULT ''"))
             connection.execute(text("ALTER TABLE daily_entries ADD COLUMN IF NOT EXISTS litter_photo_name VARCHAR(200)"))
             connection.execute(text("ALTER TABLE daily_entries ADD COLUMN IF NOT EXISTS litter_photo_stored VARCHAR(240)"))
+            connection.execute(text("ALTER TABLE daily_entries ALTER COLUMN feed_used_bags TYPE DOUBLE PRECISION USING feed_used_bags::double precision"))
     purge_legacy_demo_data()
     seed_database_from_json()
 
@@ -2475,7 +2503,7 @@ def farmer_dashboard(request: Request):
             [
                 {"label": "Date", "value": latest_entry.entry_date, "note": "Latest submission"},
                 {"label": "Shed", "value": latest_entry.shed, "note": "Most recent entry shed"},
-                {"label": "Feed used", "value": f"{latest_entry.feed_used_bags} bags", "note": "Daily feed consumption"},
+                {"label": "Feed used", "value": format_feed_usage(latest_entry.feed_used_bags), "note": "Daily feed consumption"},
                 {"label": "Water", "value": f"{latest_entry.water_liters} L", "note": "Daily water intake"},
                 {"label": "Avg weight", "value": f"{latest_entry.avg_weight_g} g", "note": "Current body weight"},
                 {"label": "Litter", "value": latest_entry.litter_condition, "note": latest_entry.issues or "No issue"},
@@ -2515,7 +2543,7 @@ async def add_daily_entry(
     opening_birds: int = Form(...),
     mortality: int = Form(0),
     culls: int = Form(0),
-    feed_used_bags: int = Form(0),
+    feed_used_bags: float = Form(0),
     water_liters: int = Form(0),
     avg_weight_g: int = Form(0),
     temperature_c: float = Form(0),
@@ -2583,7 +2611,7 @@ async def update_daily_entry(
     opening_birds: int = Form(...),
     mortality: int = Form(0),
     culls: int = Form(0),
-    feed_used_bags: int = Form(0),
+    feed_used_bags: float = Form(0),
     water_liters: int = Form(0),
     avg_weight_g: int = Form(0),
     temperature_c: float = Form(0),

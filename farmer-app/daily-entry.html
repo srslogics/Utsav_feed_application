@@ -142,10 +142,15 @@
                   <input name="mortality" type="number" min="0" placeholder="0" required />
                 </label>
                 <label>
-                  Feed used (bags) | आज खाया गया feed
-                  <input name="feed_used_bags" type="number" min="0" placeholder="Kitne 50 kg bags use hue" required />
+                  Full 50 kg bags | पूरे 50 kg bags
+                  <input name="feed_used_full_bags" type="number" min="0" step="1" placeholder="Jaise 4" inputmode="numeric" />
                 </label>
-                <p class="fa-field-note full">Abhi app mein 1 bag = 50 kg maana ja raha hai.</p>
+                <label>
+                  Extra kg from open bag | खुले bag se extra kg
+                  <input name="feed_used_extra_kg" type="number" min="0" max="49.9" step="0.1" placeholder="Jaise 25" inputmode="decimal" />
+                </label>
+                <input name="feed_used_bags" type="hidden" value="0" />
+                <p class="fa-field-note full">Abhi app mein 1 bag = 50 kg maana ja raha hai. Yahan full bags aur khule bag se use hua extra kg alag-alag daalein.</p>
               </div>
             </div>
 
@@ -273,6 +278,6 @@
       <a href="./requests.html">Requests</a>
       <a href="./uploads.html">Uploads</a>
     </nav>
-    <script src="/farmer-app/app.js?v=20260554"></script>
+    <script src="/farmer-app/app.js?v=20260555"></script>
   </body>
 </html>

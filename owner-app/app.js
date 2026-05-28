@@ -4,6 +4,12 @@ const authApiBase = `${apiOrigin}/api/auth`;
 const ownerCachePrefix = "utsavOwnerPage:";
 let ownerAuthRecoveryPromise = null;
 
+function formatBagCount(value) {
+  const numeric = Number(value ?? 0);
+  if (Number.isNaN(numeric)) return value ?? "0";
+  return Number.isInteger(numeric) ? String(numeric) : numeric.toFixed(2).replace(/\.?0+$/, "");
+}
+
 function navigate(url) {
   if (window.location.pathname === url) return;
   window.location.replace(url);
@@ -698,7 +704,7 @@ function renderDailyEntryHierarchy(container, farms) {
                       <div class="owner-daily-entry-metrics">
                         <article><span>Mortality</span><strong>${entry.mortality}</strong></article>
                         <article><span>Culls</span><strong>${entry.culls}</strong></article>
-                        <article><span>Feed</span><strong>${entry.feed_used_bags} bags</strong></article>
+                        <article><span>Feed</span><strong>${entry.feed_used_label || `${formatBagCount(entry.feed_used_bags)} bags`}</strong></article>
                         <article><span>Water</span><strong>${entry.water_liters} L</strong></article>
                         <article><span>Temp</span><strong>${entry.temperature_c} C</strong></article>
                         <article><span>Humidity</span><strong>${entry.humidity_pct}%</strong></article>
