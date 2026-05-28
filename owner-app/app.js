@@ -10,6 +10,17 @@ function formatBagCount(value) {
   return Number.isInteger(numeric) ? String(numeric) : numeric.toFixed(2).replace(/\.?0+$/, "");
 }
 
+function formatMetricNumber(value, digits = 1) {
+  const numeric = Number(value ?? 0);
+  if (Number.isNaN(numeric)) return value ?? "0";
+  return Number.isInteger(numeric) ? String(numeric) : numeric.toFixed(digits).replace(/\.?0+$/, "");
+}
+
+function compactMetricValue(value, suffix = "") {
+  if (value === null || value === undefined || value === "" || Number.isNaN(Number(value))) return "-";
+  return `${formatMetricNumber(value)}${suffix}`;
+}
+
 function navigate(url) {
   if (window.location.pathname === url) return;
   window.location.replace(url);
@@ -345,11 +356,9 @@ function renderOwnerLatestEntries(container, items) {
 }
 
 function renderDailyEntryHierarchy(container, farms) {
-  const summary = document.querySelector("#owner-operations-daily-summary");
   const controls = document.querySelector("#owner-operations-daily-controls");
   if (!container) return;
   if (!farms?.length) {
-    if (summary) summary.innerHTML = "";
     if (controls) controls.innerHTML = "";
     container.innerHTML = `<div class="fa-empty-state">Abhi koi record available nahi hai.</div>`;
     return;
@@ -384,6 +393,45 @@ function renderDailyEntryHierarchy(container, farms) {
         ),
       0
     );
+    const totalMortality = dailyGroups.reduce(
+      (count, group) =>
+        count +
+        (group.rows || []).reduce(
+          (rowCount, row) => rowCount + (row.has_entry ? Number(row.mortality || 0) : 0),
+          0
+        ),
+      0
+    );
+    const totalCulls = dailyGroups.reduce(
+      (count, group) =>
+        count +
+        (group.rows || []).reduce(
+          (rowCount, row) => rowCount + (row.has_entry ? Number(row.culls || 0) : 0),
+          0
+        ),
+      0
+    );
+    const totalPowerCutHours = dailyGroups.reduce(
+      (count, group) =>
+        count +
+        (group.rows || []).reduce(
+          (rowCount, row) => rowCount + (row.has_entry ? Number(row.power_cut_hours || 0) : 0),
+          0
+        ),
+      0
+    );
+    const totalDgHours = dailyGroups.reduce(
+      (count, group) =>
+        count +
+        (group.rows || []).reduce(
+          (rowCount, row) => rowCount + (row.has_entry ? Number(row.dg_hours || 0) : 0),
+          0
+        ),
+      0
+    );
+    const totalReportedEntries = dailyGroups.reduce((count, group) => count + (group.shed_count || 0), 0);
+    const avgPowerCutHours = totalReportedEntries ? totalPowerCutHours / totalReportedEntries : 0;
+    const avgDgHours = totalReportedEntries ? totalDgHours / totalReportedEntries : 0;
     const farmKey = `farm-${index}-${farm.farmer_code || farm.farm_name || farm.farmer_name || "unknown"}`;
     const shedMap = new Map();
     dailyGroups.forEach((group) => {
@@ -432,39 +480,14 @@ function renderDailyEntryHierarchy(container, farms) {
       watchCount,
       totalReportedSheds,
       totalFeedUsedBags,
+      totalMortality,
+      totalCulls,
+      avgPowerCutHours,
+      avgDgHours,
       historyDays: dailyGroups.length,
       shedRecords,
     };
   });
-
-  const totalFarms = farms.length;
-  const totalSheds = farms.reduce((count, farm) => count + (farm.shed_count || 0), 0);
-  const totalEntries = farms.reduce(
-    (count, farm) => count + (farm.daily_groups || []).reduce((dayCount, day) => dayCount + (day.shed_count || 0), 0),
-    0
-  );
-  const activeBatches = farms.filter((farm) => farm.current_batch).length;
-
-  if (summary) {
-    summary.innerHTML = `
-      <article>
-        <span>Farms</span>
-        <strong>${totalFarms}</strong>
-      </article>
-      <article>
-        <span>Sheds</span>
-        <strong>${totalSheds}</strong>
-      </article>
-      <article>
-        <span>Daily entries</span>
-        <strong>${totalEntries}</strong>
-      </article>
-      <article>
-        <span>Active batches</span>
-        <strong>${activeBatches}</strong>
-      </article>
-    `;
-  }
 
   const state = {
     search: "",
@@ -624,9 +647,13 @@ function renderDailyEntryHierarchy(container, farms) {
           </div>
           <div class="owner-daily-farm-meta">
             <article><span>History</span><strong>${selectedFarm.historyDays} days</strong></article>
-            <article><span>Reported sheds</span><strong>${selectedFarm.totalReportedSheds}</strong></article>
+            <article><span>Total bags in stock</span><strong>${selectedFarm.feed_stock_bags ?? 0} bags</strong></article>
             <article><span>Today status</span><strong>${selectedFarm.todayGroup ? `${selectedFarm.todayGroup.shed_count}/${selectedFarm.shed_count || 0}` : `0/${selectedFarm.shed_count || 0}`}</strong></article>
             <article><span>Total bags used till now</span><strong>${formatBagCount(selectedFarm.totalFeedUsedBags)} bags</strong></article>
+            <article><span>Total mortality</span><strong>${formatMetricNumber(selectedFarm.totalMortality)}</strong></article>
+            <article><span>Total culls / loose hens</span><strong>${formatMetricNumber(selectedFarm.totalCulls)}</strong></article>
+            <article><span>Avg power cut</span><strong>${formatMetricNumber(selectedFarm.avgPowerCutHours)} hrs</strong></article>
+            <article><span>Avg DG run</span><strong>${formatMetricNumber(selectedFarm.avgDgHours)} hrs</strong></article>
           </div>
         </section>
         <div class="owner-daily-level-grid owner-daily-shed-grid">
@@ -712,17 +739,17 @@ function renderDailyEntryHierarchy(container, farms) {
                           `
                           : ""
                       }
-                      <div class="owner-daily-entry-metrics">
-                        <article><span>Mortality</span><strong>${entry.mortality}</strong></article>
-                        <article><span>Culls</span><strong>${entry.culls}</strong></article>
-                        <article><span>Feed</span><strong>${entry.feed_used_label || `${formatBagCount(entry.feed_used_bags)} bags`}</strong></article>
-                        <article><span>Water</span><strong>${entry.water_liters} L</strong></article>
-                        <article><span>Temp</span><strong>${entry.temperature_c} C</strong></article>
-                        <article><span>Humidity</span><strong>${entry.humidity_pct}%</strong></article>
-                        <article><span>Litter</span><strong>${entry.litter_condition || "-"}</strong></article>
-                        <article><span>Uniformity</span><strong>${entry.uniformity_pct}%</strong></article>
-                        <article><span>Power cut</span><strong>${entry.power_cut_hours ?? 0} hr</strong></article>
-                        <article><span>DG run</span><strong>${entry.dg_hours ?? 0} hr</strong></article>
+                      <div class="owner-daily-entry-metrics owner-daily-entry-metrics-compact">
+                        <span><strong>Mort:</strong> ${compactMetricValue(entry.mortality)}</span>
+                        <span><strong>Culls:</strong> ${compactMetricValue(entry.culls)}</span>
+                        <span><strong>Feed:</strong> ${entry.feed_used_label || `${formatBagCount(entry.feed_used_bags)} bags`}</span>
+                        <span><strong>Water:</strong> ${compactMetricValue(entry.water_liters, " L")}</span>
+                        <span><strong>Temp:</strong> ${compactMetricValue(entry.temperature_c, " C")}</span>
+                        <span><strong>Humidity:</strong> ${compactMetricValue(entry.humidity_pct, "%")}</span>
+                        <span><strong>Litter:</strong> ${entry.litter_condition || "-"}</span>
+                        <span><strong>Uniformity:</strong> ${entry.uniformity_pct === null || entry.uniformity_pct === undefined ? "-" : `${formatMetricNumber(entry.uniformity_pct)}%`}</span>
+                        <span><strong>Power:</strong> ${compactMetricValue(entry.power_cut_hours, " hr")}</span>
+                        <span><strong>DG:</strong> ${compactMetricValue(entry.dg_hours, " hr")}</span>
                       </div>
                       ${
                         entry.litter_notes || entry.issues || entry.remarks
@@ -1487,18 +1514,33 @@ function resetOwnerEnrollmentForm() {
   const hiddenCode = form.querySelector('input[name="editing_farmer_code"]');
   const submitButton = form.querySelector("[data-owner-enroll-submit]");
   const cancelButton = form.querySelector("[data-owner-enroll-cancel]");
+  const passwordInput = form.querySelector('input[name="password"]');
+  const passwordNote = form.querySelector("[data-owner-password-note]");
   if (hiddenCode) hiddenCode.value = "";
   if (submitButton) submitButton.textContent = "Create Enrollment";
   if (cancelButton) cancelButton.hidden = true;
+  if (passwordInput) {
+    passwordInput.required = true;
+    passwordInput.placeholder = "Create password";
+  }
+  if (passwordNote) {
+    passwordNote.textContent = "New farmer ke liye password zaroori hai.";
+  }
 }
 
 function startOwnerFarmerEdit(item) {
   const form = document.querySelector("[data-owner-enroll-farmer]");
   if (!form || !item) return;
+  const passwordInput = form.querySelector('input[name="password"]');
+  const passwordNote = form.querySelector("[data-owner-password-note]");
   form.querySelector('input[name="editing_farmer_code"]').value = item.farmer_code || "";
   form.querySelector('input[name="farmer_name"]').value = item.farmer_name || "";
   form.querySelector('input[name="phone"]').value = item.phone || "";
-  form.querySelector('input[name="password"]').value = "";
+  if (passwordInput) {
+    passwordInput.value = "";
+    passwordInput.required = false;
+    passwordInput.placeholder = "Leave blank to keep current password";
+  }
   form.querySelector('input[name="cluster"]').value = item.cluster || "";
   form.querySelector('input[name="farm_name"]').value = item.farm_name || "";
   form.querySelector('input[name="farmer_code"]').value = item.farmer_code || "";
@@ -1510,6 +1552,9 @@ function startOwnerFarmerEdit(item) {
   const cancelButton = form.querySelector("[data-owner-enroll-cancel]");
   if (submitButton) submitButton.textContent = "Save Changes";
   if (cancelButton) cancelButton.hidden = false;
+  if (passwordNote) {
+    passwordNote.textContent = "Blank chhodne par purana password waise ka waise rahega.";
+  }
   setStatus(".owner-create-note", `Editing ${item.farmer_name || item.farm_name || "farmer"} account.`);
   form.scrollIntoView({ behavior: "smooth", block: "start" });
 }

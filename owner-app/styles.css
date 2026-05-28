@@ -908,37 +908,36 @@
 }
 
 .owner-daily-entry-metrics {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 0.55rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
 }
 
-.owner-daily-entry-metrics article {
-  padding: 0.58rem 0.62rem;
-  border-radius: 14px;
+.owner-daily-entry-metrics-compact span {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.28rem;
+  padding: 0.38rem 0.62rem;
+  border-radius: 999px;
   background: rgba(244, 239, 232, 0.84);
-}
-
-.owner-daily-entry-metrics span {
-  display: block;
-  font-size: 0.68rem;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  color: var(--fa-muted);
-}
-
-.owner-daily-entry-metrics strong {
-  display: block;
-  margin-top: 0.16rem;
-  font-family: var(--fa-font-display);
-  font-size: 0.9rem;
   color: var(--fa-text);
+  font-size: 0.82rem;
+  line-height: 1.1;
+  white-space: nowrap;
+}
+
+.owner-daily-entry-metrics-compact strong {
+  color: var(--fa-muted);
+  font-size: 0.7rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
 }
 
 .owner-daily-entry-note {
-  margin: 0.72rem 0 0;
+  margin: 0.56rem 0 0;
   color: var(--fa-muted);
-  line-height: 1.45;
+  line-height: 1.35;
+  font-size: 0.88rem;
 }
 
 .owner-daily-entry-media {
@@ -1394,7 +1393,7 @@
   }
 
   .owner-daily-entry-metrics {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.4rem;
   }
 }
 
@@ -1491,8 +1490,8 @@
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
-  .owner-daily-entry-metrics {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+  .owner-daily-entry-metrics-compact span {
+    font-size: 0.78rem;
   }
 
   .owner-day-sheet-cell.shed {
@@ -1724,8 +1723,8 @@
 
   .owner-daily-farm-grid,
   .owner-daily-shed-grid,
-  .owner-daily-entry-metrics {
-    grid-template-columns: 1fr;
+  .owner-daily-entry-metrics-compact span {
+    white-space: normal;
   }
 
   .owner-day-snapshot {
