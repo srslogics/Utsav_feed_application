@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Utsav Farmer Metrics | मेट्रिक्स</title>
+    <link rel="stylesheet" href="/farmer-app/styles.css?v=20260553" />
+  </head>
+  <body class="fa-body" data-fa-page="metrics">
+    <div class="fa-app-shell">
+      <aside class="fa-sidebar">
+        <div class="fa-brand">
+          <div class="fa-brand-mark">UF</div>
+          <div>
+            <p class="fa-eyebrow">Farmer App | किसान ऐप</p>
+            <h1>Utsav Farmer</h1>
+          </div>
+        </div>
+        <nav class="fa-nav">
+          <a href="./dashboard.html">Dashboard | होम</a>
+          <a href="./daily-entry.html">Daily Entry | दैनिक एंट्री</a>
+          <a href="./feed.html">Feed | दाना</a>
+          <a href="./health.html">Health | दवाई</a>
+          <a href="./requests.html">Requests | अनुरोध</a>
+          <a href="./uploads.html">Uploads | अपलोड</a>
+        </nav>
+        <div class="fa-sidebar-utility">
+          <a href="./notifications.html">Notifications | सूचनाएं</a>
+          <a class="is-active" href="./metrics.html">Metrics | मेट्रिक्स</a>
+          <a href="./profile.html">Profile | प्रोफाइल</a>
+        </div>
+        <div class="fa-farm-strip">
+          <span data-profile-farm></span>
+          <strong data-profile-batch></strong>
+          <small data-profile-cluster></small>
+        </div>
+        <button class="fa-secondary-btn" type="button" data-logout>Logout</button>
+      </aside>
+
+      <main class="fa-content">
+        <header class="fa-page-head">
+          <div>
+            <p class="fa-eyebrow">Metrics | मेट्रिक्स</p>
+            <h2>Performance and history</h2>
+          </div>
+          <div class="fa-page-actions">
+            <a class="fa-secondary-btn" href="./notifications.html">Notifications</a>
+            <a class="fa-secondary-btn" href="./profile.html">Profile</a>
+            <button class="fa-secondary-btn" type="button" data-logout>Logout</button>
+          </div>
+        </header>
+
+        <section class="fa-section">
+          <div class="fa-section-head">
+            <div>
+              <p class="fa-eyebrow">Running Performance | Batch Performance</p>
+              <h3>Batch performance</h3>
+            </div>
+          </div>
+          <div class="fa-kpi-grid fa-kpi-grid-five" id="metrics-performance"></div>
+        </section>
+
+        <section class="fa-section">
+          <div class="fa-section-head">
+            <div>
+              <p class="fa-eyebrow">Recent Mortality | Hal ki mortality</p>
+              <h3>Recent mortality</h3>
+            </div>
+          </div>
+          <div class="fa-list-card" id="metrics-mortality-log"></div>
+        </section>
+      </main>
+    </div>
+    <nav class="fa-bottom-nav">
+      <a href="./dashboard.html">Home</a>
+      <a href="./daily-entry.html">Entry</a>
+      <a href="./feed.html">Feed</a>
+      <a href="./health.html">Health</a>
+      <a href="./notifications.html">Notify</a>
+      <a class="is-active" href="./metrics.html">Metrics</a>
+    </nav>
+    <script src="/farmer-app/app.js?v=20260556"></script>
+  </body>
+</html>

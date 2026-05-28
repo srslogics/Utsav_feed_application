@@ -338,12 +338,14 @@ function renderDailyEntryRecords(container, records) {
 function renderDashboardData(data) {
   if (!data) return;
   populateProfile(data.profile);
-  renderKpis(document.querySelector("#dashboard-kpis"), data.kpis);
-  renderKpis(document.querySelector("#dashboard-performance"), data.performance_metrics);
-  renderList(document.querySelector("#dashboard-alerts"), data.owner_alerts);
-  renderKeyValueGrid(document.querySelector("#dashboard-latest-entry"), data.latest_daily_entry);
-  renderList(document.querySelector("#dashboard-tasks"), data.tasks);
-  renderList(document.querySelector("#dashboard-mortality-log"), data.mortality_history);
+  const dashboardKpis = (data.kpis || []).filter((item) =>
+    ["Bird age", "Live birds", "Mortality", "Feed balance"].includes(item.label)
+  );
+  const latestEntry = (data.latest_daily_entry || []).filter((item) =>
+    ["Date", "Shed", "Feed used", "Water"].includes(item.label)
+  );
+  renderKpis(document.querySelector("#dashboard-kpis"), dashboardKpis);
+  renderKeyValueGrid(document.querySelector("#dashboard-latest-entry"), latestEntry);
 }
 
 function renderNotificationsData(data) {
@@ -356,6 +358,13 @@ function renderNotificationsData(data) {
 function renderProfilePageData(data) {
   if (!data) return;
   populateProfile(data.profile);
+}
+
+function renderMetricsPageData(data) {
+  if (!data) return;
+  populateProfile(data.profile);
+  renderKpis(document.querySelector("#metrics-performance"), data.performance_metrics || []);
+  renderList(document.querySelector("#metrics-mortality-log"), data.mortality_history || []);
 }
 
 function renderDailyEntryData(data) {
@@ -863,6 +872,12 @@ if (page) {
     renderProfilePageData(readCache("dashboard"));
     loadDashboard()
       .then(() => renderProfilePageData(readCache("dashboard")))
+      .catch(handlePageError);
+  }
+  if (page === "metrics") {
+    renderMetricsPageData(readCache("dashboard"));
+    loadDashboard()
+      .then(() => renderMetricsPageData(readCache("dashboard")))
       .catch(handlePageError);
   }
   if (page === "daily-entry") {
