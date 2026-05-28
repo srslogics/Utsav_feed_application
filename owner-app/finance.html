@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Utsav Owner Finance</title>
     <link rel="stylesheet" href="/farmer-app/styles.css?v=20260549" />
-    <link rel="stylesheet" href="/owner-app/styles.css?v=20260555" />
+    <link rel="stylesheet" href="/owner-app/styles.css?v=20260556" />
   </head>
   <body class="fa-body owner-body" data-owner-page="finance">
     <div class="fa-app-shell">
@@ -25,6 +25,11 @@
           <a href="./parties.html">Parties</a>
           <a href="./operations-daily.html">Operations</a>
           <a class="is-active" href="./finance.html">Finance</a>
+          <div class="owner-subnav" aria-label="Finance sections">
+            <a class="is-active" href="./finance.html">Overview</a>
+            <a href="./finance-costs.html">Costs</a>
+            <a href="./finance-sales.html">Sales</a>
+          </div>
         </nav>
       </aside>
 
@@ -32,12 +37,18 @@
         <header class="fa-page-head">
           <div>
             <p class="fa-eyebrow">Finance Watch</p>
-            <h2>Finance</h2>
+            <h2>Finance overview</h2>
           </div>
           <div class="fa-page-actions">
             <button class="fa-secondary-btn" type="button" data-owner-logout>Logout</button>
           </div>
         </header>
+
+        <nav class="owner-mobile-section-nav" aria-label="Finance sections">
+          <a class="is-active" href="./finance.html">Overview</a>
+          <a href="./finance-costs.html">Costs</a>
+          <a href="./finance-sales.html">Sales</a>
+        </nav>
 
         <section class="fa-section">
           <div class="fa-section-head">
@@ -57,128 +68,6 @@
             </div>
           </div>
           <div class="fa-kpi-grid" id="owner-finance-category-breakdown"></div>
-        </section>
-
-        <section class="owner-grid-two">
-          <section class="fa-section">
-            <div class="fa-section-head">
-              <div>
-                <p class="fa-eyebrow">Cost Entry</p>
-                <h3>Add operational cost</h3>
-              </div>
-            </div>
-            <form class="fa-form owner-form-grid" data-owner-operational-cost-form autocomplete="off">
-            <label>
-              Farm
-              <select name="farmer_code" data-owner-finance-farm-select required>
-                <option value="">Choose farm</option>
-              </select>
-            </label>
-            <label>
-              Date
-              <input name="entry_date" type="date" required />
-            </label>
-            <label>
-              Expense category
-              <select name="expense_category" required>
-                <option value="">Choose category</option>
-                <option>Chicks purchase</option>
-                <option>Feed purchase</option>
-                <option>Feed transport</option>
-                <option>Medicine purchase</option>
-                <option>Medicine / supplement</option>
-                <option>Vaccine expense</option>
-                <option>Diesel / fuel</option>
-                <option>Electric repair</option>
-                <option>Labour payment</option>
-                <option>Litter material</option>
-                <option>Transport / logistics</option>
-                <option>Maintenance</option>
-                <option>Water / utility</option>
-                <option>Farm supply</option>
-                <option>Other operational cost</option>
-              </select>
-            </label>
-            <label>
-              Item / service
-              <input name="item_name" type="text" placeholder="Jaise diesel refill, motor repair, labour" required />
-            </label>
-            <label>
-              Sheds (optional)
-              <input name="shed" type="hidden" data-owner-finance-shed-value />
-              <select data-owner-finance-sheds multiple size="4">
-                <option value="">Choose farm first</option>
-              </select>
-            </label>
-            <label>
-              Vendor / party
-              <input name="vendor_name" type="text" placeholder="Vendor ya party ka naam" />
-            </label>
-            <label>
-              Amount
-              <input name="amount" type="text" placeholder="Jaise Rs 4,500" />
-            </label>
-            <label class="full">
-              Notes
-              <textarea name="notes" rows="4" placeholder="Expense ke baare mein owner-side note"></textarea>
-            </label>
-            <label class="full">
-              Optional bill / receipt
-              <input name="file" type="file" accept="image/*,.pdf,.jpg,.jpeg,.png,.webp" />
-            </label>
-              <div class="fa-form-actions full">
-                <button class="fa-primary-btn" type="submit">Operational cost save karein</button>
-              </div>
-            </form>
-            <p class="fa-status-message owner-finance-cost-note"></p>
-          </section>
-
-          <section class="fa-section">
-            <div class="fa-section-head">
-              <div>
-                <p class="fa-eyebrow">Sales Entry</p>
-                <h3>Add farm sale</h3>
-              </div>
-            </div>
-            <form class="fa-form owner-form-grid" data-owner-sale-form autocomplete="off">
-            <label>
-              Farm
-              <select name="farmer_code" data-owner-sale-farm-select required>
-                <option value="">Choose farm</option>
-              </select>
-            </label>
-            <label>
-              Date
-              <input name="entry_date" type="date" required />
-            </label>
-            <label>
-              Bill no.
-              <input name="bill_number" type="text" placeholder="Jaise INV-2045" required />
-            </label>
-            <label>
-              Party name
-              <select name="party_name" data-owner-sale-party-select required>
-                <option value="">Choose party</option>
-              </select>
-            </label>
-            <label>
-              Kgs
-              <input name="total_weight_kg" type="text" placeholder="Jaise 5,200" required />
-            </label>
-            <label>
-              Amount
-              <input name="amount" type="text" placeholder="Optional sale amount" />
-            </label>
-            <label class="full">
-              Bill / receipt
-              <input name="file" type="file" accept="image/*,.pdf,.jpg,.jpeg,.png,.webp" />
-            </label>
-              <div class="fa-form-actions full">
-                <button class="fa-primary-btn" type="submit">Sale save karein</button>
-              </div>
-            </form>
-            <p class="fa-status-message owner-sale-note"></p>
-          </section>
         </section>
 
         <section class="owner-grid-two">
@@ -234,6 +123,6 @@
       <a href="./operations-daily.html">Ops</a>
       <a class="is-active" href="./finance.html">Finance</a>
     </nav>
-    <script src="/owner-app/app.js?v=20260566"></script>
+    <script src="/owner-app/app.js?v=20260567"></script>
   </body>
 </html>

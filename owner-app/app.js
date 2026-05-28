@@ -21,6 +21,20 @@ function compactMetricValue(value, suffix = "") {
   return `${formatMetricNumber(value)}${suffix}`;
 }
 
+function parseLooseNumber(value) {
+  const cleaned = `${value ?? ""}`.replace(/,/g, "").trim();
+  const numeric = Number(cleaned);
+  return Number.isFinite(numeric) ? numeric : NaN;
+}
+
+function formatCurrencyInput(value) {
+  const numeric = Number(value ?? 0);
+  if (!Number.isFinite(numeric)) return "";
+  return Number.isInteger(numeric)
+    ? String(numeric)
+    : numeric.toFixed(2).replace(/\.?0+$/, "");
+}
+
 function navigate(url) {
   if (window.location.pathname === url) return;
   window.location.replace(url);
@@ -1964,21 +1978,41 @@ if (ownerOperationalCostForm) {
 const ownerSaleForm = document.querySelector("[data-owner-sale-form]");
 if (ownerSaleForm) {
   setOwnerSaleDefaultDate();
+  const saleWeightInput = ownerSaleForm.querySelector('input[name="total_weight_kg"]');
+  const saleRateInput = ownerSaleForm.querySelector('input[name="rate_per_kg"]');
+  const saleAmountInput = ownerSaleForm.querySelector('input[name="amount"]');
+
+  const syncOwnerSaleAmount = () => {
+    if (!saleAmountInput) return;
+    const weight = parseLooseNumber(saleWeightInput?.value);
+    const rate = parseLooseNumber(saleRateInput?.value);
+    if (!Number.isFinite(weight) || !Number.isFinite(rate)) {
+      saleAmountInput.value = "";
+      return;
+    }
+    saleAmountInput.value = formatCurrencyInput(weight * rate);
+  };
+
+  saleWeightInput?.addEventListener("input", syncOwnerSaleAmount);
+  saleRateInput?.addEventListener("input", syncOwnerSaleAmount);
+
   ownerSaleForm.addEventListener("submit", async (event) => {
     event.preventDefault();
+    syncOwnerSaleAmount();
     const formData = new FormData(ownerSaleForm);
     const farmCode = `${formData.get("farmer_code") || ""}`.trim();
     const billNumber = `${formData.get("bill_number") || ""}`.trim();
     const partyName = `${formData.get("party_name") || ""}`.trim();
     const totalWeight = `${formData.get("total_weight_kg") || ""}`.trim();
+    const rate = `${formData.get("rate_per_kg") || ""}`.trim();
     const farmSelect = ownerSaleForm.querySelector("[data-owner-sale-farm-select]");
 
     if (!farmCode) {
       setStatus(".owner-sale-note", "Pehle farm select karein.", true);
       return;
     }
-    if (!billNumber || !partyName || !totalWeight) {
-      setStatus(".owner-sale-note", "Bill no., party name, aur kgs daalna zaroori hai.", true);
+    if (!billNumber || !partyName || !totalWeight || !rate) {
+      setStatus(".owner-sale-note", "Bill no., party name, kgs, aur rate daalna zaroori hai.", true);
       return;
     }
 
@@ -1992,6 +2026,7 @@ if (ownerSaleForm) {
       ownerSaleForm.reset();
       if (farmSelect && farmCode) farmSelect.value = farmCode;
       setOwnerSaleDefaultDate();
+      syncOwnerSaleAmount();
       setStatus(".owner-sale-note", `${selectedFarmLabel} ke liye sale record save ho gaya.`);
       loadFinance().catch(console.error);
     } catch {
@@ -2021,7 +2056,7 @@ if (page) {
     renderOperationsData(readCache("operations"));
     loadOperations().catch(handlePageError);
   }
-  if (page === "finance") {
+  if (page === "finance" || page === "finance-costs" || page === "finance-sales") {
     renderFinanceData(readCache("finance"));
     loadFinance().catch(handlePageError);
   }

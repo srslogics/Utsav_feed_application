@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Utsav Owner Costs</title>
+    <link rel="stylesheet" href="/farmer-app/styles.css?v=20260549" />
+    <link rel="stylesheet" href="/owner-app/styles.css?v=20260556" />
+  </head>
+  <body class="fa-body owner-body" data-owner-page="finance-costs">
+    <div class="fa-app-shell">
+      <aside class="fa-sidebar">
+        <div class="fa-brand">
+          <div class="fa-brand-mark">UF</div>
+          <div>
+            <p class="fa-eyebrow">Owner Workspace</p>
+            <h1>Utsav Owner</h1>
+          </div>
+        </div>
+        <nav class="fa-nav">
+          <a href="./dashboard.html">Dashboard</a>
+          <a href="./farms.html">Farms</a>
+          <a href="./reports.html">Reports</a>
+          <a href="./files.html">Files</a>
+          <a href="./parties.html">Parties</a>
+          <a href="./operations-daily.html">Operations</a>
+          <a class="is-active" href="./finance.html">Finance</a>
+          <div class="owner-subnav" aria-label="Finance sections">
+            <a href="./finance.html">Overview</a>
+            <a class="is-active" href="./finance-costs.html">Costs</a>
+            <a href="./finance-sales.html">Sales</a>
+          </div>
+        </nav>
+      </aside>
+
+      <main class="fa-content">
+        <header class="fa-page-head">
+          <div>
+            <p class="fa-eyebrow">Finance Watch</p>
+            <h2>Operational costs</h2>
+          </div>
+          <div class="fa-page-actions">
+            <button class="fa-secondary-btn" type="button" data-owner-logout>Logout</button>
+          </div>
+        </header>
+
+        <nav class="owner-mobile-section-nav" aria-label="Finance sections">
+          <a href="./finance.html">Overview</a>
+          <a class="is-active" href="./finance-costs.html">Costs</a>
+          <a href="./finance-sales.html">Sales</a>
+        </nav>
+
+        <section class="fa-section">
+          <div class="fa-section-head">
+            <div>
+              <p class="fa-eyebrow">Cost Entry</p>
+              <h3>Add operational cost</h3>
+            </div>
+          </div>
+          <form class="fa-form owner-form-grid" data-owner-operational-cost-form autocomplete="off">
+            <label>
+              Farm
+              <select name="farmer_code" data-owner-finance-farm-select required>
+                <option value="">Choose farm</option>
+              </select>
+            </label>
+            <label>
+              Date
+              <input name="entry_date" type="date" required />
+            </label>
+            <label>
+              Expense category
+              <select name="expense_category" required>
+                <option value="">Choose category</option>
+                <option>Chicks purchase</option>
+                <option>Feed purchase</option>
+                <option>Feed transport</option>
+                <option>Medicine purchase</option>
+                <option>Medicine / supplement</option>
+                <option>Vaccine expense</option>
+                <option>Diesel / fuel</option>
+                <option>Electric repair</option>
+                <option>Labour payment</option>
+                <option>Litter material</option>
+                <option>Transport / logistics</option>
+                <option>Maintenance</option>
+                <option>Water / utility</option>
+                <option>Farm supply</option>
+                <option>Other operational cost</option>
+              </select>
+            </label>
+            <label>
+              Item / service
+              <input name="item_name" type="text" placeholder="Jaise diesel refill, motor repair, labour" required />
+            </label>
+            <label>
+              Sheds (optional)
+              <input name="shed" type="hidden" data-owner-finance-shed-value />
+              <select data-owner-finance-sheds multiple size="4">
+                <option value="">Choose farm first</option>
+              </select>
+            </label>
+            <label>
+              Vendor / party
+              <input name="vendor_name" type="text" placeholder="Vendor ya party ka naam" />
+            </label>
+            <label>
+              Amount
+              <input name="amount" type="text" placeholder="Jaise Rs 4,500" />
+            </label>
+            <label class="full">
+              Notes
+              <textarea name="notes" rows="4" placeholder="Expense ke baare mein owner-side note"></textarea>
+            </label>
+            <label class="full">
+              Optional bill / receipt
+              <input name="file" type="file" accept="image/*,.pdf,.jpg,.jpeg,.png,.webp" />
+            </label>
+            <div class="fa-form-actions full">
+              <button class="fa-primary-btn" type="submit">Operational cost save karein</button>
+            </div>
+          </form>
+          <p class="fa-status-message owner-finance-cost-note"></p>
+        </section>
+
+        <section class="fa-section">
+          <div class="fa-section-head">
+            <div>
+              <p class="fa-eyebrow">Operational Cost</p>
+              <h3>Expense ledger</h3>
+            </div>
+          </div>
+          <div class="fa-list-card" id="owner-finance-operational-costs"></div>
+        </section>
+      </main>
+    </div>
+    <nav class="fa-bottom-nav owner-bottom-nav owner-bottom-nav-six">
+      <a href="./dashboard.html">Home</a>
+      <a href="./farms.html">Farms</a>
+      <a href="./reports.html">Reports</a>
+      <a href="./files.html">Files</a>
+      <a href="./operations-daily.html">Ops</a>
+      <a class="is-active" href="./finance.html">Finance</a>
+    </nav>
+    <script src="/owner-app/app.js?v=20260567"></script>
+  </body>
+</html>

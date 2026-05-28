@@ -1,22 +1,23 @@
 .owner-body {
-  --fa-bg: #ece8e1;
-  --fa-surface: rgba(255, 255, 255, 0.98);
-  --fa-surface-strong: rgba(255, 255, 255, 0.99);
-  --fa-surface-soft: rgba(36, 41, 53, 0.06);
-  --fa-border: rgba(49, 54, 66, 0.11);
-  --fa-border-strong: rgba(49, 54, 66, 0.18);
-  --fa-text: #141821;
-  --fa-muted: #68707d;
-  --fa-primary: #313744;
-  --fa-primary-dark: #191d25;
-  --fa-accent: #ccb085;
-  --fa-accent-strong: #a37d49;
-  --fa-accent-soft: rgba(163, 125, 73, 0.12);
-  --fa-shadow: 0 16px 36px rgba(23, 24, 30, 0.08);
+  --fa-bg: #f4ede4;
+  --fa-surface: rgba(255, 252, 248, 0.98);
+  --fa-surface-strong: rgba(255, 255, 255, 0.995);
+  --fa-surface-soft: rgba(120, 91, 68, 0.06);
+  --fa-border: rgba(120, 91, 68, 0.13);
+  --fa-border-strong: rgba(120, 91, 68, 0.2);
+  --fa-text: #241915;
+  --fa-muted: #7b6659;
+  --fa-primary: #87684f;
+  --fa-primary-dark: #34221a;
+  --fa-accent: #dcc0a1;
+  --fa-accent-strong: #9b6e42;
+  --fa-accent-soft: rgba(155, 110, 66, 0.12);
+  --fa-shadow: 0 18px 40px rgba(67, 43, 28, 0.08);
+  --fa-font-display: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", Georgia, serif;
   background:
-    radial-gradient(circle at top left, rgba(204, 176, 133, 0.16), transparent 25%),
-    radial-gradient(circle at right 22%, rgba(49, 55, 68, 0.08), transparent 18%),
-    linear-gradient(180deg, #f4f0ea 0%, #ddd6cb 100%);
+    linear-gradient(90deg, rgba(214, 187, 158, 0.16) 0, rgba(214, 187, 158, 0.16) 1px, transparent 1px, transparent 50%),
+    linear-gradient(180deg, #fbf7f1 0%, #eee2d4 100%);
+  background-size: 520px 100%, 100% 100%;
 }
 
 .fa-kpi-grid-six {
@@ -32,31 +33,29 @@
 }
 
 .owner-body .fa-sidebar {
-  background:
-    radial-gradient(circle at top right, rgba(204, 176, 133, 0.14), transparent 28%),
-    linear-gradient(180deg, rgba(19, 23, 31, 0.99), rgba(34, 39, 49, 0.97));
-  border-color: rgba(255, 255, 255, 0.05);
-  box-shadow: 0 18px 42px rgba(17, 17, 23, 0.15);
+  background: linear-gradient(180deg, rgba(248, 239, 228, 0.95), rgba(242, 231, 218, 0.92));
+  border-color: rgba(155, 110, 66, 0.08);
+  box-shadow: inset -1px 0 0 rgba(255, 255, 255, 0.6);
 }
 
 .owner-body .fa-brand h1,
 .owner-body .fa-farm-strip strong,
 .owner-body .fa-sidebar-card strong {
-  color: #fff;
+  color: var(--fa-text);
 }
 
 .owner-body .fa-brand .fa-eyebrow,
 .owner-body .fa-farm-strip span,
 .owner-body .fa-farm-strip small,
 .owner-body .fa-nav a {
-  color: rgba(240, 233, 224, 0.74);
+  color: var(--fa-muted);
 }
 
 .owner-body .fa-nav a.is-active,
 .owner-body .fa-nav a:hover {
-  background: linear-gradient(135deg, rgba(204, 176, 133, 0.14), rgba(255, 255, 255, 0.08));
-  border-color: rgba(255, 255, 255, 0.08);
-  color: #fff;
+  background: rgba(255, 250, 244, 0.8);
+  border-color: rgba(155, 110, 66, 0.14);
+  color: var(--fa-text);
 }
 
 .owner-subnav {
@@ -621,6 +620,245 @@
 .owner-sale-message {
   color: var(--fa-text);
   font-size: 0.94rem;
+}
+
+.owner-body .fa-login-shell {
+  grid-template-columns: minmax(290px, 0.92fr) minmax(420px, 0.88fr);
+  gap: 1.5rem;
+  max-width: 1320px;
+  padding: 2rem;
+}
+
+.owner-body .fa-login-panel,
+.owner-body .fa-auth-card {
+  background: linear-gradient(180deg, rgba(255, 252, 248, 0.98), rgba(250, 242, 233, 0.96));
+  border: 1px solid rgba(155, 110, 66, 0.12);
+  box-shadow: 0 18px 42px rgba(67, 43, 28, 0.06);
+}
+
+.owner-body .fa-login-panel {
+  display: grid;
+  align-content: start;
+  gap: 1.5rem;
+  min-height: calc(100vh - 4rem);
+  padding: 2rem 1.75rem;
+  border-radius: 34px;
+}
+
+.owner-body .fa-login-panel::after {
+  display: none;
+}
+
+.owner-body .fa-auth-card {
+  align-self: start;
+  padding: 2rem 2.2rem;
+  border-radius: 34px;
+}
+
+.owner-body .fa-auth-card .fa-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.7rem 1.35rem;
+  border-radius: 999px;
+  border: 1px solid rgba(155, 110, 66, 0.14);
+  color: var(--fa-accent-strong);
+  letter-spacing: 0.18em;
+  background: rgba(255, 250, 244, 0.88);
+}
+
+.owner-body .fa-auth-card h3 {
+  margin-top: 1.15rem;
+  font-family: var(--fa-font-display);
+  font-size: clamp(4rem, 7vw, 6.6rem);
+  line-height: 0.9;
+  letter-spacing: -0.05em;
+  font-weight: 600;
+}
+
+.owner-body .fa-copy {
+  margin-top: 0;
+  max-width: 28ch;
+}
+
+.owner-body .fa-copy h2 {
+  font-family: var(--fa-font-display);
+  font-size: clamp(2.4rem, 4vw, 4.2rem);
+  line-height: 0.95;
+  letter-spacing: -0.045em;
+}
+
+.owner-body .fa-brand {
+  align-items: flex-start;
+}
+
+.owner-body .fa-sidebar .fa-brand {
+  display: grid;
+  grid-template-columns: 64px minmax(0, 1fr);
+  gap: 1rem;
+  padding: 1.35rem 1.15rem;
+  border-radius: 30px;
+  border: 1px solid rgba(155, 110, 66, 0.12);
+  background: rgba(255, 251, 246, 0.72);
+  box-shadow: 0 10px 24px rgba(67, 43, 28, 0.04);
+}
+
+.owner-body .fa-sidebar .fa-brand-mark {
+  width: 56px;
+  height: 56px;
+  border-radius: 20px;
+  background: linear-gradient(180deg, #2a1b15, #9d7347);
+  color: #fff;
+  box-shadow: none;
+}
+
+.owner-body .fa-sidebar .fa-brand h1 {
+  font-family: var(--fa-font-display);
+  font-size: clamp(2.1rem, 3vw, 3.2rem);
+  line-height: 0.95;
+  letter-spacing: -0.05em;
+}
+
+.owner-body .fa-sidebar .fa-brand .fa-eyebrow {
+  color: var(--fa-accent-strong);
+}
+
+.owner-body .fa-nav {
+  gap: 0.6rem;
+}
+
+.owner-body .fa-nav > a {
+  min-height: 0;
+  padding: 0.82rem 1rem;
+  border-radius: 18px;
+  font-size: 1.02rem;
+  font-weight: 700;
+  background: transparent;
+  border: 1px solid transparent;
+}
+
+.owner-subnav {
+  margin: -0.1rem 0 0.45rem 0.8rem;
+  padding-left: 1rem;
+  border-left: 1px solid rgba(155, 110, 66, 0.12);
+}
+
+.owner-subnav a {
+  color: var(--fa-muted);
+}
+
+.owner-subnav a:hover,
+.owner-subnav a:focus-visible,
+.owner-subnav a.is-active {
+  background: rgba(255, 250, 244, 0.76);
+  color: var(--fa-text);
+  transform: none;
+}
+
+.owner-body .fa-content {
+  gap: 1rem;
+}
+
+.owner-body .fa-page-head {
+  padding: 0.1rem 0.15rem 0.35rem;
+}
+
+.owner-body .fa-page-head h2 {
+  font-family: var(--fa-font-display);
+  font-size: clamp(2.3rem, 4vw, 4.5rem);
+  line-height: 0.94;
+  letter-spacing: -0.055em;
+  max-width: none;
+}
+
+.owner-body .fa-page-head .fa-eyebrow {
+  color: var(--fa-accent-strong);
+  letter-spacing: 0.18em;
+}
+
+.owner-body .fa-section,
+.owner-body .fa-kpi-card,
+.owner-body .fa-detail-card,
+.owner-body .fa-list-card,
+.owner-body .owner-dashboard-shortcut,
+.owner-body .owner-performance-card,
+.owner-body .owner-daily-level-card,
+.owner-body .owner-daily-focus-card,
+.owner-body .owner-daily-entry-card,
+.owner-body .owner-sale-card,
+.owner-body .owner-file-photo-card {
+  background: linear-gradient(180deg, rgba(255, 252, 248, 0.98), rgba(249, 242, 234, 0.96));
+  border-color: rgba(155, 110, 66, 0.1);
+  box-shadow: 0 12px 28px rgba(67, 43, 28, 0.05);
+}
+
+.owner-body .fa-section,
+.owner-body .fa-list-card,
+.owner-body .fa-detail-card {
+  border-radius: 30px;
+}
+
+.owner-body .fa-section {
+  padding: 1.2rem 1.25rem;
+}
+
+.owner-body .fa-section-head {
+  margin-bottom: 0.85rem;
+}
+
+.owner-body .fa-section-head h3 {
+  font-family: var(--fa-font-display);
+  font-size: 2rem;
+  line-height: 0.98;
+  letter-spacing: -0.04em;
+}
+
+.owner-body .fa-kpi-card span,
+.owner-body .fa-detail-card span,
+.owner-body .owner-performance-card-head span,
+.owner-body .owner-daily-level-head span,
+.owner-body .owner-daily-entry-head .owner-hierarchy-title span {
+  color: var(--fa-accent-strong);
+  letter-spacing: 0.18em;
+}
+
+.owner-body .fa-kpi-card strong,
+.owner-body .fa-detail-card strong,
+.owner-body .owner-performance-card-head h4,
+.owner-body .owner-hierarchy-toolbar strong,
+.owner-body .owner-sale-card-head strong {
+  font-family: var(--fa-font-display);
+}
+
+.owner-body .owner-dashboard-shortcuts {
+  gap: 1rem;
+}
+
+.owner-body .owner-dashboard-shortcut {
+  padding: 1rem 1.05rem;
+  border-radius: 24px;
+}
+
+.owner-body .owner-dashboard-shortcut strong {
+  font-family: var(--fa-font-display);
+  font-size: 1.18rem;
+  line-height: 1.02;
+}
+
+.owner-body .fa-farm-strip {
+  background: rgba(255, 251, 246, 0.7);
+  border: 1px solid rgba(155, 110, 66, 0.12);
+  box-shadow: none;
+}
+
+.owner-body .fa-page-actions .fa-secondary-btn,
+.owner-body .fa-secondary-btn,
+.owner-body .fa-primary-btn {
+  border-radius: 999px;
+}
+
+.owner-body .fa-page-actions .fa-secondary-btn {
+  background: rgba(255, 251, 246, 0.84);
 }
 
 .owner-sale-party-list {
