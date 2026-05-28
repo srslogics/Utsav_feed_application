@@ -375,6 +375,15 @@ function renderDailyEntryHierarchy(container, farms) {
       0
     );
     const totalReportedSheds = dailyGroups.reduce((count, group) => count + (group.shed_count || 0), 0);
+    const totalFeedUsedBags = dailyGroups.reduce(
+      (count, group) =>
+        count +
+        (group.rows || []).reduce(
+          (rowCount, row) => rowCount + (row.has_entry ? Number(row.feed_used_bags || 0) : 0),
+          0
+        ),
+      0
+    );
     const farmKey = `farm-${index}-${farm.farmer_code || farm.farm_name || farm.farmer_name || "unknown"}`;
     const shedMap = new Map();
     dailyGroups.forEach((group) => {
@@ -422,6 +431,7 @@ function renderDailyEntryHierarchy(container, farms) {
       pendingSheds,
       watchCount,
       totalReportedSheds,
+      totalFeedUsedBags,
       historyDays: dailyGroups.length,
       shedRecords,
     };
@@ -616,7 +626,7 @@ function renderDailyEntryHierarchy(container, farms) {
             <article><span>History</span><strong>${selectedFarm.historyDays} days</strong></article>
             <article><span>Reported sheds</span><strong>${selectedFarm.totalReportedSheds}</strong></article>
             <article><span>Today status</span><strong>${selectedFarm.todayGroup ? `${selectedFarm.todayGroup.shed_count}/${selectedFarm.shed_count || 0}` : `0/${selectedFarm.shed_count || 0}`}</strong></article>
-            <article><span>Total bags till now</span><strong>${selectedFarm.feed_stock_bags ?? 0} bags</strong></article>
+            <article><span>Total bags used till now</span><strong>${formatBagCount(selectedFarm.totalFeedUsedBags)} bags</strong></article>
           </div>
         </section>
         <div class="owner-daily-level-grid owner-daily-shed-grid">
