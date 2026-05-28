@@ -70,6 +70,7 @@ WEATHER_CACHE_TTL_SECONDS = 900
 GEOCODE_CACHE_TTL_SECONDS = 86400
 SESSION_MAX_AGE_SECONDS = int(os.getenv("SESSION_MAX_AGE_SECONDS", str(60 * 60 * 24 * 30)))
 PHOTO_RETENTION_HOURS = int(os.getenv("PHOTO_RETENTION_HOURS", "48"))
+FEED_BAG_WEIGHT_KG = int(os.getenv("FEED_BAG_WEIGHT_KG", "50"))
 LOCATION_COORDINATE_OVERRIDES = {
     "korba-cluster": {"latitude": 22.3595, "longitude": 82.7501, "label": "Korba"},
     "korba": {"latitude": 22.3595, "longitude": 82.7501, "label": "Korba"},
@@ -1150,7 +1151,7 @@ def build_performance_metrics(entries: list[DailyEntry]) -> list[dict]:
         return []
     by_shed = latest_entries_by_shed(entries)
     total_feed_bags = sum(float(item.feed_used_bags) for item in entries)
-    total_feed_kg = total_feed_bags * 50
+    total_feed_kg = total_feed_bags * FEED_BAG_WEIGHT_KG
     placement_birds = sum(float(item.opening_birds) for item in by_shed.values())
     current_live_birds = sum(float(item.opening_birds) - float(item.mortality) - float(item.culls) for item in by_shed.values())
     total_mortality = sum(float(item.mortality) for item in entries)
@@ -1163,7 +1164,7 @@ def build_performance_metrics(entries: list[DailyEntry]) -> list[dict]:
     return [
         {"label": "Running FCR", "value": f"{running_fcr:.2f}", "note": "Estimated from submitted cycle feed and current live weight"},
         {"label": "Livability", "value": f"{livability:.1f}%", "note": f"{int(current_live_birds):,} live birds from {int(placement_birds):,} placed"},
-        {"label": "Feed consumed", "value": f"{total_feed_kg:,.0f} kg", "note": f"{total_feed_bags:,.0f} total bags recorded in cycle"},
+        {"label": "Feed consumed", "value": f"{total_feed_kg:,.0f} kg", "note": f"{total_feed_bags:,.0f} total bags recorded in cycle ({FEED_BAG_WEIGHT_KG} kg per bag)"},
         {"label": "Current live weight", "value": f"{weighted_live_weight_kg:,.0f} kg", "note": f"Average body weight {avg_weight_g:,.0f} g"},
         {"label": "Feed per bird", "value": f"{feed_per_bird_kg:.2f} kg", "note": f"Mortality {int(total_mortality):,} • culls {int(total_culls):,}"},
     ]
@@ -2682,6 +2683,24 @@ def add_feed_inward(payload: FeedInwardPayload, request: Request):
     user = get_current_user(request, "farmer")
     with session_scope() as db:
         db.add(FeedInward(farmer_id=user.id, inward_date=payload.inward_date, feed_type=payload.feed_type, bags=payload.bags, shed=payload.shed))
+        stock_record = db.scalar(
+            select(FeedStock).where(
+                FeedStock.farmer_id == user.id,
+                FeedStock.shed == payload.shed,
+                FeedStock.feed_type == payload.feed_type,
+            )
+        )
+        if stock_record:
+            stock_record.bags = int(stock_record.bags or 0) + int(payload.bags)
+        else:
+            db.add(
+                FeedStock(
+                    farmer_id=user.id,
+                    shed=payload.shed,
+                    feed_type=payload.feed_type,
+                    bags=payload.bags,
+                )
+            )
         db.commit()
     return {"success": True}
 

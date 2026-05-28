@@ -561,6 +561,39 @@ button {
   box-shadow: var(--fa-shadow);
 }
 
+.fa-guidance-strip {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.8rem;
+}
+
+.fa-guidance-card {
+  padding: 0.9rem 1rem;
+  border: 1px solid rgba(78, 58, 46, 0.12);
+  border-radius: 20px;
+  background: rgba(255, 252, 248, 0.84);
+  box-shadow: var(--fa-shadow-soft);
+}
+
+.fa-guidance-card strong {
+  display: block;
+  margin-top: 0.28rem;
+  font-family: var(--fa-font-display);
+  font-size: 1rem;
+  letter-spacing: -0.02em;
+}
+
+.fa-guidance-card p,
+.fa-section-note {
+  margin: 0.35rem 0 0;
+  color: var(--fa-muted);
+  line-height: 1.48;
+}
+
+.fa-section-note {
+  max-width: 60ch;
+}
+
 .fa-module-hero.is-compact {
   grid-template-columns: minmax(0, 1fr) minmax(320px, 0.9fr);
   padding: 0.85rem 0.95rem;
@@ -978,7 +1011,8 @@ button {
 
   .fa-kpi-grid,
   .fa-card-grid,
-  .fa-detail-grid {
+  .fa-detail-grid,
+  .fa-guidance-strip {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 
@@ -1025,6 +1059,7 @@ button {
   .fa-kpi-grid,
   .fa-card-grid,
   .fa-detail-grid,
+  .fa-guidance-strip,
   .fa-kpi-grid-five,
   .fa-quick-grid,
   .fa-quick-grid-three,
@@ -1290,6 +1325,7 @@ button {
   .fa-kpi-grid,
   .fa-card-grid,
   .fa-detail-grid,
+  .fa-guidance-strip,
   .fa-kpi-grid-five,
   .fa-quick-grid,
   .fa-quick-grid-three,

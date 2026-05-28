@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Utsav Owner Dashboard</title>
     <link rel="stylesheet" href="/farmer-app/styles.css?v=20260549" />
-    <link rel="stylesheet" href="/owner-app/styles.css?v=20260553" />
+    <link rel="stylesheet" href="/owner-app/styles.css?v=20260554" />
   </head>
   <body class="fa-body owner-body" data-owner-page="dashboard">
     <div class="fa-app-shell">
@@ -45,21 +45,21 @@
         </header>
 
         <section class="owner-dashboard-shortcuts">
-          <a class="owner-dashboard-shortcut" href="./operations-daily.html">
-            <span>Operations</span>
-            <strong>Check daily shed entries</strong>
-          </a>
           <a class="owner-dashboard-shortcut" href="./farms.html">
             <span>Farms</span>
-            <strong>Manage farmers and batches</strong>
+            <strong>Farm setup and farmer accounts</strong>
+          </a>
+          <a class="owner-dashboard-shortcut" href="./operations-daily.html">
+            <span>Operations</span>
+            <strong>Daily entries and issue follow-up</strong>
+          </a>
+          <a class="owner-dashboard-shortcut" href="./finance.html">
+            <span>Finance</span>
+            <strong>Costs, sales, and inward records</strong>
           </a>
           <a class="owner-dashboard-shortcut" href="./reports.html">
             <span>Reports</span>
-            <strong>Open farm-wise business reports</strong>
-          </a>
-          <a class="owner-dashboard-shortcut" href="./files.html">
-            <span>Files</span>
-            <strong>Open bills, documents, and images</strong>
+            <strong>Farm-wise business summary</strong>
           </a>
         </section>
 
@@ -71,16 +71,6 @@
             </div>
           </div>
           <div class="fa-kpi-grid fa-kpi-grid-six" id="owner-kpis"></div>
-        </section>
-
-        <section class="fa-section">
-          <div class="fa-section-head">
-            <div>
-              <p class="fa-eyebrow">Running Performance</p>
-              <h3>Batch performance</h3>
-            </div>
-          </div>
-          <div class="owner-performance-browser" id="owner-performance"></div>
         </section>
 
         <section class="owner-grid-two">
@@ -119,11 +109,11 @@
           <section class="fa-section">
             <div class="fa-section-head">
               <div>
-                <p class="fa-eyebrow">Latest Uploads</p>
-                <h3>Files received</h3>
+                <p class="fa-eyebrow">Quick Reports</p>
+                <h3>Farm performance</h3>
               </div>
             </div>
-            <div class="fa-list-card" id="owner-uploads"></div>
+            <div class="owner-performance-browser" id="owner-performance"></div>
           </section>
         </section>
       </main>

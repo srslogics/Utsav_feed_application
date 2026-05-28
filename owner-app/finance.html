@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Utsav Owner Finance</title>
     <link rel="stylesheet" href="/farmer-app/styles.css?v=20260549" />
-    <link rel="stylesheet" href="/owner-app/styles.css?v=20260553" />
+    <link rel="stylesheet" href="/owner-app/styles.css?v=20260554" />
   </head>
   <body class="fa-body owner-body" data-owner-page="finance">
     <div class="fa-app-shell">
@@ -39,24 +39,6 @@
           </div>
         </header>
 
-        <section class="owner-hero owner-hero-compact">
-          <div class="owner-hero-copy">
-            <p class="fa-eyebrow">Finance Visibility</p>
-            <h3>Track inward movement, uploaded bills, and pending document review.</h3>
-            <p>This screen is for finance-side visibility, not settlement complexity. Keep the flow simple: see the latest documents, verify inward, and move quickly.</p>
-          </div>
-          <div class="owner-hero-rail owner-hero-links">
-            <a href="#owner-finance-documents">
-              <span>Documents</span>
-              <strong>Review latest uploads from farms</strong>
-            </a>
-            <a href="#owner-finance-inward">
-              <span>Feed Inward</span>
-              <strong>Verify current inward movement</strong>
-            </a>
-          </div>
-        </section>
-
         <section class="fa-section">
           <div class="fa-section-head">
             <div>
@@ -77,14 +59,15 @@
           <div class="fa-kpi-grid" id="owner-finance-category-breakdown"></div>
         </section>
 
-        <section class="fa-section">
-          <div class="fa-section-head">
-            <div>
-              <p class="fa-eyebrow">Owner Entry</p>
-              <h3>Add operational cost</h3>
+        <section class="owner-grid-two">
+          <section class="fa-section">
+            <div class="fa-section-head">
+              <div>
+                <p class="fa-eyebrow">Cost Entry</p>
+                <h3>Add operational cost</h3>
+              </div>
             </div>
-          </div>
-          <form class="fa-form owner-form-grid" data-owner-operational-cost-form autocomplete="off">
+            <form class="fa-form owner-form-grid" data-owner-operational-cost-form autocomplete="off">
             <label>
               Farm
               <select name="farmer_code" data-owner-finance-farm-select required>
@@ -143,21 +126,21 @@
               Optional bill / receipt
               <input name="file" type="file" accept="image/*,.pdf,.jpg,.jpeg,.png,.webp" />
             </label>
-            <div class="fa-form-actions full">
-              <button class="fa-primary-btn" type="submit">Operational cost save karein</button>
-            </div>
-          </form>
-          <p class="fa-status-message owner-finance-cost-note"></p>
-        </section>
+              <div class="fa-form-actions full">
+                <button class="fa-primary-btn" type="submit">Operational cost save karein</button>
+              </div>
+            </form>
+            <p class="fa-status-message owner-finance-cost-note"></p>
+          </section>
 
-        <section class="fa-section">
-          <div class="fa-section-head">
-            <div>
-              <p class="fa-eyebrow">Sales Entry</p>
-              <h3>Add farm sale</h3>
+          <section class="fa-section">
+            <div class="fa-section-head">
+              <div>
+                <p class="fa-eyebrow">Sales Entry</p>
+                <h3>Add farm sale</h3>
+              </div>
             </div>
-          </div>
-          <form class="fa-form owner-form-grid" data-owner-sale-form autocomplete="off">
+            <form class="fa-form owner-form-grid" data-owner-sale-form autocomplete="off">
             <label>
               Farm
               <select name="farmer_code" data-owner-sale-farm-select required>
@@ -190,11 +173,12 @@
               Bill / receipt
               <input name="file" type="file" accept="image/*,.pdf,.jpg,.jpeg,.png,.webp" />
             </label>
-            <div class="fa-form-actions full">
-              <button class="fa-primary-btn" type="submit">Sale save karein</button>
-            </div>
-          </form>
-          <p class="fa-status-message owner-sale-note"></p>
+              <div class="fa-form-actions full">
+                <button class="fa-primary-btn" type="submit">Sale save karein</button>
+              </div>
+            </form>
+            <p class="fa-status-message owner-sale-note"></p>
+          </section>
         </section>
 
         <section class="owner-grid-two">
@@ -219,24 +203,26 @@
           </section>
         </section>
 
-        <section class="fa-section">
-          <div class="fa-section-head">
-            <div>
-              <p class="fa-eyebrow">Operational Cost</p>
-              <h3>Farm expenses</h3>
+        <section class="owner-grid-two">
+          <section class="fa-section">
+            <div class="fa-section-head">
+              <div>
+                <p class="fa-eyebrow">Operational Cost</p>
+                <h3>Expense ledger</h3>
+              </div>
             </div>
-          </div>
-          <div class="fa-list-card" id="owner-finance-operational-costs"></div>
-        </section>
+            <div class="fa-list-card" id="owner-finance-operational-costs"></div>
+          </section>
 
-        <section class="fa-section">
-          <div class="fa-section-head">
-            <div>
-              <p class="fa-eyebrow">Sales</p>
-              <h3>Farm sales</h3>
+          <section class="fa-section">
+            <div class="fa-section-head">
+              <div>
+                <p class="fa-eyebrow">Sales</p>
+                <h3>Sales ledger</h3>
+              </div>
             </div>
-          </div>
-          <div class="fa-list-card" id="owner-finance-sales"></div>
+            <div class="fa-list-card" id="owner-finance-sales"></div>
+          </section>
         </section>
       </main>
     </div>

@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Utsav Farmer Feed | दाना रिकॉर्ड</title>
-    <link rel="stylesheet" href="/farmer-app/styles.css?v=20260551" />
+    <link rel="stylesheet" href="/farmer-app/styles.css?v=20260552" />
   </head>
   <body class="fa-body" data-fa-page="feed">
     <div class="fa-app-shell">
@@ -50,7 +50,7 @@
         <section class="fa-module-hero is-compact">
           <div class="fa-module-hero-copy">
             <p class="fa-eyebrow">Feed Control | Daaney ki dekh-rekh</p>
-            <h3>Bas do kaam: kitna feed bacha hai aur aaj kitna inward aaya hai.</h3>
+            <h3>Aaj ka inward alag rakhein, aur shed mein bacha stock alag rakhein.</h3>
           </div>
           <div class="fa-meta-strip">
             <article>
@@ -72,49 +72,22 @@
           </div>
         </section>
 
-        <section class="fa-work-grid">
-          <section class="fa-section" id="feed-balance-form">
-          <div class="fa-section-head">
-            <div>
-              <p class="fa-eyebrow">Feed Balance</p>
-              <h3>Current stock</h3>
-            </div>
-          </div>
-          <form class="fa-form fa-inline-form" data-feed-balance-form>
-            <label>
-              Shed | शेड
-              <select name="shed" required>
-                <option value="">Select shed</option>
-              </select>
-            </label>
-            <label>
-              Feed type | feed ka type
-              <select name="feed_type" required>
-                <option value="">Select type</option>
-                <option>Pre-starter</option>
-                <option>Starter</option>
-                <option>Grower</option>
-                <option>Finisher</option>
-              </select>
-            </label>
-            <label>
-              Bags available | bache hue bags
-              <input name="bags" type="number" min="0" placeholder="0" required />
-            </label>
-            <button class="fa-primary-btn" type="submit">Stock update karein</button>
-          </form>
-          <p class="fa-status-message" data-feed-balance-status></p>
-          </section>
-
-          <section class="fa-section" id="feed-current-stock">
-          <div class="fa-section-head">
-            <div>
-              <p class="fa-eyebrow">Current Stock</p>
-              <h3>Feed balance</h3>
-            </div>
-          </div>
-          <div class="fa-card-grid" id="feed-balance"></div>
-          </section>
+        <section class="fa-guidance-strip" aria-label="Feed help">
+          <article class="fa-guidance-card">
+            <span class="fa-eyebrow">Step 1</span>
+            <strong>Aaj feed aaya ho to inward mein daalein.</strong>
+            <p>Date ke saath sirf aaj aaye hue bags yahan save karein.</p>
+          </article>
+          <article class="fa-guidance-card">
+            <span class="fa-eyebrow">Step 2</span>
+            <strong>Stock correction sirf tab karein jab actual bags gin liye hon.</strong>
+            <p>Yahan abhi shed mein bache hue total bags daalein, inward ka number nahi.</p>
+          </article>
+          <article class="fa-guidance-card">
+            <span class="fa-eyebrow">Bag Weight</span>
+            <strong>1 bag ko abhi 50 kg maana ja raha hai.</strong>
+            <p>Daily entry aur performance calculation isi standard weight par chal rahi hai.</p>
+          </article>
         </section>
 
         <section class="fa-work-grid">
@@ -122,9 +95,10 @@
             <div class="fa-section-head">
               <div>
                 <p class="fa-eyebrow">New Inward Entry</p>
-                <h3>Add inward</h3>
+                <h3>Aaj feed aaya</h3>
               </div>
             </div>
+            <p class="fa-section-note">Aaj jo naya feed farm ya shed mein receive hua hai, woh yahan daalein. Ye entry current stock mein automatically jud jayegi.</p>
             <form class="fa-form fa-inline-form" data-feed-inward-form>
             <label>
               Date | तारीख
@@ -147,10 +121,10 @@
               </select>
             </label>
             <label>
-              Bags received | aaye hue bags
+              Bags received today | aaj aaye bags
               <input name="bags" type="number" min="1" placeholder="0" required />
             </label>
-            <button class="fa-primary-btn" type="submit">Inward add karein</button>
+            <button class="fa-primary-btn" type="submit">Aaj ka inward save karein</button>
             </form>
             <p class="fa-status-message" data-feed-inward-status></p>
           </section>
@@ -163,6 +137,52 @@
               </div>
             </div>
             <div class="fa-list-card" id="feed-history"></div>
+          </section>
+        </section>
+
+        <section class="fa-work-grid">
+          <section class="fa-section" id="feed-balance-form">
+          <div class="fa-section-head">
+            <div>
+              <p class="fa-eyebrow">Stock Correction</p>
+              <h3>Abhi shed mein kitna stock pada hai</h3>
+            </div>
+          </div>
+          <p class="fa-section-note">Ye inward entry nahi hai. Sirf tab use karein jab actual count ke hisaab se stock ko manually correct karna ho.</p>
+          <form class="fa-form fa-inline-form" data-feed-balance-form>
+            <label>
+              Shed | शेड
+              <select name="shed" required>
+                <option value="">Select shed</option>
+              </select>
+            </label>
+            <label>
+              Feed type | feed ka type
+              <select name="feed_type" required>
+                <option value="">Select type</option>
+                <option>Pre-starter</option>
+                <option>Starter</option>
+                <option>Grower</option>
+                <option>Finisher</option>
+              </select>
+            </label>
+            <label>
+              Bags lying now | abhi bache bags
+              <input name="bags" type="number" min="0" placeholder="0" required />
+            </label>
+            <button class="fa-secondary-btn" type="submit">Current stock save karein</button>
+          </form>
+          <p class="fa-status-message" data-feed-balance-status></p>
+          </section>
+
+          <section class="fa-section" id="feed-current-stock">
+          <div class="fa-section-head">
+            <div>
+              <p class="fa-eyebrow">Current Stock</p>
+              <h3>Saved stock view</h3>
+            </div>
+          </div>
+          <div class="fa-card-grid" id="feed-balance"></div>
           </section>
         </section>
       </main>

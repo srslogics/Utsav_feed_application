@@ -271,7 +271,7 @@
 
 .owner-dashboard-shortcuts {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 0.8rem;
 }
 
@@ -416,6 +416,23 @@
 
 .owner-report-subsection {
   padding: 0.9rem;
+}
+
+.owner-body .fa-content {
+  display: grid;
+  gap: 0.8rem;
+}
+
+.owner-body .fa-section-head {
+  margin-bottom: 0.65rem;
+}
+
+.owner-body .fa-section-head h3 {
+  font-size: 1.16rem;
+}
+
+.owner-body .fa-page-head {
+  margin-bottom: 0.1rem;
 }
 
 .owner-grid-two {
@@ -1391,7 +1408,7 @@
   }
 
   .owner-dashboard-shortcuts {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .owner-performance-grid {
@@ -1535,7 +1552,7 @@
   }
 
   .owner-dashboard-shortcut {
-    flex: 0 0 74%;
+    flex: 0 0 62%;
     min-width: 180px;
     padding: 0.62rem 0.72rem;
     border-radius: 14px;
