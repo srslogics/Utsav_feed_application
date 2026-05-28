@@ -1340,10 +1340,17 @@ def summarize_owner_latest_entries(entries: list[DailyEntry], db: Session) -> li
     return items[:8]
 
 
-def build_owner_daily_entry_hierarchy(farmers: list[User], entries: list[DailyEntry]) -> list[dict]:
+def build_owner_daily_entry_hierarchy(
+    farmers: list[User],
+    entries: list[DailyEntry],
+    feed_stock_records: list[FeedStock] | None = None,
+) -> list[dict]:
     entries_by_farmer: dict[int, list[DailyEntry]] = {}
     for entry in entries:
         entries_by_farmer.setdefault(entry.farmer_id, []).append(entry)
+    feed_stock_totals: dict[int, int] = {}
+    for item in (feed_stock_records or []):
+        feed_stock_totals[item.farmer_id] = feed_stock_totals.get(item.farmer_id, 0) + int(item.bags or 0)
 
     hierarchy: list[dict] = []
     for farmer in farmers:
@@ -1415,6 +1422,7 @@ def build_owner_daily_entry_hierarchy(farmers: list[User], entries: list[DailyEn
                 "entry_count": entry_count,
                 "latest_entry_date": latest_entry_date,
                 "shed_count": len(default_sheds),
+                "feed_stock_bags": feed_stock_totals.get(farmer.id, 0),
                 "daily_groups": daily_groups[:10],
             }
         )
@@ -3408,8 +3416,9 @@ def owner_operations(request: Request):
         photos = list(db.scalars(select(IssuePhoto).where(IssuePhoto.farmer_id.in_(farmer_ids)).order_by(IssuePhoto.created_at.desc()))) if farmer_ids else []
         visits = list(db.scalars(select(FieldVisit).where(FieldVisit.farmer_id.in_(farmer_ids)).order_by(FieldVisit.visit_date.desc(), FieldVisit.created_at.desc()))) if farmer_ids else []
         daily_entries = list(db.scalars(select(DailyEntry).where(DailyEntry.farmer_id.in_(farmer_ids)).order_by(DailyEntry.entry_date.desc(), DailyEntry.created_at.desc()))) if farmer_ids else []
+        feed_stock = list(db.scalars(select(FeedStock).where(FeedStock.farmer_id.in_(farmer_ids)))) if farmer_ids else []
         daily_entry_list = summarize_owner_latest_entries(daily_entries, db)
-        daily_entry_hierarchy = build_owner_daily_entry_hierarchy(farmers, daily_entries)
+        daily_entry_hierarchy = build_owner_daily_entry_hierarchy(farmers, daily_entries, feed_stock)
         request_items = summarize_owner_requests(requests, db)
         photo_items = summarize_owner_issue_photos(photos, db)
         visit_items = summarize_owner_field_visits(visits, db)

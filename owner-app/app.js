@@ -616,7 +616,7 @@ function renderDailyEntryHierarchy(container, farms) {
             <article><span>History</span><strong>${selectedFarm.historyDays} days</strong></article>
             <article><span>Reported sheds</span><strong>${selectedFarm.totalReportedSheds}</strong></article>
             <article><span>Today status</span><strong>${selectedFarm.todayGroup ? `${selectedFarm.todayGroup.shed_count}/${selectedFarm.shed_count || 0}` : `0/${selectedFarm.shed_count || 0}`}</strong></article>
-            <article><span>Watch items</span><strong>${selectedFarm.watchCount}</strong></article>
+            <article><span>Total bags till now</span><strong>${selectedFarm.feed_stock_bags ?? 0} bags</strong></article>
           </div>
         </section>
         <div class="owner-daily-level-grid owner-daily-shed-grid">
