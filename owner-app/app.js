@@ -306,6 +306,7 @@ function renderOwnerFarmDirectory(container, items) {
           <span>${item.label}</span>
           <strong>${item.value}</strong>
           <p>${item.note || ""}</p>
+          <p><strong>Feed stock:</strong> ${item.feed_stock_bags ?? 0} bags</p>
           <div class="owner-edit-card-actions">
             <button class="fa-secondary-btn" type="button" data-owner-edit-farm-card="${encodeURIComponent(JSON.stringify(item))}">Edit Farm</button>
             <button class="fa-secondary-btn" type="button" data-owner-edit-batch-card="${encodeURIComponent(JSON.stringify(item))}">Edit Batch</button>

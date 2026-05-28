@@ -3095,12 +3095,16 @@ def owner_farms(request: Request):
         farmers = [farm for farm in db.scalars(select(User).where(User.role == "farmer").order_by(User.farm_name)) if valid_farmer_user(farm)]
         farmer_ids = [farm.id for farm in farmers]
         latest_entries = list(db.scalars(select(DailyEntry).where(DailyEntry.farmer_id.in_(farmer_ids)).order_by(DailyEntry.entry_date.desc(), DailyEntry.created_at.desc()))) if farmer_ids else []
+        feed_stock = list(db.scalars(select(FeedStock).where(FeedStock.farmer_id.in_(farmer_ids)))) if farmer_ids else []
         field_officers = [officer for officer in db.scalars(select(User).where(User.role == "field").order_by(User.name)) if valid_field_user(officer)]
         field_officer_map = {officer.name: officer for officer in field_officers}
         latest_by_farmer: dict[int, DailyEntry] = {}
         for entry in latest_entries:
             if entry.farmer_id not in latest_by_farmer:
                 latest_by_farmer[entry.farmer_id] = entry
+        feed_stock_totals: dict[int, int] = {}
+        for item in feed_stock:
+            feed_stock_totals[item.farmer_id] = feed_stock_totals.get(item.farmer_id, 0) + int(item.bags or 0)
         latest_entry_list = summarize_owner_latest_entries(latest_entries, db)
 
     return {
@@ -3128,6 +3132,7 @@ def owner_farms(request: Request):
                 "active_batch": farm.active_batch or "",
                 "current_shed": farm.current_shed or "",
                 "bird_age_days": farm.bird_age_days or 0,
+                "feed_stock_bags": feed_stock_totals.get(farm.id, 0),
             }
             for farm in farmers
         ],
