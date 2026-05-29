@@ -384,22 +384,47 @@ button {
   align-items: stretch;
   gap: 0.95rem;
   padding: 0.95rem;
-  max-width: 1520px;
+  max-width: 1480px;
   margin: 0 auto;
 }
 
 .fa-sidebar {
-  width: 248px;
-  padding: 1rem;
+  width: 236px;
+  padding: 0.95rem;
   display: grid;
   align-content: start;
-  gap: 0.85rem;
+  gap: 0.75rem;
   background:
     linear-gradient(180deg, rgba(255, 249, 244, 0.98), rgba(245, 233, 221, 0.96)),
     var(--fa-surface);
   position: sticky;
   top: 0.95rem;
   max-height: calc(100vh - 1.9rem);
+}
+
+.fa-sidebar .fa-brand {
+  display: grid;
+  grid-template-columns: 48px minmax(0, 1fr);
+  align-items: start;
+  gap: 0.75rem;
+  padding: 0.9rem 0.82rem;
+  border-radius: 22px;
+  border: 1px solid rgba(78, 58, 46, 0.08);
+  background: rgba(255, 252, 248, 0.82);
+  box-shadow: 0 8px 20px rgba(39, 27, 19, 0.04);
+}
+
+.fa-sidebar .fa-brand-mark {
+  width: 48px;
+  height: 48px;
+  border-radius: 16px;
+}
+
+.fa-sidebar .fa-brand h1 {
+  font-size: 1.65rem;
+  line-height: 0.94;
+  letter-spacing: -0.04em;
+  max-width: 7ch;
 }
 
 .fa-nav {
@@ -415,11 +440,11 @@ button {
 }
 
 .fa-nav a {
-  padding: 0.72rem 0.82rem;
+  padding: 0.68rem 0.8rem;
   border-radius: var(--fa-radius-md);
   color: var(--fa-muted);
   border: 1px solid transparent;
-  font-weight: 600;
+  font-weight: 700;
   transition: background 140ms ease, color 140ms ease, border-color 140ms ease;
 }
 
@@ -431,11 +456,11 @@ button {
 }
 
 .fa-sidebar-utility a {
-  padding: 0.65rem 0.78rem;
+  padding: 0.6rem 0.74rem;
   border-radius: var(--fa-radius-md);
   color: var(--fa-muted);
   border: 1px solid transparent;
-  font-weight: 600;
+  font-weight: 700;
   transition: background 140ms ease, color 140ms ease, border-color 140ms ease;
 }
 
@@ -466,7 +491,7 @@ button {
 .fa-content {
   flex: 1 1 auto;
   display: grid;
-  gap: 0.8rem;
+  gap: 0.72rem;
   min-width: 0;
 }
 
@@ -477,8 +502,9 @@ button {
 .fa-page-head h2 {
   margin: 0.18rem 0 0;
   font-family: var(--fa-font-display);
-  font-size: clamp(1.55rem, 2.8vw, 2.1rem);
+  font-size: clamp(1.7rem, 2.4vw, 2.3rem);
   letter-spacing: -0.03em;
+  line-height: 0.98;
 }
 
 .fa-page-intro {
@@ -512,7 +538,7 @@ button {
 }
 
 .fa-kpi-grid-five {
-  grid-template-columns: repeat(5, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
 }
 
 .fa-kpi-card,
@@ -535,7 +561,7 @@ button {
 .fa-detail-card strong {
   display: block;
   margin-top: 0.28rem;
-  font-size: 1.16rem;
+  font-size: 1.06rem;
   color: var(--fa-text);
   letter-spacing: -0.03em;
 }
@@ -546,6 +572,12 @@ button {
     linear-gradient(180deg, rgba(255, 254, 252, 0.98), rgba(248, 241, 234, 0.94));
   content-visibility: auto;
   contain-intrinsic-size: 420px;
+}
+
+.fa-section-head h3 {
+  font-size: 1.08rem;
+  line-height: 1.04;
+  letter-spacing: -0.02em;
 }
 
 .fa-module-hero {
@@ -754,7 +786,7 @@ button {
 }
 
 .fa-quick-grid-five {
-  grid-template-columns: repeat(5, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(155px, 1fr));
 }
 
 .fa-quick-grid-three {
@@ -790,7 +822,7 @@ button {
   display: block;
   margin-top: 0.62rem;
   font-family: var(--fa-font-display);
-  font-size: 0.95rem;
+  font-size: 0.9rem;
 }
 
 .fa-quick-card p,
