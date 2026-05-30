@@ -2778,3 +2778,192 @@
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
+
+/* Final authoritative owner shell layout */
+.owner-body[data-owner-page] .fa-app-shell {
+  display: grid;
+  grid-template-columns: 236px minmax(0, 1fr);
+  gap: 1rem;
+  align-items: start;
+}
+
+.owner-body[data-owner-page] .fa-sidebar {
+  position: sticky;
+  top: 84px;
+  display: grid;
+  align-content: start;
+  gap: 0.78rem;
+  width: 236px;
+  min-width: 236px;
+  max-width: 236px;
+  min-height: auto;
+  max-height: calc(100vh - 100px);
+  padding: 0.88rem 0.82rem 1rem;
+  overflow-y: auto;
+  overflow-x: hidden;
+  border-radius: 24px;
+}
+
+.owner-body[data-owner-page] .fa-sidebar .fa-brand {
+  display: grid;
+  grid-template-columns: 42px minmax(0, 1fr);
+  align-items: center;
+  gap: 0.72rem;
+  padding: 0.78rem 0.82rem;
+  margin: 0;
+  min-height: auto;
+  border-radius: 18px;
+}
+
+.owner-body[data-owner-page] .fa-sidebar .fa-brand-mark {
+  width: 42px;
+  height: 42px;
+  border-radius: 14px;
+  font-size: 0.92rem;
+}
+
+.owner-body[data-owner-page] .fa-sidebar .fa-brand > div {
+  display: grid;
+  gap: 0.14rem;
+  min-width: 0;
+}
+
+.owner-body[data-owner-page] .fa-sidebar .fa-brand h1 {
+  font-size: 0.98rem;
+  line-height: 1.02;
+  letter-spacing: -0.03em;
+  word-break: break-word;
+}
+
+.owner-body[data-owner-page] .fa-sidebar .fa-brand .fa-eyebrow {
+  font-size: 0.62rem;
+  letter-spacing: 0.14em;
+}
+
+.owner-body[data-owner-page] .fa-nav {
+  display: grid;
+  gap: 0.72rem;
+}
+
+.owner-body[data-owner-page] .owner-sidebar-group {
+  display: grid;
+  gap: 0.24rem;
+}
+
+.owner-body[data-owner-page] .owner-sidebar-label {
+  padding: 0 0.18rem 0.12rem;
+  font-size: 0.66rem;
+}
+
+.owner-body[data-owner-page] .fa-nav a.owner-shell-link {
+  display: flex;
+  align-items: center;
+  min-height: 40px;
+  padding: 0.62rem 0.78rem;
+  border-radius: 14px;
+  font-size: 0.84rem;
+  line-height: 1.15;
+}
+
+.owner-body[data-owner-page] .owner-shell-subnav {
+  display: grid;
+  gap: 0.2rem;
+  margin: 0.02rem 0 0.1rem 0.82rem;
+  padding-left: 0.72rem;
+}
+
+.owner-body[data-owner-page] .owner-shell-subnav a {
+  min-height: 34px;
+  padding: 0.44rem 0.58rem;
+  border-radius: 12px;
+  font-size: 0.76rem;
+  line-height: 1.15;
+}
+
+.owner-body[data-owner-page] .fa-farm-strip {
+  padding: 0.72rem 0.8rem;
+  border-radius: 18px;
+}
+
+.owner-body[data-owner-page] .fa-content {
+  min-width: 0;
+}
+
+.owner-body[data-owner-page] .fa-page-head {
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding-bottom: 0.15rem;
+}
+
+.owner-body[data-owner-page] .fa-page-head h2 {
+  font-size: clamp(2.2rem, 4vw, 3.4rem);
+  line-height: 0.95;
+  letter-spacing: -0.04em;
+}
+
+.owner-body[data-owner-page] .fa-page-head .fa-eyebrow {
+  font-size: 0.72rem;
+}
+
+@media (max-width: 900px) {
+  .owner-body[data-owner-page] .fa-app-shell {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.55rem;
+    padding-top: 0.32rem;
+  }
+
+  .owner-body[data-owner-page] .fa-sidebar {
+    display: none;
+  }
+
+  .owner-body[data-owner-page] .fa-page-head {
+    gap: 0.6rem;
+    padding: 0 0.1rem;
+  }
+
+  .owner-body[data-owner-page] .fa-page-head h2 {
+    font-size: clamp(2rem, 8vw, 2.8rem);
+    line-height: 0.96;
+  }
+
+  .owner-body[data-owner-page] .fa-page-actions {
+    width: 100%;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+  }
+
+  .owner-body[data-owner-page] .owner-dashboard-shortcuts,
+  .owner-body[data-owner-page] .owner-grid-two {
+    grid-template-columns: 1fr;
+  }
+
+  .owner-body[data-owner-page] .fa-kpi-grid-six {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .owner-body[data-owner-page="farms"] .owner-farm-directory-grid,
+  .owner-body[data-owner-page="reports"] .owner-reports-grid,
+  .owner-body[data-owner-page="files"] .owner-files-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 620px) {
+  .owner-body[data-owner-page] .fa-page-head {
+    gap: 0.48rem;
+    padding: 0;
+  }
+
+  .owner-body[data-owner-page] .fa-page-head h2 {
+    font-size: clamp(1.8rem, 9vw, 2.35rem);
+  }
+
+  .owner-body[data-owner-page] .fa-kpi-grid-six {
+    grid-template-columns: 1fr 1fr;
+    gap: 0.55rem;
+  }
+
+  .owner-body[data-owner-page] .owner-dashboard-shortcut {
+    padding: 0.82rem 0.88rem;
+  }
+}
