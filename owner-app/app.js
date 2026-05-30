@@ -875,6 +875,28 @@ function renderFinanceData(data) {
   setOwnerSaleDefaultDate();
 }
 
+function renderOwnerProfileData(data) {
+  if (!data) return;
+  populateProfile(data.profile);
+  const form = document.querySelector("[data-owner-profile-form]");
+  if (form) {
+    form.elements.name.value = data.profile.name || "";
+    form.elements.phone.value = data.profile.phone || "";
+    form.elements.cluster.value = data.profile.cluster || "";
+    if (!form.dataset.prefilled) {
+      form.elements.password.value = "";
+      form.dataset.prefilled = "true";
+    }
+  }
+  renderList(document.querySelector("#owner-profile-summary"), [
+    {
+      label: data.profile.name || "Owner",
+      value: data.profile.phone || "-",
+      note: [data.profile.title || "Owner", data.profile.cluster || ""].filter(Boolean).join(" • "),
+    },
+  ]);
+}
+
 function renderOwnerReportsData(data) {
   if (!data) return;
   populateProfile(data.profile);
@@ -1711,6 +1733,13 @@ async function loadReports() {
   renderOwnerReportsData(data);
 }
 
+async function loadOwnerProfile() {
+  const profile = await requestJson(`${ownerApiBase}/profile`);
+  const data = { profile };
+  writeCache("profile", data);
+  renderOwnerProfileData(data);
+}
+
 const loginForm = document.querySelector("[data-owner-login]");
 if (loginForm) {
   requireOwnerSession({ allowLoginPage: true }).then((user) => {
@@ -2035,6 +2064,37 @@ if (ownerSaleForm) {
   });
 }
 
+const ownerProfileForm = document.querySelector("[data-owner-profile-form]");
+if (ownerProfileForm) {
+  ownerProfileForm.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    const formData = new FormData(ownerProfileForm);
+    const payload = {
+      name: `${formData.get("name") || ""}`.trim(),
+      phone: `${formData.get("phone") || ""}`.trim(),
+      cluster: `${formData.get("cluster") || ""}`.trim(),
+      password: `${formData.get("password") || ""}`.trim(),
+    };
+    if (!payload.name || !payload.phone) {
+      setStatus(".owner-profile-note", "Owner name aur mobile number zaroori hai.", true);
+      return;
+    }
+    try {
+      const result = await requestJson(`${ownerApiBase}/profile`, {
+        method: "PUT",
+        body: JSON.stringify(payload),
+      });
+      ownerProfileForm.elements.password.value = "";
+      renderOwnerProfileData({ profile: result.profile });
+      setStatus(".owner-profile-note", "Owner profile update ho gaya.");
+      writeCache("profile", { profile: result.profile });
+    } catch (error) {
+      const duplicate = error?.status === 409;
+      setStatus(".owner-profile-note", duplicate ? "Yeh mobile number pehle se use ho raha hai." : "Owner profile update nahi ho paaya.", true);
+    }
+  });
+}
+
 document.querySelectorAll("[data-owner-logout]").forEach((button) => {
   button.addEventListener("click", async () => {
     await requestJson(`${authApiBase}/logout`, { method: "POST" });
@@ -2071,5 +2131,9 @@ if (page) {
   if (page === "reports") {
     renderOwnerReportsData(readCache("reports"));
     loadReports().catch(handlePageError);
+  }
+  if (page === "profile") {
+    renderOwnerProfileData(readCache("profile"));
+    loadOwnerProfile().catch(handlePageError);
   }
 }

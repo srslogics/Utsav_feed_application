@@ -72,6 +72,7 @@ SESSION_MAX_AGE_SECONDS = int(os.getenv("SESSION_MAX_AGE_SECONDS", str(60 * 60 *
 PHOTO_RETENTION_HOURS = int(os.getenv("PHOTO_RETENTION_HOURS", "48"))
 FEED_BAG_WEIGHT_KG = int(os.getenv("FEED_BAG_WEIGHT_KG", "50"))
 GO_LIVE_RESET_TOKEN = os.getenv("GO_LIVE_RESET_TOKEN", "").strip()
+OWNER_ACCOUNT_SYNC_TOKEN = os.getenv("OWNER_ACCOUNT_SYNC_TOKEN", "").strip()
 LOCATION_COORDINATE_OVERRIDES = {
     "korba-cluster": {"latitude": 22.3595, "longitude": 82.7501, "label": "Korba"},
     "korba": {"latitude": 22.3595, "longitude": 82.7501, "label": "Korba"},
@@ -706,6 +707,13 @@ class OwnerSalePayload(BaseModel):
     amount: str = ""
 
 
+class OwnerProfileUpdatePayload(BaseModel):
+    name: str
+    phone: str
+    password: str = ""
+    cluster: str = ""
+
+
 class FarmerProfileUpdatePayload(BaseModel):
     farmer_name: str
     phone: str
@@ -821,6 +829,30 @@ def maybe_run_go_live_reset() -> None:
         db.commit()
     remove_uploaded_files(stored_names)
     logger.info("go_live_reset_completed token=%s", GO_LIVE_RESET_TOKEN)
+
+
+def maybe_run_owner_account_sync() -> None:
+    if not OWNER_ACCOUNT_SYNC_TOKEN:
+        return
+    owner_phone_value = normalize_phone(os.getenv("OWNER_APP_DEFAULT_PHONE", ""))
+    owner_name_value = os.getenv("OWNER_APP_DEFAULT_NAME", "").strip()
+    owner_password_value = os.getenv("OWNER_APP_DEFAULT_PASSWORD", "").strip()
+    with session_scope() as db:
+        if app_setting_value(db, "owner_account_sync_token") == OWNER_ACCOUNT_SYNC_TOKEN:
+            return
+        owner = db.scalar(select(User).where(User.role == "owner").order_by(User.id))
+        if not owner:
+            return
+        if owner_name_value:
+            owner.name = owner_name_value
+        if owner_phone_value:
+            owner.phone = owner_phone_value
+        if owner_password_value:
+            owner.password_hash = hash_password(owner_password_value)
+        db.add(owner)
+        set_app_setting(db, "owner_account_sync_token", OWNER_ACCOUNT_SYNC_TOKEN)
+        db.commit()
+    logger.info("owner_account_sync_completed token=%s", OWNER_ACCOUNT_SYNC_TOKEN)
 
 
 def serialize_profile(user: User) -> dict:
@@ -2338,6 +2370,7 @@ def init_database() -> None:
     purge_legacy_demo_data()
     seed_database_from_json()
     maybe_run_go_live_reset()
+    maybe_run_owner_account_sync()
 
 
 def public_file_response(file_name: str) -> FileResponse:
@@ -3121,6 +3154,33 @@ def field_issues(request: Request):
 def owner_profile(request: Request):
     user = get_current_user(request, "owner")
     return serialize_profile(user)
+
+
+@app.put("/api/owner/profile")
+def owner_update_profile(payload: OwnerProfileUpdatePayload, request: Request):
+    user = get_current_user(request, "owner")
+    normalized_phone = normalize_phone(payload.phone)
+    if not normalized_phone:
+        raise HTTPException(status_code=400, detail="Valid phone number required.")
+    with session_scope() as db:
+        owner = db.get(User, user.id)
+        if not owner or owner.role != "owner":
+            raise HTTPException(status_code=404, detail="Owner not found.")
+        existing_user = db.scalar(select(User).where(User.phone == normalized_phone, User.id != owner.id))
+        if existing_user:
+            raise HTTPException(status_code=409, detail="Phone number already in use.")
+        owner.name = payload.name.strip() or owner.name
+        owner.phone = normalized_phone
+        owner.cluster = payload.cluster.strip()
+        if payload.password.strip():
+            owner.password_hash = hash_password(payload.password.strip())
+        db.add(owner)
+        db.commit()
+        db.refresh(owner)
+        updated = serialize_profile(owner)
+    response = JSONResponse({"success": True, "profile": updated})
+    set_role_auth_cookie(response, owner)
+    return response
 
 
 @app.get("/api/owner/dashboard")

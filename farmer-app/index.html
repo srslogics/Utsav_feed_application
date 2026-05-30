@@ -30,14 +30,23 @@
       <section class="fa-auth-card">
         <p class="fa-eyebrow">Secure Access | सुरक्षित लॉगिन</p>
         <h3>Login</h3>
-        <form class="fa-form" data-farmer-login autocomplete="off">
+        <form class="fa-form" data-farmer-login autocomplete="on">
           <label>
             Mobile Number | मोबाइल नंबर
-            <input name="phone" type="tel" inputmode="numeric" placeholder="Enter mobile number" autocomplete="off" required />
+            <input
+              name="phone"
+              type="tel"
+              inputmode="numeric"
+              placeholder="Enter mobile number"
+              autocomplete="username"
+              autocapitalize="off"
+              spellcheck="false"
+              required
+            />
           </label>
           <label>
             Password | पासवर्ड
-            <input name="password" type="password" placeholder="Enter password" autocomplete="new-password" required />
+            <input name="password" type="password" placeholder="Enter password" autocomplete="current-password" required />
           </label>
           <button class="fa-primary-btn" type="submit">Login Karein | ऐप खोलें</button>
         </form>

@@ -26,19 +26,28 @@
       <section class="fa-auth-card">
         <p class="fa-eyebrow">Utsav Owner</p>
         <h3>Login</h3>
-        <form class="fa-form" data-owner-login autocomplete="off">
+        <form class="fa-form" data-owner-login autocomplete="on">
           <label>
             Mobile Number
-            <input name="phone" type="tel" inputmode="numeric" placeholder="Enter mobile number" autocomplete="off" required />
+            <input
+              name="phone"
+              type="tel"
+              inputmode="numeric"
+              placeholder="Enter mobile number"
+              autocomplete="username"
+              autocapitalize="off"
+              spellcheck="false"
+              required
+            />
           </label>
           <label>
             Password
-            <input name="password" type="password" placeholder="Enter password" autocomplete="new-password" required />
+            <input name="password" type="password" placeholder="Enter password" autocomplete="current-password" required />
           </label>
           <button class="fa-primary-btn" type="submit">Open Owner App</button>
         </form>
       </section>
     </main>
-    <script src="/owner-app/app.js?v=20260566"></script>
+    <script src="/owner-app/app.js?v=20260569"></script>
   </body>
 </html>

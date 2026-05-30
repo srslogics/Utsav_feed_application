@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Utsav Owner Profile</title>
+    <link rel="stylesheet" href="/farmer-app/styles.css?v=20260549" />
+    <link rel="stylesheet" href="/owner-app/styles.css?v=20260559" />
+  </head>
+  <body class="fa-body owner-body" data-owner-page="profile">
+    <div class="fa-app-shell">
+      <aside class="fa-sidebar">
+        <div class="fa-brand">
+          <div class="fa-brand-mark">UF</div>
+          <div>
+            <p class="fa-eyebrow">Owner Workspace</p>
+            <h1>Utsav Owner</h1>
+          </div>
+        </div>
+        <nav class="fa-nav">
+          <a href="./dashboard.html">Dashboard</a>
+          <a class="is-active" href="./profile.html">Profile</a>
+          <a href="./farms.html">Farms</a>
+          <a href="./reports.html">Reports</a>
+          <a href="./files.html">Files</a>
+          <a href="./parties.html">Parties</a>
+          <a href="./operations-daily.html">Operations</a>
+          <a href="./finance.html">Finance</a>
+        </nav>
+        <div class="fa-farm-strip">
+          <span data-owner-name></span>
+          <strong data-owner-title></strong>
+          <small data-owner-cluster></small>
+        </div>
+      </aside>
+
+      <main class="fa-content">
+        <header class="fa-page-head">
+          <div>
+            <p class="fa-eyebrow">Owner Profile</p>
+            <h2>Profile settings</h2>
+          </div>
+          <div class="fa-page-actions">
+            <a class="fa-secondary-btn" href="./dashboard.html">Dashboard</a>
+            <button class="fa-secondary-btn" type="button" data-owner-logout>Logout</button>
+          </div>
+        </header>
+
+        <section class="owner-grid-two owner-grid-two-top">
+          <section class="fa-section">
+            <div class="fa-section-head">
+              <div>
+                <p class="fa-eyebrow">Account Details</p>
+                <h3>Update owner login</h3>
+              </div>
+            </div>
+            <div class="owner-form-band">
+              <span>Access Control</span>
+              <strong>Phone aur password yahin se badal sakte hain</strong>
+            </div>
+            <form class="fa-form owner-form-grid" data-owner-profile-form autocomplete="off">
+              <label>
+                Owner Name
+                <input name="name" type="text" placeholder="Enter owner name" required />
+              </label>
+              <label>
+                Mobile Number
+                <input name="phone" type="tel" inputmode="numeric" placeholder="Enter mobile number" required />
+              </label>
+              <label>
+                Cluster
+                <input name="cluster" type="text" placeholder="Enter cluster" />
+              </label>
+              <label>
+                New Password
+                <input name="password" type="text" placeholder="Blank chhodein to same rahega" autocomplete="new-password" />
+                <small class="fa-field-note">Blank chhodne par current password same rahega.</small>
+              </label>
+              <div class="owner-form-actions full">
+                <button class="fa-primary-btn" type="submit">Save Profile</button>
+              </div>
+            </form>
+            <p class="fa-form-note owner-profile-note"></p>
+          </section>
+
+          <section class="fa-section">
+            <div class="fa-section-head">
+              <div>
+                <p class="fa-eyebrow">Current Access</p>
+                <h3>Owner account</h3>
+              </div>
+            </div>
+            <div class="fa-list-card" id="owner-profile-summary"></div>
+          </section>
+        </section>
+      </main>
+    </div>
+    <nav class="fa-bottom-nav owner-bottom-nav owner-bottom-nav-six">
+      <a href="./dashboard.html">Home</a>
+      <a class="is-active" href="./profile.html">Profile</a>
+      <a href="./farms.html">Farms</a>
+      <a href="./reports.html">Reports</a>
+      <a href="./operations-daily.html">Ops</a>
+      <a href="./finance.html">Finance</a>
+    </nav>
+    <script src="/owner-app/app.js?v=20260569"></script>
+  </body>
+</html>
