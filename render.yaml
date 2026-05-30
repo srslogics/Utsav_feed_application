@@ -21,6 +21,8 @@ services:
         sync: false
       - key: OWNER_APP_DEFAULT_PASSWORD
         sync: false
+      - key: GO_LIVE_RESET_TOKEN
+        sync: false
       - key: WHATSAPP_ACCESS_TOKEN
         sync: false
       - key: WHATSAPP_PHONE_NUMBER_ID

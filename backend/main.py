@@ -71,6 +71,7 @@ GEOCODE_CACHE_TTL_SECONDS = 86400
 SESSION_MAX_AGE_SECONDS = int(os.getenv("SESSION_MAX_AGE_SECONDS", str(60 * 60 * 24 * 30)))
 PHOTO_RETENTION_HOURS = int(os.getenv("PHOTO_RETENTION_HOURS", "48"))
 FEED_BAG_WEIGHT_KG = int(os.getenv("FEED_BAG_WEIGHT_KG", "50"))
+GO_LIVE_RESET_TOKEN = os.getenv("GO_LIVE_RESET_TOKEN", "").strip()
 LOCATION_COORDINATE_OVERRIDES = {
     "korba-cluster": {"latitude": 22.3595, "longitude": 82.7501, "label": "Korba"},
     "korba": {"latitude": 22.3595, "longitude": 82.7501, "label": "Korba"},
@@ -264,6 +265,14 @@ DATABASE_URL = normalize_database_url()
 
 class Base(DeclarativeBase):
     pass
+
+
+class AppSetting(Base):
+    __tablename__ = "app_settings"
+
+    key: Mapped[str] = mapped_column(String(120), primary_key=True)
+    value: Mapped[str] = mapped_column(Text, default="")
+    updated_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
 
 class User(Base):
@@ -737,6 +746,81 @@ def today_string() -> str:
 
 def session_scope() -> Session:
     return SessionLocal()
+
+
+def app_setting_value(db: Session, key: str) -> str:
+    setting = db.get(AppSetting, key)
+    return (setting.value or "") if setting else ""
+
+
+def set_app_setting(db: Session, key: str, value: str):
+    setting = db.get(AppSetting, key)
+    if not setting:
+        setting = AppSetting(key=key, value=value)
+    else:
+        setting.value = value
+        setting.updated_at = datetime.utcnow()
+    db.add(setting)
+
+
+def collect_uploaded_file_names_for_reset(db: Session) -> set[str]:
+    stored_names: set[str] = set()
+    for value in db.scalars(select(DailyEntry.litter_photo_stored).where(DailyEntry.litter_photo_stored.is_not(None))):
+        if value:
+            stored_names.add(value)
+    for value in db.scalars(select(DocumentUpload.stored_name).where(DocumentUpload.stored_name.is_not(None))):
+        if value:
+            stored_names.add(value)
+    for value in db.scalars(select(OperationalCost.stored_name).where(OperationalCost.stored_name.is_not(None))):
+        if value:
+            stored_names.add(value)
+    for value in db.scalars(select(SaleRecord.stored_name).where(SaleRecord.stored_name.is_not(None))):
+        if value:
+            stored_names.add(value)
+    for value in db.scalars(select(IssuePhoto.stored_name).where(IssuePhoto.stored_name.is_not(None))):
+        if value:
+            stored_names.add(value)
+    return stored_names
+
+
+def remove_uploaded_files(stored_names: set[str]):
+    for stored_name in stored_names:
+        remove_file_if_exists(stored_name)
+
+
+def purge_rollout_data(db: Session) -> set[str]:
+    stored_names = collect_uploaded_file_names_for_reset(db)
+    db.execute(delete(SaleAlertDispatch))
+    db.execute(delete(SaleReadyRule))
+    db.execute(delete(PartyContact))
+    db.execute(delete(FieldVisit))
+    db.execute(delete(IssuePhoto))
+    db.execute(delete(SaleRecord))
+    db.execute(delete(OperationalCost))
+    db.execute(delete(DocumentUpload))
+    db.execute(delete(SupportRequest))
+    db.execute(delete(VaccinationLog))
+    db.execute(delete(MedicineLog))
+    db.execute(delete(MedicineStock))
+    db.execute(delete(MortalityLog))
+    db.execute(delete(FeedInward))
+    db.execute(delete(FeedStock))
+    db.execute(delete(DailyEntry))
+    db.execute(delete(User).where(User.role != "owner"))
+    return stored_names
+
+
+def maybe_run_go_live_reset() -> None:
+    if not GO_LIVE_RESET_TOKEN:
+        return
+    with session_scope() as db:
+        if app_setting_value(db, "go_live_reset_token") == GO_LIVE_RESET_TOKEN:
+            return
+        stored_names = purge_rollout_data(db)
+        set_app_setting(db, "go_live_reset_token", GO_LIVE_RESET_TOKEN)
+        db.commit()
+    remove_uploaded_files(stored_names)
+    logger.info("go_live_reset_completed token=%s", GO_LIVE_RESET_TOKEN)
 
 
 def serialize_profile(user: User) -> dict:
@@ -2253,6 +2337,7 @@ def init_database() -> None:
             connection.execute(text("ALTER TABLE daily_entries ALTER COLUMN feed_used_bags TYPE DOUBLE PRECISION USING feed_used_bags::double precision"))
     purge_legacy_demo_data()
     seed_database_from_json()
+    maybe_run_go_live_reset()
 
 
 def public_file_response(file_name: str) -> FileResponse:
