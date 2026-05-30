@@ -4,6 +4,126 @@ const authApiBase = `${apiOrigin}/api/auth`;
 const ownerCachePrefix = "utsavOwnerPage:";
 let ownerAuthRecoveryPromise = null;
 
+const ownerPageMeta = {
+  dashboard: { eyebrow: "Owner Dashboard", title: "Owner dashboard" },
+  profile: { eyebrow: "Account", title: "Profile settings" },
+  farms: { eyebrow: "Farm Directory", title: "Farm directory" },
+  reports: { eyebrow: "Reports", title: "Farm reports" },
+  files: { eyebrow: "Files", title: "Farm files" },
+  parties: { eyebrow: "Parties", title: "Buyer parties" },
+  "operations-daily": { eyebrow: "Operations", title: "Daily entries" },
+  "operations-requests": { eyebrow: "Operations", title: "Requests" },
+  "operations-photos": { eyebrow: "Operations", title: "Issue photos" },
+  "operations-visits": { eyebrow: "Operations", title: "Field visits" },
+  finance: { eyebrow: "Finance", title: "Finance overview" },
+  "finance-costs": { eyebrow: "Finance", title: "Operational costs" },
+  "finance-sales": { eyebrow: "Finance", title: "Farm sales" },
+};
+
+function normaliseOwnerHref(href) {
+  return `${href || ""}`.replace(/^\.\//, "").trim();
+}
+
+function buildOwnerSidebar() {
+  const sidebar = document.querySelector(".fa-sidebar");
+  const nav = sidebar?.querySelector(".fa-nav");
+  if (!sidebar || !nav || nav.dataset.ownerGrouped === "true") return;
+
+  const directLinks = Array.from(nav.children).filter((node) => node.tagName === "A");
+  const subnavs = Array.from(nav.children).filter((node) => node.classList?.contains("owner-subnav"));
+  const linkMap = new Map(directLinks.map((link) => [normaliseOwnerHref(link.getAttribute("href")), link.cloneNode(true)]));
+  const opsSubnav = subnavs.find((node) => node.getAttribute("aria-label")?.includes("Operations"))?.cloneNode(true);
+  const financeSubnav = subnavs.find((node) => node.getAttribute("aria-label")?.includes("Finance"))?.cloneNode(true);
+
+  const groups = [
+    { label: "Workspace", links: ["dashboard.html", "farms.html", "reports.html", "files.html"] },
+    { label: "Operations", links: ["operations-daily.html"], subnav: opsSubnav },
+    { label: "Business", links: ["finance.html", "parties.html"], subnav: financeSubnav },
+    { label: "Account", links: ["profile.html"] },
+  ];
+
+  nav.innerHTML = "";
+
+  groups.forEach((group) => {
+    const availableLinks = group.links
+      .map((href) => linkMap.get(href))
+      .filter(Boolean)
+      .map((link) => {
+        link.classList.add("owner-shell-link");
+        return link;
+      });
+
+    if (!availableLinks.length && !group.subnav) return;
+
+    const groupEl = document.createElement("section");
+    groupEl.className = "owner-sidebar-group";
+
+    const label = document.createElement("p");
+    label.className = "owner-sidebar-label";
+    label.textContent = group.label;
+    groupEl.appendChild(label);
+
+    availableLinks.forEach((link) => groupEl.appendChild(link));
+
+    if (group.subnav) {
+      group.subnav.classList.add("owner-shell-subnav");
+      groupEl.appendChild(group.subnav);
+    }
+
+    nav.appendChild(groupEl);
+  });
+
+  nav.dataset.ownerGrouped = "true";
+}
+
+function initOwnerTopbar() {
+  const page = document.body.dataset.ownerPage;
+  if (!page || document.querySelector(".owner-topbar")) return;
+
+  const pageHead = document.querySelector(".fa-page-head");
+  const meta = ownerPageMeta[page] || {};
+  const eyebrow = pageHead?.querySelector(".fa-eyebrow")?.textContent?.trim() || meta.eyebrow || "Owner";
+  const title = pageHead?.querySelector("h2")?.textContent?.trim() || meta.title || "Owner workspace";
+  const pageActions = pageHead?.querySelector(".fa-page-actions");
+
+  const topbar = document.createElement("header");
+  topbar.className = "owner-topbar";
+  topbar.innerHTML = `
+    <a class="owner-topbar-brand" href="./dashboard.html">
+      <span class="owner-topbar-mark">UF</span>
+      <span class="owner-topbar-copy">
+        <strong>Utsav Owner</strong>
+        <small>Farm management workspace</small>
+      </span>
+    </a>
+    <div class="owner-topbar-context">
+      <span>${eyebrow}</span>
+      <strong>${title}</strong>
+    </div>
+    <div class="owner-topbar-right">
+      <div class="owner-topbar-user">
+        <span data-owner-name></span>
+        <small data-owner-title></small>
+      </div>
+      <div class="owner-topbar-actions"></div>
+    </div>
+  `;
+
+  document.body.prepend(topbar);
+
+  if (pageActions) {
+    const actionsHost = topbar.querySelector(".owner-topbar-actions");
+    Array.from(pageActions.children).forEach((child) => actionsHost.appendChild(child));
+    pageActions.remove();
+  }
+}
+
+function initOwnerShell() {
+  if (!document.body.dataset.ownerPage) return;
+  buildOwnerSidebar();
+  initOwnerTopbar();
+}
+
 function formatBagCount(value) {
   const numeric = Number(value ?? 0);
   if (Number.isNaN(numeric)) return value ?? "0";
@@ -2103,6 +2223,7 @@ document.querySelectorAll("[data-owner-logout]").forEach((button) => {
 });
 
 const page = document.body.dataset.ownerPage;
+initOwnerShell();
 if (page) {
   if (page === "dashboard") {
     renderDashboardData(readCache("dashboard"));
