@@ -4,6 +4,12 @@ const authApiBase = `${apiOrigin}/api/auth`;
 const farmerCachePrefix = "utsavFarmerPage:";
 let farmerAuthRecoveryPromise = null;
 
+if ("serviceWorker" in navigator && window.location.protocol !== "file:") {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("/farmer-app/sw.js", { scope: "/farmer-app/" }).catch(() => {});
+  });
+}
+
 function navigate(url) {
   if (window.location.pathname === url) return;
   window.location.replace(url);

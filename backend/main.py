@@ -568,7 +568,16 @@ WEBSITE_FILES = {
     "/downloads/UtsavOwnerLite-debug.apk": "UtsavOwnerLite-debug.apk",
 }
 
-FARMER_APP_PUBLIC = {"index.html", "styles.css", "app.js"}
+FARMER_APP_PUBLIC = {
+    "index.html",
+    "styles.css",
+    "app.js",
+    "manifest.webmanifest",
+    "sw.js",
+    "icons/icon-192.png",
+    "icons/icon-512.png",
+    "icons/apple-touch-icon.png",
+}
 FIELD_APP_PUBLIC = {"index.html", "styles.css", "app.js"}
 OWNER_APP_PUBLIC = {"index.html", "styles.css", "app.js"}
 

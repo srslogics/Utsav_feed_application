@@ -1,0 +1,26 @@
+{
+  "name": "Utsav Farmer",
+  "short_name": "Utsav",
+  "description": "Daily poultry farm reporting app for Utsav farmers.",
+  "start_url": "/farmer-app/",
+  "scope": "/farmer-app/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#efe7dd",
+  "theme_color": "#6f513d",
+  "lang": "en-IN",
+  "icons": [
+    {
+      "src": "/farmer-app/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/farmer-app/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
