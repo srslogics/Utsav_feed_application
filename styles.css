@@ -1546,10 +1546,10 @@ th {
 }
 
 .site-header {
-  display: flex;
-  justify-content: space-between;
+  display: grid;
+  grid-template-columns: minmax(280px, 1fr) auto;
   align-items: center;
-  gap: 1rem;
+  gap: 1.1rem;
   padding: 1rem 1.2rem;
   border: 1px solid var(--line);
   border-radius: var(--radius-xl);
@@ -1559,9 +1559,10 @@ th {
 
 .site-nav {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   gap: 0.75rem;
   color: var(--muted);
+  white-space: nowrap;
 }
 
 .site-nav a {
@@ -1847,15 +1848,19 @@ th {
 }
 
 .site-header-actions {
-  display: flex;
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: max-content;
   align-items: center;
-  gap: 0.75rem;
-  flex-wrap: wrap;
+  justify-content: end;
+  gap: 0.9rem;
+  min-width: 0;
 }
 
 .site-pill {
   display: inline-flex;
   align-items: center;
+  white-space: nowrap;
   padding: 0.45rem 0.8rem;
   border-radius: 999px;
   border: 1px solid rgba(159, 135, 86, 0.18);
@@ -2146,8 +2151,11 @@ th {
   }
 
   .site-header-actions {
+    display: flex;
     width: 100%;
     align-items: stretch;
+    justify-content: flex-start;
+    flex-wrap: wrap;
   }
 
   .site-nav {
