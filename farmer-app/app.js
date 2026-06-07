@@ -4,6 +4,18 @@ const authApiBase = `${apiOrigin}/api/auth`;
 const farmerCachePrefix = "utsavFarmerPage:";
 let farmerAuthRecoveryPromise = null;
 
+const farmerPageMeta = {
+  dashboard: { title: "Farm home", actionHref: "./notifications.html", actionLabel: "Notify", backHref: "" },
+  "daily-entry": { title: "Daily report", actionHref: "./dashboard.html", actionLabel: "Home", backHref: "./dashboard.html" },
+  feed: { title: "Feed update", actionHref: "./dashboard.html", actionLabel: "Home", backHref: "./dashboard.html" },
+  health: { title: "Health record", actionHref: "./dashboard.html", actionLabel: "Home", backHref: "./dashboard.html" },
+  requests: { title: "Requests", actionHref: "./dashboard.html", actionLabel: "Home", backHref: "./dashboard.html" },
+  uploads: { title: "Uploads", actionHref: "./dashboard.html", actionLabel: "Home", backHref: "./dashboard.html" },
+  notifications: { title: "Notifications", actionHref: "./profile.html", actionLabel: "Profile", backHref: "./dashboard.html" },
+  profile: { title: "Profile", actionHref: "./notifications.html", actionLabel: "Notify", backHref: "./dashboard.html" },
+  metrics: { title: "Metrics", actionHref: "./dashboard.html", actionLabel: "Home", backHref: "./dashboard.html" },
+};
+
 if ("serviceWorker" in navigator && window.location.protocol !== "file:") {
   window.addEventListener("load", () => {
     navigator.serviceWorker.register("/farmer-app/sw.js", { scope: "/farmer-app/" }).catch(() => {});
@@ -13,6 +25,31 @@ if ("serviceWorker" in navigator && window.location.protocol !== "file:") {
 function navigate(url) {
   if (window.location.pathname === url) return;
   window.location.replace(url);
+}
+
+function initFarmerMobileAppBar() {
+  const page = document.body.dataset.faPage;
+  if (!page || document.querySelector(".fa-mobile-appbar")) return;
+  const meta = farmerPageMeta[page] || { title: "Utsav Farmer", actionHref: "./dashboard.html", actionLabel: "Home", backHref: "./dashboard.html" };
+  const appBar = document.createElement("header");
+  appBar.className = "fa-mobile-appbar";
+  const backButton = meta.backHref
+    ? `<a class="fa-mobile-appbar-back" href="${meta.backHref}" aria-label="Go back">←</a>`
+    : `<span class="fa-mobile-appbar-back is-hidden" aria-hidden="true">←</span>`;
+  appBar.innerHTML = `
+    <div class="fa-mobile-appbar-surface">
+      ${backButton}
+      <div class="fa-mobile-appbar-main">
+        <span class="fa-mobile-appbar-avatar">UF</span>
+        <div class="fa-mobile-appbar-copy">
+          <strong data-profile-name></strong>
+          <span data-profile-cluster>${meta.title}</span>
+        </div>
+      </div>
+      <a class="fa-mobile-appbar-action" href="${meta.actionHref}">${meta.actionLabel}</a>
+    </div>
+  `;
+  document.body.prepend(appBar);
 }
 
 async function requestJson(url, options = {}) {
@@ -863,6 +900,7 @@ const page = document.body.dataset.faPage;
 setDefaultDates();
 
 if (page) {
+  initFarmerMobileAppBar();
   hydrateCachedProfile();
   if (page === "dashboard") {
     renderDashboardData(readCache("dashboard"));
