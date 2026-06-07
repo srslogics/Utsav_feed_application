@@ -290,6 +290,7 @@ class User(Base):
     active_batch: Mapped[str | None] = mapped_column(String(40), nullable=True)
     current_shed: Mapped[str | None] = mapped_column(String(40), nullable=True)
     bird_age_days: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    initial_batch_strength: Mapped[int | None] = mapped_column(Integer, nullable=True)
     field_officer: Mapped[str | None] = mapped_column(String(120), nullable=True)
     farm_capacity: Mapped[str | None] = mapped_column(String(80), nullable=True)
     active_sheds: Mapped[int | None] = mapped_column(Integer, nullable=True)
@@ -316,6 +317,8 @@ class DailyEntry(Base):
     litter_notes: Mapped[str] = mapped_column(Text, default="")
     litter_photo_name: Mapped[str | None] = mapped_column(String(200), nullable=True)
     litter_photo_stored: Mapped[str | None] = mapped_column(String(240), nullable=True)
+    mortality_photo_name: Mapped[str | None] = mapped_column(String(200), nullable=True)
+    mortality_photo_stored: Mapped[str | None] = mapped_column(String(240), nullable=True)
     power_cut_hours: Mapped[float] = mapped_column(Float)
     dg_hours: Mapped[float] = mapped_column(Float)
     uniformity_pct: Mapped[int] = mapped_column(Integer)
@@ -589,7 +592,7 @@ class LoginPayload(BaseModel):
 
 
 class FeedBalancePayload(BaseModel):
-    shed: str
+    shed: str = ""
     feed_type: str
     bags: int = Field(ge=0)
 
@@ -598,7 +601,7 @@ class FeedInwardPayload(BaseModel):
     inward_date: str
     feed_type: str
     bags: int = Field(gt=0)
-    shed: str
+    shed: str = ""
 
 
 class MedicinePayload(BaseModel):
@@ -677,6 +680,7 @@ class OwnerBatchEntryPayload(BaseModel):
     active_batch: str
     current_shed: str = ""
     bird_age_days: int = Field(default=0, ge=0)
+    initial_batch_strength: int = Field(default=0, ge=0)
 
 
 class OwnerPartyPayload(BaseModel):
@@ -877,6 +881,7 @@ def serialize_profile(user: User) -> dict:
         "active_batch": user.active_batch or "",
         "current_shed": user.current_shed or "",
         "bird_age_days": user.bird_age_days or 0,
+        "initial_batch_strength": user.initial_batch_strength or 0,
         "field_officer": user.field_officer or "",
         "farm_capacity": user.farm_capacity or "",
         "active_sheds": user.active_sheds or 0,
@@ -1079,7 +1084,7 @@ def make_shed_defaults(entries: list[DailyEntry]) -> list[dict]:
     latest_by_shed = latest_entries_by_shed(entries)
     items: list[dict] = []
     for shed, entry in latest_by_shed.items():
-        live_birds = max(int(entry.opening_birds) - int(entry.mortality) - int(entry.culls), 0)
+        live_birds = max(int(entry.opening_birds) - int(entry.mortality), 0)
         items.append(
             {
                 "shed": shed,
@@ -1088,6 +1093,29 @@ def make_shed_defaults(entries: list[DailyEntry]) -> list[dict]:
             }
         )
     return sorted(items, key=lambda item: item["shed"])
+
+
+def resolve_opening_birds_for_entry(
+    db: Session,
+    farmer: User,
+    shed: str,
+    entry_date: str,
+    exclude_entry_id: int | None = None,
+) -> int:
+    query = (
+        select(DailyEntry)
+        .where(
+            DailyEntry.farmer_id == farmer.id,
+            DailyEntry.shed == shed,
+            DailyEntry.entry_date < entry_date,
+        )
+        .order_by(DailyEntry.entry_date.desc(), DailyEntry.created_at.desc())
+    )
+    previous_entries = db.scalars(query).all()
+    previous = next((item for item in previous_entries if exclude_entry_id is None or item.id != exclude_entry_id), None)
+    if previous:
+        return max(int(previous.opening_birds) - int(previous.mortality), 0)
+    return max(int(farmer.initial_batch_strength or 0), 0)
 
 
 def make_feed_balances(records: list[FeedStock]) -> list[dict]:
@@ -1164,6 +1192,7 @@ def make_daily_entry_history(records: list[DailyEntry]) -> list[dict]:
                     f"Litter {record.litter_condition}",
                     record.litter_notes or "",
                     "Photo attached" if photo_is_available(record.created_at) and record.litter_photo_name else "",
+                    "Mortality photo attached" if photo_is_available(record.created_at) and record.mortality_photo_name else "",
                 ]
             )
             or f"Water {record.water_liters} L • Avg wt {record.avg_weight_g} g • Temp {record.temperature_c} C",
@@ -1191,6 +1220,8 @@ def serialize_daily_entry_record(record: DailyEntry) -> dict:
         "litter_notes": record.litter_notes or "",
         "litter_photo_name": record.litter_photo_name or "" if photo_is_available(record.created_at) else "",
         "litter_photo_url": photo_url_for(record.litter_photo_stored, record.created_at),
+        "mortality_photo_name": record.mortality_photo_name or "" if photo_is_available(record.created_at) else "",
+        "mortality_photo_url": photo_url_for(record.mortality_photo_stored, record.created_at),
         "power_cut_hours": record.power_cut_hours,
         "dg_hours": record.dg_hours,
         "uniformity_pct": record.uniformity_pct,
@@ -1521,6 +1552,8 @@ def build_owner_daily_entry_hierarchy(
                         "litter_notes": record.litter_notes or "" if record else "",
                         "litter_photo_name": (record.litter_photo_name or "") if record and photo_is_available(record.created_at) else "",
                         "litter_photo_url": photo_url_for(record.litter_photo_stored, record.created_at) if record else "",
+                        "mortality_photo_name": (record.mortality_photo_name or "") if record and photo_is_available(record.created_at) else "",
+                        "mortality_photo_url": photo_url_for(record.mortality_photo_stored, record.created_at) if record else "",
                         "power_cut_hours": record.power_cut_hours if record else None,
                         "dg_hours": record.dg_hours if record else None,
                         "issues": record.issues or "" if record else "",
@@ -1837,19 +1870,34 @@ def build_owner_file_library(
     for record in daily_entries:
         photo_url = photo_url_for(record.litter_photo_stored, record.created_at)
         if not photo_url:
-            continue
-        photos_by_farmer.setdefault(record.farmer_id, []).append(
-            {
-                "entry_date": record.entry_date,
-                "kind": "Litter photo",
-                "title": record.litter_condition or "Litter update",
-                "shed": record.shed,
-                "priority": "",
-                "notes": record.litter_notes or "",
-                "file_name": record.litter_photo_name or "",
-                "file_url": photo_url,
-            }
-        )
+            pass
+        else:
+            photos_by_farmer.setdefault(record.farmer_id, []).append(
+                {
+                    "entry_date": record.entry_date,
+                    "kind": "Litter photo",
+                    "title": record.litter_condition or "Litter update",
+                    "shed": record.shed,
+                    "priority": "",
+                    "notes": record.litter_notes or "",
+                    "file_name": record.litter_photo_name or "",
+                    "file_url": photo_url,
+                }
+            )
+        mortality_photo_url = photo_url_for(record.mortality_photo_stored, record.created_at)
+        if mortality_photo_url:
+            photos_by_farmer.setdefault(record.farmer_id, []).append(
+                {
+                    "entry_date": record.entry_date,
+                    "kind": "Mortality photo",
+                    "title": f"Mortality {record.mortality}",
+                    "shed": record.shed,
+                    "priority": "",
+                    "notes": record.issues or record.remarks or "",
+                    "file_name": record.mortality_photo_name or "",
+                    "file_url": mortality_photo_url,
+                }
+            )
 
     library: list[dict] = []
     for farmer in farmers:
@@ -2363,6 +2411,8 @@ def init_database() -> None:
             existing_columns = {row[1] for row in connection.execute(text("PRAGMA table_info(users)"))}
             if "current_shed" not in existing_columns:
                 connection.execute(text("ALTER TABLE users ADD COLUMN current_shed VARCHAR(40)"))
+            if "initial_batch_strength" not in existing_columns:
+                connection.execute(text("ALTER TABLE users ADD COLUMN initial_batch_strength INTEGER"))
             daily_entry_columns = {row[1] for row in connection.execute(text("PRAGMA table_info(daily_entries)"))}
             if "litter_notes" not in daily_entry_columns:
                 connection.execute(text("ALTER TABLE daily_entries ADD COLUMN litter_notes TEXT DEFAULT ''"))
@@ -2370,11 +2420,18 @@ def init_database() -> None:
                 connection.execute(text("ALTER TABLE daily_entries ADD COLUMN litter_photo_name VARCHAR(200)"))
             if "litter_photo_stored" not in daily_entry_columns:
                 connection.execute(text("ALTER TABLE daily_entries ADD COLUMN litter_photo_stored VARCHAR(240)"))
+            if "mortality_photo_name" not in daily_entry_columns:
+                connection.execute(text("ALTER TABLE daily_entries ADD COLUMN mortality_photo_name VARCHAR(200)"))
+            if "mortality_photo_stored" not in daily_entry_columns:
+                connection.execute(text("ALTER TABLE daily_entries ADD COLUMN mortality_photo_stored VARCHAR(240)"))
         else:
             connection.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS current_shed VARCHAR(40)"))
+            connection.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS initial_batch_strength INTEGER"))
             connection.execute(text("ALTER TABLE daily_entries ADD COLUMN IF NOT EXISTS litter_notes TEXT DEFAULT ''"))
             connection.execute(text("ALTER TABLE daily_entries ADD COLUMN IF NOT EXISTS litter_photo_name VARCHAR(200)"))
             connection.execute(text("ALTER TABLE daily_entries ADD COLUMN IF NOT EXISTS litter_photo_stored VARCHAR(240)"))
+            connection.execute(text("ALTER TABLE daily_entries ADD COLUMN IF NOT EXISTS mortality_photo_name VARCHAR(200)"))
+            connection.execute(text("ALTER TABLE daily_entries ADD COLUMN IF NOT EXISTS mortality_photo_stored VARCHAR(240)"))
             connection.execute(text("ALTER TABLE daily_entries ALTER COLUMN feed_used_bags TYPE DOUBLE PRECISION USING feed_used_bags::double precision"))
     purge_legacy_demo_data()
     seed_database_from_json()
@@ -2418,9 +2475,14 @@ def purge_expired_photo_uploads(db: Session):
     )
     for record in expired_daily_entries:
         remove_file_if_exists(record.litter_photo_stored)
+        remove_file_if_exists(record.mortality_photo_stored)
         if record.litter_photo_name or record.litter_photo_stored:
             record.litter_photo_name = None
             record.litter_photo_stored = None
+            changed = True
+        if record.mortality_photo_name or record.mortality_photo_stored:
+            record.mortality_photo_name = None
+            record.mortality_photo_stored = None
             changed = True
 
     expired_issue_photos = list(
@@ -2455,6 +2517,10 @@ def file_response_for_upload(file_name: str, db: Session) -> FileResponse:
 
     litter_record = db.scalar(select(DailyEntry).where(DailyEntry.litter_photo_stored == file_name))
     if litter_record and photo_is_available(litter_record.created_at):
+        return FileResponse(file_path)
+
+    mortality_record = db.scalar(select(DailyEntry).where(DailyEntry.mortality_photo_stored == file_name))
+    if mortality_record and photo_is_available(mortality_record.created_at):
         return FileResponse(file_path)
 
     issue_record = db.scalar(select(IssuePhoto).where(IssuePhoto.stored_name == file_name))
@@ -2673,19 +2739,20 @@ def farmer_daily_entry(request: Request):
 @app.post("/api/farmer/daily-entry")
 async def add_daily_entry(
     request: Request,
-    entry_date: str = Form(...),
-    shed: str = Form(...),
-    opening_birds: int = Form(...),
-    mortality: int = Form(0),
-    culls: int = Form(0),
+    entry_date: str | None = Form(None),
+    shed: str | None = Form(None),
+    opening_birds: int | None = Form(None),
+    mortality: int = Form(...),
+    culls: int = Form(...),
     feed_used_bags: float = Form(0),
     water_liters: int = Form(0),
     avg_weight_g: int = Form(0),
     temperature_c: float = Form(0),
     humidity_pct: int = Form(0),
-    litter_condition: str = Form(...),
+    litter_condition: str = Form(""),
     litter_notes: str = Form(""),
     litter_photo: UploadFile | None = File(None),
+    mortality_photo: UploadFile | None = File(None),
     power_cut_hours: float = Form(0),
     dg_hours: float = Form(0),
     uniformity_pct: int = Form(0),
@@ -2693,6 +2760,9 @@ async def add_daily_entry(
     remarks: str = Form(""),
 ):
     user = get_current_user(request, "farmer")
+    entry_date = (entry_date or "").strip() or today_string()
+    shed = (shed or "").strip() or user.current_shed or "Shed 1"
+    litter_condition = (litter_condition or "").strip()
     litter_photo_name = None
     litter_photo_stored = None
     if litter_photo and litter_photo.filename:
@@ -2704,7 +2774,22 @@ async def add_daily_entry(
         destination.write_bytes(await litter_photo.read())
         litter_photo_name = original_name
         litter_photo_stored = stored_name
+    mortality_photo_name = None
+    mortality_photo_stored = None
+    if mortality_photo and mortality_photo.filename:
+        timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
+        original_name = mortality_photo.filename
+        suffix = Path(original_name).suffix or ".bin"
+        stored_name = f"{timestamp}-{safe_slug(f'mortality-{shed}-{entry_date}')}{suffix}"
+        destination = UPLOADS_DIR / stored_name
+        destination.write_bytes(await mortality_photo.read())
+        mortality_photo_name = original_name
+        mortality_photo_stored = stored_name
     with session_scope() as db:
+        farmer = db.scalar(select(User).where(User.id == user.id, User.role == "farmer"))
+        if not farmer:
+            raise HTTPException(status_code=404, detail="Farmer not found.")
+        opening_birds = resolve_opening_birds_for_entry(db, farmer, shed, entry_date)
         record = DailyEntry(
             farmer_id=user.id,
             entry_date=entry_date,
@@ -2721,6 +2806,8 @@ async def add_daily_entry(
             litter_notes=litter_notes,
             litter_photo_name=litter_photo_name,
             litter_photo_stored=litter_photo_stored,
+            mortality_photo_name=mortality_photo_name,
+            mortality_photo_stored=mortality_photo_stored,
             power_cut_hours=power_cut_hours,
             dg_hours=dg_hours,
             uniformity_pct=uniformity_pct,
@@ -2730,7 +2817,6 @@ async def add_daily_entry(
         db.add(record)
         db.add(MortalityLog(farmer_id=user.id, entry_date=entry_date, shed=shed, birds=mortality, notes=issues or "Daily entry"))
         db.flush()
-        farmer = db.scalar(select(User).where(User.id == user.id, User.role == "farmer"))
         sale_ready_dispatch = trigger_sale_ready_whatsapp(db, farmer, record) if farmer else []
         db.commit()
         db.refresh(record)
@@ -2741,19 +2827,20 @@ async def add_daily_entry(
 async def update_daily_entry(
     entry_id: int,
     request: Request,
-    entry_date: str = Form(...),
-    shed: str = Form(...),
-    opening_birds: int = Form(...),
-    mortality: int = Form(0),
-    culls: int = Form(0),
+    entry_date: str | None = Form(None),
+    shed: str | None = Form(None),
+    opening_birds: int | None = Form(None),
+    mortality: int = Form(...),
+    culls: int = Form(...),
     feed_used_bags: float = Form(0),
     water_liters: int = Form(0),
     avg_weight_g: int = Form(0),
     temperature_c: float = Form(0),
     humidity_pct: int = Form(0),
-    litter_condition: str = Form(...),
+    litter_condition: str = Form(""),
     litter_notes: str = Form(""),
     litter_photo: UploadFile | None = File(None),
+    mortality_photo: UploadFile | None = File(None),
     power_cut_hours: float = Form(0),
     dg_hours: float = Form(0),
     uniformity_pct: int = Form(0),
@@ -2765,6 +2852,9 @@ async def update_daily_entry(
         record = db.scalar(select(DailyEntry).where(DailyEntry.id == entry_id, DailyEntry.farmer_id == user.id))
         if not record:
             raise HTTPException(status_code=404, detail="Daily entry not found.")
+        entry_date = (entry_date or "").strip() or today_string()
+        shed = (shed or "").strip() or record.shed or user.current_shed or "Shed 1"
+        litter_condition = (litter_condition or "").strip()
         if record.entry_date != today_string():
             raise HTTPException(status_code=403, detail="Previous day entries cannot be edited.")
         if entry_date != today_string():
@@ -2780,9 +2870,25 @@ async def update_daily_entry(
             record.litter_photo_name = original_name
             record.litter_photo_stored = stored_name
 
+        if mortality_photo and mortality_photo.filename:
+            timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
+            original_name = mortality_photo.filename
+            suffix = Path(original_name).suffix or ".bin"
+            stored_name = f"{timestamp}-{safe_slug(f'mortality-{shed}-{entry_date}')}{suffix}"
+            destination = UPLOADS_DIR / stored_name
+            destination.write_bytes(await mortality_photo.read())
+            record.mortality_photo_name = original_name
+            record.mortality_photo_stored = stored_name
+
+        next_opening_birds = (
+            record.opening_birds
+            if entry_date == record.entry_date and shed == record.shed
+            else resolve_opening_birds_for_entry(db, user, shed, entry_date, exclude_entry_id=record.id)
+        )
+
         record.entry_date = entry_date
         record.shed = shed
-        record.opening_birds = opening_birds
+        record.opening_birds = next_opening_birds
         record.mortality = mortality
         record.culls = culls
         record.feed_used_bags = feed_used_bags
@@ -2831,12 +2937,13 @@ def farmer_feed(request: Request):
 @app.post("/api/farmer/feed/balance")
 def update_feed_balance(payload: FeedBalancePayload, request: Request):
     user = get_current_user(request, "farmer")
+    shed = (payload.shed or "").strip() or user.current_shed or ""
     with session_scope() as db:
-        record = db.scalar(select(FeedStock).where(FeedStock.farmer_id == user.id, FeedStock.shed == payload.shed, FeedStock.feed_type == payload.feed_type))
+        record = db.scalar(select(FeedStock).where(FeedStock.farmer_id == user.id, FeedStock.shed == shed, FeedStock.feed_type == payload.feed_type))
         if record:
             record.bags = payload.bags
         else:
-            db.add(FeedStock(farmer_id=user.id, shed=payload.shed, feed_type=payload.feed_type, bags=payload.bags))
+            db.add(FeedStock(farmer_id=user.id, shed=shed, feed_type=payload.feed_type, bags=payload.bags))
         db.commit()
     return {"success": True}
 
@@ -2844,12 +2951,13 @@ def update_feed_balance(payload: FeedBalancePayload, request: Request):
 @app.post("/api/farmer/feed/inward")
 def add_feed_inward(payload: FeedInwardPayload, request: Request):
     user = get_current_user(request, "farmer")
+    shed = (payload.shed or "").strip() or user.current_shed or ""
     with session_scope() as db:
-        db.add(FeedInward(farmer_id=user.id, inward_date=payload.inward_date, feed_type=payload.feed_type, bags=payload.bags, shed=payload.shed))
+        db.add(FeedInward(farmer_id=user.id, inward_date=payload.inward_date, feed_type=payload.feed_type, bags=payload.bags, shed=shed))
         stock_record = db.scalar(
             select(FeedStock).where(
                 FeedStock.farmer_id == user.id,
-                FeedStock.shed == payload.shed,
+                FeedStock.shed == shed,
                 FeedStock.feed_type == payload.feed_type,
             )
         )
@@ -2859,7 +2967,7 @@ def add_feed_inward(payload: FeedInwardPayload, request: Request):
             db.add(
                 FeedStock(
                     farmer_id=user.id,
-                    shed=payload.shed,
+                    shed=shed,
                     feed_type=payload.feed_type,
                     bags=payload.bags,
                 )
@@ -3030,12 +3138,13 @@ async def add_sale_record(
 async def upload_issue_photo(
     request: Request,
     issue_type: str = Form(...),
-    shed: str = Form(...),
+    shed: str = Form(""),
     priority: str = Form(...),
     notes: str = Form(""),
     file: UploadFile = File(...),
 ):
     user = get_current_user(request, "farmer")
+    shed = (shed or "").strip() or user.current_shed or ""
     timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
     original_name = file.filename or "issue-photo"
     suffix = Path(original_name).suffix or ".bin"
@@ -3294,6 +3403,7 @@ def owner_farms(request: Request):
                 "active_batch": farm.active_batch or "",
                 "current_shed": farm.current_shed or "",
                 "bird_age_days": farm.bird_age_days or 0,
+                "initial_batch_strength": farm.initial_batch_strength or 0,
                 "feed_stock_bags": feed_stock_totals.get(farm.id, 0),
             }
             for farm in farmers
@@ -3317,6 +3427,7 @@ def owner_farms(request: Request):
                 "active_batch": farm.active_batch or "",
                 "current_shed": farm.current_shed or "",
                 "bird_age_days": farm.bird_age_days or 0,
+                "initial_batch_strength": farm.initial_batch_strength or 0,
             }
             for farm in farmers
         ],
@@ -3450,6 +3561,7 @@ def owner_update_farmer_batch(payload: OwnerBatchEntryPayload, request: Request)
         farmer.active_batch = payload.active_batch.strip()
         farmer.current_shed = payload.current_shed.strip()
         farmer.bird_age_days = payload.bird_age_days
+        farmer.initial_batch_strength = payload.initial_batch_strength
         db.add(farmer)
         db.commit()
         db.refresh(farmer)
@@ -3464,6 +3576,7 @@ def owner_update_farmer_batch(payload: OwnerBatchEntryPayload, request: Request)
             "active_batch": farmer.active_batch or "",
             "current_shed": farmer.current_shed or "",
             "bird_age_days": farmer.bird_age_days or 0,
+            "initial_batch_strength": farmer.initial_batch_strength or 0,
         },
     }
 
@@ -3639,6 +3752,8 @@ def owner_finance(request: Request):
                 "active_batch": farm.active_batch or "",
                 "current_shed": farm.current_shed or "",
                 "active_sheds": farm.active_sheds or 1,
+                "bird_age_days": farm.bird_age_days or 0,
+                "initial_batch_strength": farm.initial_batch_strength or 0,
             }
             for farm in farmers
         ],
@@ -3783,6 +3898,10 @@ def owner_parties(request: Request):
                 "farmer_code": farm.farmer_code or "",
                 "farm_name": farm.farm_name or "",
                 "farmer_name": farm.name or "",
+                "active_batch": farm.active_batch or "",
+                "current_shed": farm.current_shed or "",
+                "bird_age_days": farm.bird_age_days or 0,
+                "initial_batch_strength": farm.initial_batch_strength or 0,
             }
             for farm in farmers
         ],

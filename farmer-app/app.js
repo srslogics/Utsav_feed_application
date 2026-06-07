@@ -134,6 +134,7 @@ function populateProfile(profile) {
   document.querySelectorAll("[data-profile-officer]").forEach((el) => (el.textContent = profile.field_officer || ""));
   document.querySelectorAll("[data-profile-sheds]").forEach((el) => (el.textContent = profile.active_sheds ? `${profile.active_sheds} sheds` : ""));
   document.querySelectorAll("[data-profile-current-shed]").forEach((el) => (el.textContent = profile.current_shed || ""));
+  document.querySelectorAll("[data-profile-batch-strength]").forEach((el) => (el.textContent = profile.initial_batch_strength ? `${profile.initial_batch_strength}` : ""));
   const profileForm = document.querySelector("[data-farmer-profile-form]");
   if (profileForm) {
     const setValue = (name, value) => {
@@ -195,12 +196,15 @@ function applyShedDefault(entryData) {
   const selectedShed = shedSelect.value;
   const defaults = entryData?.shed_defaults || [];
   const matched = defaults.find((item) => item.shed === selectedShed);
+  const initialBatchStrength = Number(entryData?.profile?.initial_batch_strength || 0);
   if (matched) {
     openingInput.value = matched.live_birds;
-    note.textContent = `${selectedShed} ka live bird count ${matched.entry_date} ki pichhli entry se auto-filled hai. Zarurat ho to badal sakte hain.`;
+    note.textContent = `${selectedShed} ka live bird count ${matched.entry_date} ki pichhli entry se auto-filled hai. Yeh owner batch strength se start hoke sirf mortality se reduce hota hai.`;
   } else if (selectedShed) {
-    openingInput.value = "";
-    note.textContent = `${selectedShed} ke liye pehli entry lag rahi hai. Yahan current live bird count daalein.`;
+    openingInput.value = initialBatchStrength ? String(initialBatchStrength) : "";
+    note.textContent = initialBatchStrength
+      ? `${selectedShed} ke liye pehli entry owner ke batch strength ${initialBatchStrength} se auto-filled hai. Aage se count mortality ke hisaab se khud kam hota rahega.`
+      : `${selectedShed} ke liye owner se batch strength set hone ke baad yahan count auto-filled aayega.`;
   } else {
     openingInput.value = "";
     note.textContent = "";

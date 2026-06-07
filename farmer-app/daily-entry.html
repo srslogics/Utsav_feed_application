@@ -79,70 +79,31 @@
           </div>
         </section>
 
-        <section class="fa-flow-strip">
-          <article><span>1</span><strong>Shed select</strong></article>
-          <article><span>2</span><strong>Main bird report</strong></article>
-          <article><span>3</span><strong>Optional notes</strong></article>
-        </section>
-
         <section class="fa-work-grid">
           <section class="fa-section">
           <div class="fa-section-head">
             <div>
-              <p class="fa-eyebrow">Daily Submission</p>
-              <h3>Farm details</h3>
+              <h3>Daily entry</h3>
             </div>
-          </div>
-          <div class="fa-info-strip" data-outside-weather hidden>
-            <article>
-              <span>Outside location</span>
-              <strong data-weather-location></strong>
-              <p data-weather-note></p>
-            </article>
-            <article>
-              <span>Outside temperature</span>
-              <strong data-weather-temperature></strong>
-              <p data-weather-time></p>
-            </article>
-            <article>
-              <span>Outside humidity</span>
-              <strong data-weather-humidity></strong>
-              <p>Farmer zarurat ho to value badal sakta hai.</p>
-            </article>
-            <article>
-              <span>Temp high / low</span>
-              <strong data-weather-temp-range></strong>
-              <p>Aaj ka outside range</p>
-            </article>
-            <article>
-              <span>Humidity high / low</span>
-              <strong data-weather-humidity-range></strong>
-              <p>Aaj ki outside range</p>
-            </article>
           </div>
           <form class="fa-form fa-multi-form" data-daily-entry-form enctype="multipart/form-data">
             <input name="editing_entry_id" type="hidden" />
             <div class="fa-form-block full">
-              <div class="fa-form-block-head">
-                <p class="fa-eyebrow">Required Today</p>
-                <h4>Pehle yeh bhariye</h4>
-              </div>
               <div class="fa-form-grid">
                 <label>
                   Date | तारीख
-                  <input name="entry_date" type="date" required />
+                  <input name="entry_date" type="date" />
                 </label>
                 <label>
                   Current shed | आज का शेड
-                  <select name="shed" required>
+                  <select name="shed">
                     <option value="">Select shed</option>
                   </select>
                 </label>
                 <label>
                   Live birds today | आज कुल birds
-                  <input name="opening_birds" type="number" min="1" placeholder="Previous entry se auto aayega" required />
+                  <input name="opening_birds" type="number" min="0" placeholder="Owner batch strength se auto aayega" readonly />
                 </label>
-                <p class="fa-field-note full" data-opening-birds-note></p>
                 <label>
                   Mortality today | आज मरे हुए birds
                   <input name="mortality" type="number" min="0" placeholder="0" required />
@@ -156,19 +117,14 @@
                   <input name="feed_used_extra_kg" type="number" min="0" max="49.9" step="0.1" placeholder="Jaise 25" inputmode="decimal" />
                 </label>
                 <input name="feed_used_bags" type="hidden" value="0" />
-                <p class="fa-field-note full">Abhi app mein 1 bag = 50 kg maana ja raha hai. Yahan full bags aur khule bag se use hua extra kg alag-alag daalein.</p>
               </div>
             </div>
 
             <div class="fa-form-block full">
-              <div class="fa-form-block-head">
-                <p class="fa-eyebrow">Extra Bird Detail</p>
-                <h4>Agar note karna ho</h4>
-              </div>
               <div class="fa-form-grid">
                 <label>
                   Culls / weak birds | निकाले गए birds
-                  <input name="culls" type="number" min="0" placeholder="0" />
+                  <input name="culls" type="number" min="0" placeholder="0" required />
                 </label>
                 <label>
                   Water consumed (liters) | पानी की खपत
@@ -186,10 +142,6 @@
             </div>
 
             <div class="fa-form-block full">
-              <div class="fa-form-block-head">
-                <p class="fa-eyebrow">Shed Condition</p>
-                <h4>Shed aur litter ki condition</h4>
-              </div>
               <div class="fa-form-grid">
                 <label>
                   Temperature (C) | बाहरी तापमान
@@ -201,7 +153,7 @@
                 </label>
                 <label>
                   Litter condition | लिटर की हालत
-                  <select name="litter_condition" required>
+                  <select name="litter_condition">
                     <option value="">Select condition</option>
                     <option>Dry</option>
                     <option>Moderate</option>
@@ -215,32 +167,31 @@
                 <label class="full">
                   Litter photo | लिटर की फोटो
                   <input name="litter_photo" type="file" accept="image/*" capture="environment" />
-                  <small class="fa-field-note">Supported phones par camera seedha khul sakta hai. Nahi khule to gallery ya file picker open hoga.</small>
+                </label>
+                <label class="full">
+                  Mortality birds photo | मरे हुए birds की फोटो
+                  <input name="mortality_photo" type="file" accept="image/*" capture="environment" />
                 </label>
                 <label>
-                  Power cut hours | बिजली बंद
-                  <input name="power_cut_hours" type="number" min="0" step="0.1" placeholder="0" />
+                  Bijli kitne ghante gayi?
+                  <input name="power_cut_hours" type="number" min="0" step="0.1" placeholder="Jaise 2" />
                 </label>
                 <label>
-                  DG hours | DG चला
-                  <input name="dg_hours" type="number" min="0" step="0.1" placeholder="0" />
+                  Generator kitne ghante chala?
+                  <input name="dg_hours" type="number" min="0" step="0.1" placeholder="Jaise 1.5" />
                 </label>
               </div>
             </div>
 
             <div class="fa-form-block full">
-              <div class="fa-form-block-head">
-                <p class="fa-eyebrow">Optional Note</p>
-                <h4>Owner ko kya batana hai</h4>
-              </div>
               <div class="fa-form-grid">
                 <label class="full">
                   Issues observed | कोई दिक्कत
-                  <input name="issues" type="text" placeholder="Jaise water line issue, breathing, loose motion, litter wet, feed issue" />
+                  <input name="issues" type="text" />
                 </label>
                 <label class="full">
                   Remarks | टिप्पणी
-                  <textarea name="remarks" placeholder="Aaj batch ki condition, medicine di ya koi dikkat ho to yahan likhein"></textarea>
+                  <textarea name="remarks"></textarea>
                 </label>
               </div>
             </div>

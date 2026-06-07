@@ -581,6 +581,8 @@ function renderDailyEntryHierarchy(container, farms) {
             latest_litter: "",
             latest_photo_url: "",
             latest_photo_name: "",
+            latest_mortality_photo_url: "",
+            latest_mortality_photo_name: "",
             entries: [],
           });
         }
@@ -594,6 +596,8 @@ function renderDailyEntryHierarchy(container, farms) {
             shedRecord.latest_litter = row.litter_condition || "";
             shedRecord.latest_photo_url = row.litter_photo_url || "";
             shedRecord.latest_photo_name = row.litter_photo_name || "";
+            shedRecord.latest_mortality_photo_url = row.mortality_photo_url || "";
+            shedRecord.latest_mortality_photo_name = row.mortality_photo_name || "";
           }
           shedRecord.entries.push({
             entry_date: group.entry_date,
@@ -808,6 +812,7 @@ function renderDailyEntryHierarchy(container, farms) {
                     <span>${shed.latest_mortality ? `${shed.latest_mortality} mortality` : "No mortality"}</span>
                     <span>${shed.latest_litter || "No litter note"}</span>
                     ${shed.latest_photo_url ? `<span>Photo attached</span>` : ""}
+                    ${shed.latest_mortality_photo_url ? `<span>Mortality proof</span>` : ""}
                   </div>
                 </button>
               `
@@ -858,8 +863,22 @@ function renderDailyEntryHierarchy(container, farms) {
                           <span class="owner-hierarchy-chip owner-hierarchy-chip-dark">${entry.opening_birds} live</span>
                           <span class="owner-hierarchy-chip owner-hierarchy-chip-dark">${entry.avg_weight_g} g</span>
                           ${entry.litter_photo_url ? `<span class="owner-hierarchy-chip owner-hierarchy-chip-dark">Photo attached</span>` : ""}
+                          ${entry.mortality_photo_url ? `<span class="owner-hierarchy-chip owner-hierarchy-chip-dark">Mortality photo</span>` : ""}
                         </div>
                       </div>
+                      ${
+                        entry.mortality_photo_url
+                          ? `
+                            <div class="owner-daily-entry-media owner-daily-entry-media-prominent">
+                              <span class="owner-daily-entry-media-label">Mortality birds photo</span>
+                              <a class="owner-daily-entry-photo-link" href="${entry.mortality_photo_url}" target="_blank" rel="noopener noreferrer">
+                                <img src="${entry.mortality_photo_url}" alt="${entry.mortality_photo_name || "Mortality photo"}" loading="lazy" />
+                                <strong>Open full photo</strong>
+                              </a>
+                            </div>
+                          `
+                          : ""
+                      }
                       ${
                         entry.litter_photo_url
                           ? `
@@ -1640,7 +1659,7 @@ function populateFarmerSelect(items) {
     `<option value="">Choose farmer</option>`,
     ...items.map(
       (item) =>
-        `<option value="${item.farmer_code || ""}" data-farm-name="${item.farm_name || ""}" data-batch="${item.active_batch || ""}" data-current-shed="${item.current_shed || ""}" data-bird-age="${item.bird_age_days || 0}">
+        `<option value="${item.farmer_code || ""}" data-farm-name="${item.farm_name || ""}" data-batch="${item.active_batch || ""}" data-current-shed="${item.current_shed || ""}" data-bird-age="${item.bird_age_days || 0}" data-initial-batch-strength="${item.initial_batch_strength || 0}">
           ${(item.farmer_name || item.farm_name || "").trim()}${item.farmer_code ? ` • ${item.farmer_code}` : ""}
         </option>`
     ),
@@ -1655,12 +1674,15 @@ function syncSelectedFarmerMeta() {
   const batchInput = document.querySelector('[data-owner-batch-entry] input[name="active_batch"]');
   const shedInput = document.querySelector('[data-owner-batch-entry] input[name="current_shed"]');
   const ageInput = document.querySelector('[data-owner-batch-entry] input[name="bird_age_days"]');
-  if (!select || !farmNameInput || !batchInput || !shedInput || !ageInput) return;
+  const batchStrengthInput = document.querySelector('[data-owner-batch-entry] input[name="initial_batch_strength"]');
+  if (!select || !farmNameInput || !batchInput || !shedInput || !ageInput || !batchStrengthInput) return;
   const selectedOption = select.options[select.selectedIndex];
   farmNameInput.value = selectedOption?.dataset.farmName || "";
   batchInput.value = selectedOption?.dataset.batch || "";
   shedInput.value = selectedOption?.dataset.currentShed || "";
   ageInput.value = selectedOption?.dataset.birdAge === "0" ? "" : selectedOption?.dataset.birdAge || "";
+  batchStrengthInput.value =
+    selectedOption?.dataset.initialBatchStrength === "0" ? "" : selectedOption?.dataset.initialBatchStrength || "";
 }
 
 function resetOwnerEnrollmentForm() {
@@ -2055,6 +2077,7 @@ if (batchEntryForm) {
       active_batch: formData.get("active_batch"),
       current_shed: formData.get("current_shed"),
       bird_age_days: Number(formData.get("bird_age_days") || 0),
+      initial_batch_strength: Number(formData.get("initial_batch_strength") || 0),
     };
 
     try {
@@ -2064,7 +2087,7 @@ if (batchEntryForm) {
       });
       setStatus(
         ".owner-batch-note",
-        `Batch save ho gaya: ${result.farmer.farmer_name} • ${result.farmer.active_batch} • ${result.farmer.current_shed || "-"} • ${result.farmer.bird_age_days} days`
+        `Batch save ho gaya: ${result.farmer.farmer_name} • ${result.farmer.active_batch} • ${result.farmer.current_shed || "-"} • ${result.farmer.bird_age_days} days • ${result.farmer.initial_batch_strength || 0} chicks`
       );
       loadFarms().catch(console.error);
     } catch {
