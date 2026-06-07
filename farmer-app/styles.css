@@ -947,6 +947,35 @@ button {
   color: rgba(255, 245, 236, 0.82);
 }
 
+.fa-home-panel {
+  padding: 1.05rem;
+}
+
+.fa-home-context {
+  display: grid;
+  gap: 0.2rem;
+  margin: 0 0 0.95rem;
+}
+
+.fa-home-context span,
+.fa-home-context small {
+  color: var(--fa-muted);
+}
+
+.fa-home-context strong {
+  font-family: var(--fa-font-display);
+  font-size: 1.08rem;
+  letter-spacing: -0.02em;
+}
+
+.fa-home-footer-actions {
+  display: flex;
+  justify-content: center;
+  gap: 0.7rem;
+  flex-wrap: wrap;
+  margin-top: 1rem;
+}
+
 .fa-info-strip {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -1377,6 +1406,16 @@ button {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
+  .fa-home-panel {
+    min-height: calc(100vh - 150px);
+    display: flex;
+    flex-direction: column;
+  }
+
+  .fa-home-panel .fa-quick-grid-six {
+    margin-top: 0.2rem;
+  }
+
   .fa-info-strip,
   .fa-form-grid,
   .fa-request-form,
@@ -1423,6 +1462,18 @@ button {
     margin-top: 0.62rem;
     font-size: 0.98rem;
     line-height: 1.2;
+  }
+
+  .fa-quick-card {
+    min-height: 164px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    text-align: center;
+  }
+
+  .fa-quick-card span {
+    margin-inline: auto;
   }
 
   .fa-quick-card p,
@@ -1502,6 +1553,11 @@ button {
     font-size: 16px;
     border-radius: 14px;
   }
+
+  .fa-home-footer-actions {
+    margin-top: auto;
+    padding-top: 0.4rem;
+  }
 }
 
 @media (max-width: 420px) {
@@ -1538,5 +1594,9 @@ button {
   .fa-bottom-nav a {
     min-height: 38px;
     font-size: 0.58rem;
+  }
+
+  .fa-quick-card {
+    min-height: 152px;
   }
 }
