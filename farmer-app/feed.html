@@ -53,6 +53,61 @@
           </div>
         </header>
 
+        <section class="fa-section">
+          <div class="fa-section-head">
+            <div>
+              <p class="fa-eyebrow">Expected Feed</p>
+              <h3>Aaj ka expected feed</h3>
+            </div>
+          </div>
+          <div class="fa-card-grid" id="feed-expected-metrics"></div>
+        </section>
+
+        <section class="fa-work-grid">
+          <section class="fa-section" id="feed-balance-form">
+          <div class="fa-section-head">
+            <div>
+              <p class="fa-eyebrow">Opening Stock</p>
+              <h3>Batch start ke time feed pada ho to yahan daalein</h3>
+            </div>
+          </div>
+          <form class="fa-form fa-inline-form" data-feed-balance-form>
+            <label>
+              Shed | शेड
+              <select name="shed">
+                <option value="">Select shed</option>
+              </select>
+            </label>
+            <label>
+              Feed type | feed ka type
+              <select name="feed_type" required>
+                <option value="">Select type</option>
+                <option>Pre-starter</option>
+                <option>Starter</option>
+                <option>Grower</option>
+                <option>Finisher</option>
+              </select>
+            </label>
+            <label>
+              Bags lying now | abhi bache bags
+              <input name="bags" type="number" min="0" placeholder="0" required />
+            </label>
+            <button class="fa-secondary-btn" type="submit">Shuru ka stock save karein</button>
+          </form>
+          <p class="fa-status-message" data-feed-balance-status></p>
+          </section>
+
+          <section class="fa-section" id="feed-current-stock">
+          <div class="fa-section-head">
+            <div>
+              <p class="fa-eyebrow">Current Stock</p>
+              <h3>Abhi total stock</h3>
+            </div>
+          </div>
+          <div class="fa-card-grid" id="feed-balance"></div>
+          </section>
+        </section>
+
         <section class="fa-work-grid">
           <section class="fa-section">
             <div class="fa-section-head">
@@ -99,51 +154,6 @@
               </div>
             </div>
             <div class="fa-list-card" id="feed-history"></div>
-          </section>
-        </section>
-
-        <section class="fa-work-grid">
-          <section class="fa-section" id="feed-balance-form">
-          <div class="fa-section-head">
-            <div>
-              <p class="fa-eyebrow">Stock Correction</p>
-              <h3>Abhi shed mein kitna stock pada hai</h3>
-            </div>
-          </div>
-          <form class="fa-form fa-inline-form" data-feed-balance-form>
-            <label>
-              Shed | शेड
-              <select name="shed">
-                <option value="">Select shed</option>
-              </select>
-            </label>
-            <label>
-              Feed type | feed ka type
-              <select name="feed_type" required>
-                <option value="">Select type</option>
-                <option>Pre-starter</option>
-                <option>Starter</option>
-                <option>Grower</option>
-                <option>Finisher</option>
-              </select>
-            </label>
-            <label>
-              Bags lying now | abhi bache bags
-              <input name="bags" type="number" min="0" placeholder="0" required />
-            </label>
-            <button class="fa-secondary-btn" type="submit">Current stock save karein</button>
-          </form>
-          <p class="fa-status-message" data-feed-balance-status></p>
-          </section>
-
-          <section class="fa-section" id="feed-current-stock">
-          <div class="fa-section-head">
-            <div>
-              <p class="fa-eyebrow">Current Stock</p>
-              <h3>Saved stock view</h3>
-            </div>
-          </div>
-          <div class="fa-card-grid" id="feed-balance"></div>
           </section>
         </section>
       </main>

@@ -471,6 +471,7 @@ function renderDailyEntryData(data) {
 function renderFeedData(data) {
   if (!data) return;
   populateProfile(data.profile);
+  renderKeyValueGrid(document.querySelector("#feed-expected-metrics"), data.expected_feed_metrics || []);
   renderKeyValueGrid(document.querySelector("#feed-balance"), data.shed_balances);
   renderList(document.querySelector("#feed-history"), data.inward_history);
 }
@@ -656,7 +657,15 @@ async function loadUploads() {
 async function handleFormSubmit(form, url, selector, makePayload, afterSuccess) {
   form.addEventListener("submit", async (event) => {
     event.preventDefault();
+    if (form.dataset.submitting === "true") return;
     const formData = new FormData(form);
+    const submitButtons = Array.from(form.querySelectorAll('button[type="submit"]'));
+    form.dataset.submitting = "true";
+    submitButtons.forEach((button) => {
+      button.dataset.originalLabel = button.textContent;
+      button.disabled = true;
+      button.textContent = "Save ho raha hai...";
+    });
     try {
       await requestJson(url, {
         method: "POST",
@@ -668,6 +677,12 @@ async function handleFormSubmit(form, url, selector, makePayload, afterSuccess) 
       setStatus(selector, "Safalta se save ho gaya.");
     } catch {
       setStatus(selector, "Abhi save nahi ho paaya. Kripya dobara koshish karein.", true);
+    } finally {
+      form.dataset.submitting = "false";
+      submitButtons.forEach((button) => {
+        button.disabled = false;
+        button.textContent = button.dataset.originalLabel || button.textContent;
+      });
     }
   });
 }
@@ -675,7 +690,15 @@ async function handleFormSubmit(form, url, selector, makePayload, afterSuccess) 
 async function handleUploadSubmit(form, url, selector, afterSuccess) {
   form.addEventListener("submit", async (event) => {
     event.preventDefault();
+    if (form.dataset.submitting === "true") return;
     const formData = new FormData(form);
+    const submitButtons = Array.from(form.querySelectorAll('button[type="submit"]'));
+    form.dataset.submitting = "true";
+    submitButtons.forEach((button) => {
+      button.dataset.originalLabel = button.textContent;
+      button.disabled = true;
+      button.textContent = "Save ho raha hai...";
+    });
     const uploadCategory = formData.get("upload_category");
     const currentDocType = formData.get("doc_type");
     if (uploadCategory && currentDocType) {
@@ -692,6 +715,12 @@ async function handleUploadSubmit(form, url, selector, afterSuccess) {
       setStatus(selector, "Safalta se upload ho gaya.");
     } catch {
       setStatus(selector, "Upload abhi nahi ho paaya. Kripya dobara koshish karein.", true);
+    } finally {
+      form.dataset.submitting = "false";
+      submitButtons.forEach((button) => {
+        button.disabled = false;
+        button.textContent = button.dataset.originalLabel || button.textContent;
+      });
     }
   });
 }

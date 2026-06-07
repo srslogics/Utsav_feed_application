@@ -71,6 +71,64 @@ GEOCODE_CACHE_TTL_SECONDS = 86400
 SESSION_MAX_AGE_SECONDS = int(os.getenv("SESSION_MAX_AGE_SECONDS", str(60 * 60 * 24 * 30)))
 PHOTO_RETENTION_HOURS = int(os.getenv("PHOTO_RETENTION_HOURS", "48"))
 FEED_BAG_WEIGHT_KG = int(os.getenv("FEED_BAG_WEIGHT_KG", "50"))
+ROSS_308_FF_STANDARD_BY_AGE: dict[int, dict[str, int]] = {
+    1: {"weight_g": 40, "feed_intake_g": 13},
+    2: {"weight_g": 51, "feed_intake_g": 18},
+    3: {"weight_g": 68, "feed_intake_g": 24},
+    4: {"weight_g": 89, "feed_intake_g": 31},
+    5: {"weight_g": 115, "feed_intake_g": 39},
+    6: {"weight_g": 144, "feed_intake_g": 46},
+    7: {"weight_g": 177, "feed_intake_g": 52},
+    8: {"weight_g": 214, "feed_intake_g": 58},
+    9: {"weight_g": 253, "feed_intake_g": 63},
+    10: {"weight_g": 295, "feed_intake_g": 68},
+    11: {"weight_g": 339, "feed_intake_g": 72},
+    12: {"weight_g": 385, "feed_intake_g": 76},
+    13: {"weight_g": 433, "feed_intake_g": 80},
+    14: {"weight_g": 482, "feed_intake_g": 83},
+    15: {"weight_g": 532, "feed_intake_g": 87},
+    16: {"weight_g": 585, "feed_intake_g": 90},
+    17: {"weight_g": 638, "feed_intake_g": 93},
+    18: {"weight_g": 693, "feed_intake_g": 96},
+    19: {"weight_g": 749, "feed_intake_g": 99},
+    20: {"weight_g": 805, "feed_intake_g": 102},
+    21: {"weight_g": 864, "feed_intake_g": 105},
+    22: {"weight_g": 922, "feed_intake_g": 108},
+    23: {"weight_g": 981, "feed_intake_g": 111},
+    24: {"weight_g": 1041, "feed_intake_g": 113},
+    25: {"weight_g": 1101, "feed_intake_g": 116},
+    26: {"weight_g": 1161, "feed_intake_g": 119},
+    27: {"weight_g": 1221, "feed_intake_g": 122},
+    28: {"weight_g": 1280, "feed_intake_g": 125},
+    29: {"weight_g": 1339, "feed_intake_g": 128},
+    30: {"weight_g": 1398, "feed_intake_g": 131},
+    31: {"weight_g": 1456, "feed_intake_g": 133},
+    32: {"weight_g": 1514, "feed_intake_g": 136},
+    33: {"weight_g": 1571, "feed_intake_g": 139},
+    34: {"weight_g": 1627, "feed_intake_g": 142},
+    35: {"weight_g": 1683, "feed_intake_g": 145},
+    36: {"weight_g": 1738, "feed_intake_g": 147},
+    37: {"weight_g": 1791, "feed_intake_g": 150},
+    38: {"weight_g": 1844, "feed_intake_g": 153},
+    39: {"weight_g": 1896, "feed_intake_g": 156},
+    40: {"weight_g": 1946, "feed_intake_g": 158},
+    41: {"weight_g": 1995, "feed_intake_g": 161},
+    42: {"weight_g": 2043, "feed_intake_g": 164},
+    43: {"weight_g": 2089, "feed_intake_g": 167},
+    44: {"weight_g": 2135, "feed_intake_g": 169},
+    45: {"weight_g": 2178, "feed_intake_g": 172},
+    46: {"weight_g": 2221, "feed_intake_g": 175},
+    47: {"weight_g": 2262, "feed_intake_g": 177},
+    48: {"weight_g": 2301, "feed_intake_g": 180},
+    49: {"weight_g": 2339, "feed_intake_g": 183},
+    50: {"weight_g": 2375, "feed_intake_g": 185},
+    51: {"weight_g": 2410, "feed_intake_g": 188},
+    52: {"weight_g": 2444, "feed_intake_g": 191},
+    53: {"weight_g": 2476, "feed_intake_g": 194},
+    54: {"weight_g": 2506, "feed_intake_g": 196},
+    55: {"weight_g": 2535, "feed_intake_g": 199},
+    56: {"weight_g": 2563, "feed_intake_g": 201},
+}
 GO_LIVE_RESET_TOKEN = os.getenv("GO_LIVE_RESET_TOKEN", "").strip()
 OWNER_ACCOUNT_SYNC_TOKEN = os.getenv("OWNER_ACCOUNT_SYNC_TOKEN", "").strip()
 LOCATION_COORDINATE_OVERRIDES = {
@@ -1149,12 +1207,87 @@ def make_feed_history(records: list[FeedInward]) -> list[dict]:
     ]
 
 
+def get_expected_broiler_standard(age_days: int) -> dict | None:
+    if age_days <= 0:
+        return None
+    min_day = min(ROSS_308_FF_STANDARD_BY_AGE)
+    max_day = max(ROSS_308_FF_STANDARD_BY_AGE)
+    normalized_day = max(min_day, min(age_days, max_day))
+    return {
+        "age_days": normalized_day,
+        "weight_g": ROSS_308_FF_STANDARD_BY_AGE[normalized_day]["weight_g"],
+        "feed_intake_g": ROSS_308_FF_STANDARD_BY_AGE[normalized_day]["feed_intake_g"],
+    }
+
+
+def get_current_live_birds_for_farmer(user: User, entries: list[DailyEntry]) -> int:
+    latest_by_shed = latest_entries_by_shed(entries)
+    if latest_by_shed:
+        return max(
+            int(
+                sum(
+                    max(float(item.opening_birds or 0) - float(item.mortality or 0), 0)
+                    for item in latest_by_shed.values()
+                )
+            ),
+            0,
+        )
+    return max(int(user.initial_batch_strength or 0), 0)
+
+
+def build_expected_feed_metrics(user: User, entries: list[DailyEntry]) -> list[dict]:
+    bird_age_days = int(user.bird_age_days or 0)
+    live_birds = get_current_live_birds_for_farmer(user, entries)
+    standard = get_expected_broiler_standard(bird_age_days)
+    if not standard or live_birds <= 0:
+        return []
+
+    expected_weight_g = standard["weight_g"]
+    expected_feed_intake_g = standard["feed_intake_g"]
+    expected_total_feed_kg = (live_birds * expected_feed_intake_g) / 1000
+    expected_total_bags = expected_total_feed_kg / FEED_BAG_WEIGHT_KG
+    total_live_weight_kg = (live_birds * expected_weight_g) / 1000
+
+    return [
+        {
+            "label": "Bird age today",
+            "value": f"{bird_age_days} days",
+            "note": "Current batch age",
+        },
+        {
+            "label": "Live birds",
+            "value": f"{live_birds:,}",
+            "note": "Auto count from submitted mortality",
+        },
+        {
+            "label": "Expected weight",
+            "value": f"{expected_weight_g} g",
+            "note": f"Per bird standard for day {standard['age_days']}",
+        },
+        {
+            "label": "Expected intake / bird",
+            "value": f"{expected_feed_intake_g} g",
+            "note": "Standard feed need for today",
+        },
+        {
+            "label": "Expected feed today",
+            "value": f"{expected_total_feed_kg:,.1f} kg",
+            "note": f"Estimated total live weight {total_live_weight_kg:,.0f} kg",
+        },
+        {
+            "label": "Expected bags today",
+            "value": f"{expected_total_bags:,.2f} bags",
+            "note": f"Using {FEED_BAG_WEIGHT_KG} kg per bag",
+        },
+    ]
+
+
 def make_medicine_summary(records: list[MedicineStock]) -> list[dict]:
     return [
         {
-            "label": record.status,
-            "value": record.name,
-            "note": f"{record.quantity} • {record.notes}",
+            "label": record.name,
+            "value": record.quantity,
+            "note": record.notes or record.status,
         }
         for record in records[:6]
     ]
@@ -1164,8 +1297,8 @@ def make_medicine_log(records: list[MedicineLog]) -> list[dict]:
     return [
         {
             "label": f"{record.entry_date} / {record.name}",
-            "value": f"{record.status} • {record.quantity}",
-            "note": record.notes,
+            "value": record.quantity,
+            "note": record.notes or record.status,
         }
         for record in records
     ]
@@ -2931,7 +3064,13 @@ def farmer_feed(request: Request):
     with session_scope() as db:
         stock = list(db.scalars(select(FeedStock).where(FeedStock.farmer_id == user.id)))
         inward = list(db.scalars(select(FeedInward).where(FeedInward.farmer_id == user.id).order_by(FeedInward.inward_date.desc(), FeedInward.created_at.desc())))
-    return {"profile": serialize_profile(user), "shed_balances": make_feed_balances(stock), "inward_history": make_feed_history(inward)}
+        entries = current_cycle_entries(db, user.id)
+    return {
+        "profile": serialize_profile(user),
+        "expected_feed_metrics": build_expected_feed_metrics(user, entries),
+        "shed_balances": make_feed_balances(stock),
+        "inward_history": make_feed_history(inward),
+    }
 
 
 @app.post("/api/farmer/feed/balance")
