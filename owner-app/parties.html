@@ -37,8 +37,8 @@
       <main class="fa-content">
         <header class="fa-page-head">
           <div>
-            <p class="fa-eyebrow">Party Network</p>
-            <h2>Buyer parties</h2>
+            <p class="fa-eyebrow">Parties</p>
+            <h2>Parties</h2>
           </div>
           <div class="fa-page-actions">
             <a class="fa-secondary-btn" href="./profile.html">Profile</a>
@@ -50,8 +50,8 @@
           <section class="fa-section">
             <div class="fa-section-head">
               <div>
-                <p class="fa-eyebrow">Party Directory</p>
-                <h3>Buyer contacts</h3>
+                <p class="fa-eyebrow">List</p>
+                <h3>Party contacts</h3>
               </div>
             </div>
             <div class="fa-list-card" id="owner-party-directory"></div>
@@ -60,13 +60,9 @@
           <section class="fa-section" id="owner-sale-rule-anchor">
             <div class="fa-section-head">
               <div>
-                <p class="fa-eyebrow">WhatsApp Trigger</p>
+                <p class="fa-eyebrow">Alerts</p>
                 <h3>Sale trigger</h3>
               </div>
-            </div>
-            <div class="owner-form-band">
-              <span>WhatsApp Mode</span>
-              <strong>Business setup required before live auto-send</strong>
             </div>
             <p class="fa-form-note owner-party-meta-note" id="owner-whatsapp-note"></p>
             <div class="fa-list-card" id="owner-sale-rule-list"></div>
@@ -77,39 +73,35 @@
           <section class="fa-section">
             <div class="fa-section-head">
               <div>
-                <p class="fa-eyebrow">Party Entry</p>
-                <h3>Add or edit party</h3>
+                <p class="fa-eyebrow">Entry</p>
+                <h3>Add party</h3>
               </div>
-            </div>
-            <div class="owner-form-band">
-              <span>Directory Setup</span>
-              <strong>Store the right buyers with the right farm reach</strong>
             </div>
             <form class="fa-form owner-form-grid" data-owner-party-form autocomplete="off">
               <input name="party_id" type="hidden" />
               <label>
                 Party Name
-                <input name="name" type="text" placeholder="Enter party name" required />
+                <input name="name" type="text" placeholder="Party name" required />
               </label>
               <label>
                 WhatsApp Number
-                <input name="phone" type="tel" inputmode="numeric" placeholder="Enter WhatsApp number" required />
+                <input name="phone" type="tel" inputmode="numeric" placeholder="WhatsApp number" required />
               </label>
               <label>
                 Market / Area
-                <input name="market_area" type="text" placeholder="Enter market or area" />
+                <input name="market_area" type="text" placeholder="Market or area" />
               </label>
               <label>
                 Preferred Clusters
-                <input name="preferred_clusters" type="text" placeholder="Example: Korba, Bilaspur" />
+                <input name="preferred_clusters" type="text" placeholder="Clusters" />
               </label>
               <label class="full">
                 Preferred Farms or Codes
-                <input name="preferred_farms" type="text" placeholder="Example: UF-101, Fetry Farm" />
+                <input name="preferred_farms" type="text" placeholder="Farms or codes" />
               </label>
               <label class="full">
                 Notes
-                <textarea name="notes" rows="4" placeholder="Any buying preference, payment note, or timing note"></textarea>
+                <textarea name="notes" rows="4" placeholder="Notes"></textarea>
               </label>
               <label class="owner-checkbox full">
                 <input name="is_active" type="checkbox" checked />
@@ -126,13 +118,9 @@
           <section class="fa-section">
             <div class="fa-section-head">
               <div>
-                <p class="fa-eyebrow">Ready Weight Control</p>
-                <h3>Farm trigger rule</h3>
+                <p class="fa-eyebrow">Weight</p>
+                <h3>Farm trigger</h3>
               </div>
-            </div>
-            <div class="owner-form-band">
-              <span>Sale Rule</span>
-              <strong>Choose the farm and set the weight where alerts should start</strong>
             </div>
             <form class="fa-form owner-form-grid" data-owner-sale-rule-form autocomplete="off">
               <label>
@@ -143,15 +131,15 @@
               </label>
               <label>
                 Ready Weight (g)
-                <input name="ready_weight_g" type="number" min="0" placeholder="Example: 2200" />
+                <input name="ready_weight_g" type="number" min="0" placeholder="Weight" />
               </label>
               <label class="owner-checkbox full">
                 <input name="auto_whatsapp_enabled" type="checkbox" />
-                <span>Mark this farm ready for automatic WhatsApp once business API is connected</span>
+                <span>Enable auto WhatsApp when setup is ready</span>
               </label>
               <label class="full">
                 Trigger Note
-                <textarea name="notes" rows="4" placeholder="Example: Notify Korba parties first, then Bilaspur backup list"></textarea>
+                <textarea name="notes" rows="4" placeholder="Notes"></textarea>
               </label>
               <button class="fa-primary-btn" type="submit">Save Trigger</button>
             </form>
@@ -162,8 +150,8 @@
         <section class="fa-section">
           <div class="fa-section-head">
             <div>
-              <p class="fa-eyebrow">Ready Queue</p>
-              <h3>Ready-for-sale farms</h3>
+              <p class="fa-eyebrow">Queue</p>
+              <h3>Ready farms</h3>
             </div>
           </div>
           <div class="owner-sale-card-grid" id="owner-sale-ready-queue"></div>

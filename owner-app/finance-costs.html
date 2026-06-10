@@ -37,8 +37,8 @@
       <main class="fa-content">
         <header class="fa-page-head">
           <div>
-            <p class="fa-eyebrow">Finance Watch</p>
-            <h2>Operational costs</h2>
+            <p class="fa-eyebrow">Finance</p>
+            <h2>Costs</h2>
           </div>
           <div class="fa-page-actions">
             <a class="fa-secondary-btn" href="./profile.html">Profile</a>
@@ -55,8 +55,8 @@
         <section class="fa-section">
           <div class="fa-section-head">
             <div>
-              <p class="fa-eyebrow">Cost Entry</p>
-              <h3>Add operational cost</h3>
+              <p class="fa-eyebrow">Entry</p>
+              <h3>Add cost</h3>
             </div>
           </div>
           <form class="fa-form owner-form-grid" data-owner-operational-cost-form autocomplete="off">
@@ -71,7 +71,7 @@
               <input name="entry_date" type="date" required />
             </label>
             <label>
-              Expense category
+                Category
               <select name="expense_category" required>
                 <option value="">Choose category</option>
                 <option>Chicks purchase</option>
@@ -92,34 +92,34 @@
               </select>
             </label>
             <label>
-              Item / service
-              <input name="item_name" type="text" placeholder="Jaise diesel refill, motor repair, labour" required />
+                Item / service
+                <input name="item_name" type="text" placeholder="Item or service" required />
             </label>
             <label>
-              Sheds (optional)
+                Sheds
               <input name="shed" type="hidden" data-owner-finance-shed-value />
               <select data-owner-finance-sheds multiple size="4">
                 <option value="">Choose farm first</option>
               </select>
             </label>
             <label>
-              Vendor / party
-              <input name="vendor_name" type="text" placeholder="Vendor ya party ka naam" />
+                Vendor / party
+                <input name="vendor_name" type="text" placeholder="Vendor or party" />
             </label>
             <label>
-              Amount
-              <input name="amount" type="text" placeholder="Jaise Rs 4,500" />
+                Amount
+                <input name="amount" type="text" placeholder="Amount" />
             </label>
             <label class="full">
-              Notes
-              <textarea name="notes" rows="4" placeholder="Expense ke baare mein owner-side note"></textarea>
+                Notes
+                <textarea name="notes" rows="4" placeholder="Notes"></textarea>
             </label>
             <label class="full">
               Optional bill / receipt
               <input name="file" type="file" accept="image/*,.pdf,.jpg,.jpeg,.png,.webp" />
             </label>
             <div class="fa-form-actions full">
-              <button class="fa-primary-btn" type="submit">Operational cost save karein</button>
+              <button class="fa-primary-btn" type="submit">Save cost</button>
             </div>
           </form>
           <p class="fa-status-message owner-finance-cost-note"></p>
@@ -128,8 +128,8 @@
         <section class="fa-section">
           <div class="fa-section-head">
             <div>
-              <p class="fa-eyebrow">Operational Cost</p>
-              <h3>Expense ledger</h3>
+              <p class="fa-eyebrow">History</p>
+              <h3>Costs</h3>
             </div>
           </div>
           <div class="fa-list-card" id="owner-finance-operational-costs"></div>

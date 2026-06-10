@@ -6,18 +6,18 @@ let ownerAuthRecoveryPromise = null;
 
 const ownerPageMeta = {
   dashboard: { eyebrow: "Owner Dashboard", title: "Owner dashboard" },
-  profile: { eyebrow: "Account", title: "Profile settings" },
-  farms: { eyebrow: "Farm Directory", title: "Farm directory" },
-  reports: { eyebrow: "Reports", title: "Farm reports" },
-  files: { eyebrow: "Files", title: "Farm files" },
-  parties: { eyebrow: "Parties", title: "Buyer parties" },
+  profile: { eyebrow: "Profile", title: "Profile" },
+  farms: { eyebrow: "Farms", title: "Farms" },
+  reports: { eyebrow: "Reports", title: "Reports" },
+  files: { eyebrow: "Files", title: "Files" },
+  parties: { eyebrow: "Parties", title: "Parties" },
   "operations-daily": { eyebrow: "Operations", title: "Daily entries" },
   "operations-requests": { eyebrow: "Operations", title: "Requests" },
   "operations-photos": { eyebrow: "Operations", title: "Issue photos" },
   "operations-visits": { eyebrow: "Operations", title: "Field visits" },
-  finance: { eyebrow: "Finance", title: "Finance overview" },
-  "finance-costs": { eyebrow: "Finance", title: "Operational costs" },
-  "finance-sales": { eyebrow: "Finance", title: "Farm sales" },
+  finance: { eyebrow: "Finance", title: "Finance" },
+  "finance-costs": { eyebrow: "Finance", title: "Costs" },
+  "finance-sales": { eyebrow: "Finance", title: "Sales" },
 };
 
 function normaliseOwnerHref(href) {
@@ -1733,7 +1733,7 @@ function startOwnerFarmerEdit(item) {
   if (passwordNote) {
     passwordNote.textContent = "Blank chhodne par purana password waise ka waise rahega.";
   }
-  setStatus(".owner-create-note", `Editing ${item.farmer_name || item.farm_name || "farmer"} account.`);
+  setStatus(".owner-create-note", `Editing ${item.farmer_name || item.farm_name || "farmer"}.`);
   form.scrollIntoView({ behavior: "smooth", block: "start" });
 }
 
@@ -1746,7 +1746,7 @@ function startOwnerBatchEdit(item) {
   form.querySelector('input[name="active_batch"]').value = item.active_batch || "";
   form.querySelector('input[name="current_shed"]').value = item.current_shed || "";
   form.querySelector('input[name="bird_age_days"]').value = item.bird_age_days ? item.bird_age_days : "";
-  setStatus(".owner-batch-note", `Editing batch details for ${item.farm_name || item.farmer_name || "selected farm"}.`);
+  setStatus(".owner-batch-note", `Editing ${item.farm_name || item.farmer_name || "selected farm"} batch.`);
   const anchor = document.querySelector("#owner-batch-entry-anchor");
   (anchor || form).scrollIntoView({ behavior: "smooth", block: "start" });
 }
@@ -2021,11 +2021,11 @@ if (partyForm) {
         method: partyId ? "PUT" : "POST",
         body: JSON.stringify(payload),
       });
-      setStatus(".owner-party-note", `${result.party.name} contact save ho gaya.`);
+      setStatus(".owner-party-note", `${result.party.name} save ho gaya.`);
       resetOwnerPartyForm();
       loadParties().catch(console.error);
     } catch {
-      setStatus(".owner-party-note", "Party contact save nahi ho paaya. Mobile number aur details dobara check karein.", true);
+      setStatus(".owner-party-note", "Party save nahi ho paayi. Details dobara check karein.", true);
     }
   });
 }
@@ -2036,7 +2036,7 @@ if (saleRuleForm) {
     event.preventDefault();
     const formData = new FormData(saleRuleForm);
     if (!formData.get("farmer_code")) {
-      setStatus(".owner-sale-rule-note", "Pehle farm select karein.", true);
+      setStatus(".owner-sale-rule-note", "Farm select karein.", true);
       return;
     }
     const payload = {
@@ -2056,7 +2056,7 @@ if (saleRuleForm) {
       );
       loadParties().catch(console.error);
     } catch {
-      setStatus(".owner-sale-rule-note", "Sale trigger save nahi ho paaya. Farm aur target weight dobara check karein.", true);
+      setStatus(".owner-sale-rule-note", "Trigger save nahi ho paaya. Details dobara check karein.", true);
     }
   });
 }
@@ -2069,7 +2069,7 @@ if (batchEntryForm) {
     event.preventDefault();
     const formData = new FormData(batchEntryForm);
     if (!formData.get("farmer_code")) {
-      setStatus(".owner-batch-note", "Farmer select karein, baaki fields optional hain.", true);
+      setStatus(".owner-batch-note", "Farmer select karein.", true);
       return;
     }
     const payload = {
@@ -2091,7 +2091,7 @@ if (batchEntryForm) {
       );
       loadFarms().catch(console.error);
     } catch {
-      setStatus(".owner-batch-note", "Batch entry save nahi ho paaya. Farmer aur batch details dobara check karein.", true);
+      setStatus(".owner-batch-note", "Batch save nahi ho paaya. Details dobara check karein.", true);
     }
   });
 }
@@ -2229,11 +2229,11 @@ if (ownerProfileForm) {
       });
       ownerProfileForm.elements.password.value = "";
       renderOwnerProfileData({ profile: result.profile });
-      setStatus(".owner-profile-note", "Owner profile update ho gaya.");
+      setStatus(".owner-profile-note", "Profile save ho gaya.");
       writeCache("profile", { profile: result.profile });
     } catch (error) {
       const duplicate = error?.status === 409;
-      setStatus(".owner-profile-note", duplicate ? "Yeh mobile number pehle se use ho raha hai." : "Owner profile update nahi ho paaya.", true);
+      setStatus(".owner-profile-note", duplicate ? "Yeh mobile number pehle se use ho raha hai." : "Profile save nahi ho paaya.", true);
     }
   });
 }

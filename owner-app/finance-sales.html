@@ -37,8 +37,8 @@
       <main class="fa-content">
         <header class="fa-page-head">
           <div>
-            <p class="fa-eyebrow">Finance Watch</p>
-            <h2>Farm sales</h2>
+            <p class="fa-eyebrow">Finance</p>
+            <h2>Sales</h2>
           </div>
           <div class="fa-page-actions">
             <a class="fa-secondary-btn" href="./profile.html">Profile</a>
@@ -55,8 +55,8 @@
         <section class="fa-section">
           <div class="fa-section-head">
             <div>
-              <p class="fa-eyebrow">Sales Entry</p>
-              <h3>Add farm sale</h3>
+              <p class="fa-eyebrow">Entry</p>
+              <h3>Add sale</h3>
             </div>
           </div>
           <form class="fa-form owner-form-grid" data-owner-sale-form autocomplete="off">
@@ -71,8 +71,8 @@
               <input name="entry_date" type="date" required />
             </label>
             <label>
-              Bill no.
-              <input name="bill_number" type="text" placeholder="Jaise INV-2045" required />
+                Bill no.
+                <input name="bill_number" type="text" placeholder="Bill number" required />
             </label>
             <label>
               Party name
@@ -81,24 +81,23 @@
               </select>
             </label>
             <label>
-              Kgs
-              <input name="total_weight_kg" type="text" placeholder="Jaise 5,200" required />
+                Kgs
+                <input name="total_weight_kg" type="text" placeholder="Kgs" required />
             </label>
             <label>
-              Rate
-              <input name="rate_per_kg" type="text" placeholder="Jaise 92 per kg" required />
+                Rate
+                <input name="rate_per_kg" type="text" placeholder="Rate per kg" required />
             </label>
             <label>
-              Amount
-              <input name="amount" type="text" placeholder="Kgs x Rate" readonly />
-            </label>
-            <p class="fa-form-note full">Amount apne aap calculate hoga: kgs × rate.</p>
+                Amount
+                <input name="amount" type="text" placeholder="Auto" readonly />
+              </label>
             <label class="full">
               Bill / receipt
               <input name="file" type="file" accept="image/*,.pdf,.jpg,.jpeg,.png,.webp" />
             </label>
             <div class="fa-form-actions full">
-              <button class="fa-primary-btn" type="submit">Sale save karein</button>
+              <button class="fa-primary-btn" type="submit">Save sale</button>
             </div>
           </form>
           <p class="fa-status-message owner-sale-note"></p>
@@ -107,8 +106,8 @@
         <section class="fa-section">
           <div class="fa-section-head">
             <div>
-              <p class="fa-eyebrow">Sales</p>
-              <h3>Sales ledger</h3>
+              <p class="fa-eyebrow">History</p>
+              <h3>Sales</h3>
             </div>
           </div>
           <div class="fa-list-card" id="owner-finance-sales"></div>

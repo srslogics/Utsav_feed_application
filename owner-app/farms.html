@@ -32,8 +32,8 @@
       <main class="fa-content">
         <header class="fa-page-head">
           <div>
-            <p class="fa-eyebrow">Farm Directory</p>
-            <h2>Farm directory</h2>
+            <p class="fa-eyebrow">Owner App</p>
+            <h2>Farms</h2>
           </div>
           <div class="fa-page-actions">
             <a class="fa-secondary-btn" href="./profile.html">Profile</a>
@@ -42,8 +42,8 @@
         </header>
 
         <nav class="owner-mobile-section-nav" aria-label="Farm sections">
-          <a href="#owner-farms-directory">Directory</a>
-          <a href="#owner-enrollment-section">Enrollment</a>
+          <a href="#owner-farms-directory">List</a>
+          <a href="#owner-enrollment-section">Add</a>
           <a href="#owner-batch-entry-anchor">Batch</a>
           <a href="#owner-farmer-accounts">Accounts</a>
         </nav>
@@ -52,7 +52,7 @@
           <section class="fa-section">
             <div class="fa-section-head">
               <div>
-                <p class="fa-eyebrow">All Farms</p>
+                <p class="fa-eyebrow">Farms</p>
                 <h3>Farm list</h3>
               </div>
             </div>
@@ -62,7 +62,7 @@
           <section class="fa-section">
             <div class="fa-section-head">
               <div>
-                <p class="fa-eyebrow">Latest Reporting</p>
+                <p class="fa-eyebrow">Latest</p>
                 <h3>Latest entries</h3>
               </div>
             </div>
@@ -74,63 +74,55 @@
           <section class="fa-section" id="owner-enrollment-section">
             <div class="fa-section-head">
               <div>
-                <p class="fa-eyebrow">Farmer Enrollment</p>
-                <h3>Enroll farmer</h3>
+                <p class="fa-eyebrow">Farmer</p>
+                <h3>Add farmer</h3>
               </div>
-            </div>
-            <div class="owner-form-band">
-              <span>Account Setup</span>
-              <strong>Basic login and identity</strong>
             </div>
             <form class="fa-form owner-form-grid" data-owner-enroll-farmer autocomplete="off">
               <input name="editing_farmer_code" type="hidden" />
               <label>
                 Farmer Name
-                <input name="farmer_name" type="text" placeholder="Enter farmer name" autocomplete="off" required />
+                <input name="farmer_name" type="text" placeholder="Farmer name" autocomplete="off" required />
               </label>
               <label>
                 Mobile Number
-                <input name="phone" type="tel" inputmode="numeric" placeholder="Enter mobile number" autocomplete="off" required />
+                <input name="phone" type="tel" inputmode="numeric" placeholder="Mobile number" autocomplete="off" required />
               </label>
               <label>
                 Password
                 <input name="password" type="text" placeholder="Create password" autocomplete="new-password" required />
-                <small class="fa-field-note" data-owner-password-note>New farmer ke liye password zaroori hai.</small>
+                <small class="fa-field-note" data-owner-password-note></small>
               </label>
-              <div class="owner-form-band owner-form-band-sub full">
-                <span>Farm Profile</span>
-                <strong>Mapping and capacity</strong>
-              </div>
               <label>
                 Cluster
-                <input name="cluster" type="text" placeholder="Enter cluster" autocomplete="off" />
+                <input name="cluster" type="text" placeholder="Cluster" autocomplete="off" />
               </label>
               <label>
                 Farm Name
-                <input name="farm_name" type="text" placeholder="Enter farm name" autocomplete="off" required />
+                <input name="farm_name" type="text" placeholder="Farm name" autocomplete="off" required />
               </label>
               <label>
                 Farmer Code
-                <input name="farmer_code" type="text" placeholder="Enter farmer code" autocomplete="off" required />
+                <input name="farmer_code" type="text" placeholder="Farmer code" autocomplete="off" required />
               </label>
               <label>
                 Field Officer
-                <input name="field_officer" type="text" placeholder="Enter field officer name" autocomplete="off" />
+                <input name="field_officer" type="text" placeholder="Officer name" autocomplete="off" />
               </label>
               <label>
                 Officer Phone
-                <input name="field_officer_phone" type="tel" inputmode="numeric" placeholder="Enter officer phone" autocomplete="off" />
+                <input name="field_officer_phone" type="tel" inputmode="numeric" placeholder="Officer phone" autocomplete="off" />
               </label>
               <label>
                 Farm Capacity
-                <input name="farm_capacity" type="text" placeholder="Enter farm capacity" autocomplete="off" />
+                <input name="farm_capacity" type="text" placeholder="Farm capacity" autocomplete="off" />
               </label>
               <label>
                 Active Sheds
-                <input name="active_sheds" type="number" min="1" placeholder="Enter shed count" />
+                <input name="active_sheds" type="number" min="1" placeholder="Shed count" />
               </label>
               <div class="owner-form-actions full">
-                <button class="fa-primary-btn" type="submit" data-owner-enroll-submit>Create Enrollment</button>
+                <button class="fa-primary-btn" type="submit" data-owner-enroll-submit>Save Farmer</button>
                 <button class="fa-secondary-btn" type="button" data-owner-enroll-cancel hidden>Cancel Edit</button>
               </div>
             </form>
@@ -140,17 +132,13 @@
           <section class="fa-section" id="owner-batch-entry-anchor">
             <div class="fa-section-head">
               <div>
-                <p class="fa-eyebrow">Batch Entry</p>
-                <h3>Assign batch</h3>
+                <p class="fa-eyebrow">Batch</p>
+                <h3>Batch update</h3>
               </div>
-            </div>
-            <div class="owner-form-band">
-              <span>Batch Control</span>
-              <strong>Batch, shed, and age updates</strong>
             </div>
             <form class="fa-form owner-form-grid" data-owner-batch-entry autocomplete="off">
               <label>
-                Farmer Name
+                Farmer
                 <select name="farmer_code" data-owner-farmer-select>
                   <option value="">Choose farmer</option>
                 </select>
@@ -160,22 +148,22 @@
                 <input name="farm_name_preview" type="text" placeholder="" readonly />
               </label>
               <label>
-                Current Batch
-                <input name="active_batch" type="text" placeholder="Enter batch code" autocomplete="off" />
+                Batch
+                <input name="active_batch" type="text" placeholder="Batch code" autocomplete="off" />
               </label>
               <label>
-                In Which Shed
-                <input name="current_shed" type="text" placeholder="Enter shed name" autocomplete="off" />
+                Shed
+                <input name="current_shed" type="text" placeholder="Shed" autocomplete="off" />
               </label>
               <label>
                 Bird Age (days)
-                <input name="bird_age_days" type="number" min="0" placeholder="Enter bird age" />
+                <input name="bird_age_days" type="number" min="0" placeholder="Bird age" />
               </label>
               <label>
-                Chicks placed / Batch strength
-                <input name="initial_batch_strength" type="number" min="0" placeholder="Enter total chicks count" />
+                Batch strength
+                <input name="initial_batch_strength" type="number" min="0" placeholder="Total chicks" />
               </label>
-              <button class="fa-primary-btn" type="submit">Save Batch Entry</button>
+              <button class="fa-primary-btn" type="submit">Save Batch</button>
             </form>
             <p class="fa-form-note owner-batch-note"></p>
 
@@ -183,8 +171,8 @@
               <section class="fa-section owner-subsection">
                 <div class="fa-section-head owner-subhead">
                   <div>
-                    <p class="fa-eyebrow">Farmer Accounts</p>
-                    <h3>Farmer accounts</h3>
+                    <p class="fa-eyebrow">Accounts</p>
+                    <h3>Farmers</h3>
                   </div>
                 </div>
                 <div class="fa-list-card" id="owner-farmer-accounts"></div>
@@ -192,8 +180,8 @@
               <section class="fa-section owner-subsection">
                 <div class="fa-section-head owner-subhead">
                   <div>
-                    <p class="fa-eyebrow">Field Officers</p>
-                    <h3>Field officers</h3>
+                    <p class="fa-eyebrow">Support</p>
+                    <h3>Officers</h3>
                   </div>
                 </div>
                 <div class="fa-list-card" id="owner-field-officers"></div>
