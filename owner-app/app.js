@@ -1998,6 +1998,24 @@ function syncSelectedFarmerMeta() {
     selectedOption?.dataset.initialBatchStrength === "0" ? "" : selectedOption?.dataset.initialBatchStrength || "";
 }
 
+function setOwnerFormPanelVisibility(panelName, isOpen) {
+  const panelMap = {
+    enrollment: document.querySelector("#owner-enrollment-section"),
+    batch: document.querySelector("#owner-batch-entry-anchor"),
+  };
+  const panel = panelMap[panelName];
+  if (!panel) return;
+  panel.hidden = !isOpen;
+  if (isOpen) {
+    panel.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+}
+
+function closeAllOwnerFormPanels() {
+  setOwnerFormPanelVisibility("enrollment", false);
+  setOwnerFormPanelVisibility("batch", false);
+}
+
 function resetOwnerEnrollmentForm() {
   const form = document.querySelector("[data-owner-enroll-farmer]");
   if (!form) return;
@@ -2022,6 +2040,7 @@ function resetOwnerEnrollmentForm() {
 function startOwnerFarmerEdit(item) {
   const form = document.querySelector("[data-owner-enroll-farmer]");
   if (!form || !item) return;
+  setOwnerFormPanelVisibility("enrollment", true);
   const passwordInput = form.querySelector('input[name="password"]');
   const passwordNote = form.querySelector("[data-owner-password-note]");
   form.querySelector('input[name="editing_farmer_code"]').value = item.farmer_code || "";
@@ -2054,6 +2073,7 @@ function startOwnerBatchEdit(item) {
   const form = document.querySelector("[data-owner-batch-entry]");
   const farmerSelect = form?.querySelector("[data-owner-farmer-select]");
   if (!form || !farmerSelect || !item?.farmer_code) return;
+  setOwnerFormPanelVisibility("batch", true);
   farmerSelect.value = item.farmer_code || "";
   syncSelectedFarmerMeta();
   form.querySelector('input[name="active_batch"]').value = item.active_batch || "";
@@ -2225,9 +2245,31 @@ if (enrollFarmerForm) {
   cancelEditButton?.addEventListener("click", () => {
     resetOwnerEnrollmentForm();
     setStatus(".owner-create-note", "");
+    setOwnerFormPanelVisibility("enrollment", false);
   });
 
   document.addEventListener("click", (event) => {
+    const openPanelTrigger = event.target.closest("[data-owner-open-panel]");
+    if (openPanelTrigger) {
+      const panelName = openPanelTrigger.getAttribute("data-owner-open-panel");
+      if (panelName === "enrollment" || panelName === "batch") {
+        setOwnerFormPanelVisibility(panelName, true);
+      }
+      return;
+    }
+    const closePanelTrigger = event.target.closest("[data-owner-close-panel]");
+    if (closePanelTrigger) {
+      const panelName = closePanelTrigger.getAttribute("data-owner-close-panel");
+      if (panelName === "enrollment") {
+        resetOwnerEnrollmentForm();
+        setStatus(".owner-create-note", "");
+      }
+      if (panelName === "batch") {
+        setStatus(".owner-batch-note", "");
+      }
+      setOwnerFormPanelVisibility(panelName, false);
+      return;
+    }
     const openFarmTrigger = event.target.closest("[data-owner-open-farm]");
     if (openFarmTrigger && !event.target.closest("[data-owner-edit-farm-card], [data-owner-edit-batch-card]")) {
       ownerFarmWorkspaceState.selectedFarmCode = openFarmTrigger.getAttribute("data-owner-open-farm") || "";
@@ -2298,6 +2340,7 @@ if (enrollFarmerForm) {
         ? `Farmer account update ho gaya: ${result.farmer.farmer_name} • ${result.farmer.phone}`
         : `Farmer account create ho gaya: ${result.farmer.farmer_name} • ${result.farmer.phone} • Password ${result.login_password}`);
       resetOwnerEnrollmentForm();
+      setOwnerFormPanelVisibility("enrollment", false);
       const shedsInput = enrollFarmerForm.querySelector('input[name="active_sheds"]');
       if (shedsInput) shedsInput.value = "1";
       loadFarms().catch(console.error);
@@ -2422,6 +2465,7 @@ if (batchEntryForm) {
         ".owner-batch-note",
         `Batch save ho gaya: ${result.farmer.farmer_name} • ${result.farmer.active_batch} • ${result.farmer.current_shed || "-"} • ${result.farmer.bird_age_days} days • ${result.farmer.initial_batch_strength || 0} chicks`
       );
+      setOwnerFormPanelVisibility("batch", false);
       loadFarms().catch(console.error);
     } catch {
       setStatus(".owner-batch-note", "Batch save nahi ho paaya. Details dobara check karein.", true);

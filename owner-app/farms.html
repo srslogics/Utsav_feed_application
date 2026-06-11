@@ -53,14 +53,14 @@
               <span>See all</span>
               <strong>Farm list</strong>
             </a>
-            <a class="owner-dashboard-shortcut" href="#owner-enrollment-section">
+            <button class="owner-dashboard-shortcut" type="button" data-owner-open-panel="enrollment">
               <span>Create</span>
               <strong>Add farmer</strong>
-            </a>
-            <a class="owner-dashboard-shortcut" href="#owner-batch-entry-anchor">
+            </button>
+            <button class="owner-dashboard-shortcut" type="button" data-owner-open-panel="batch">
               <span>Assign</span>
               <strong>Batch update</strong>
-            </a>
+            </button>
             <a class="owner-dashboard-shortcut" href="#owner-farmer-accounts">
               <span>Review</span>
               <strong>Accounts</strong>
@@ -90,12 +90,13 @@
         </section>
 
         <section class="owner-management-grid owner-management-grid-simple">
-          <section class="fa-section" id="owner-enrollment-section">
+          <section class="fa-section owner-form-panel" id="owner-enrollment-section" hidden>
             <div class="fa-section-head">
               <div>
                 <p class="fa-eyebrow">Farmer</p>
                 <h3>Farmer form</h3>
               </div>
+              <button class="fa-secondary-btn" type="button" data-owner-close-panel="enrollment">Close</button>
             </div>
             <form class="fa-form owner-form-grid" data-owner-enroll-farmer autocomplete="off">
               <input name="editing_farmer_code" type="hidden" />
@@ -148,12 +149,13 @@
             <p class="fa-form-note owner-create-note"></p>
           </section>
 
-          <section class="fa-section" id="owner-batch-entry-anchor">
+          <section class="fa-section owner-form-panel" id="owner-batch-entry-anchor" hidden>
             <div class="fa-section-head">
               <div>
                 <p class="fa-eyebrow">Batch</p>
                 <h3>Batch form</h3>
               </div>
+              <button class="fa-secondary-btn" type="button" data-owner-close-panel="batch">Close</button>
             </div>
             <form class="fa-form owner-form-grid" data-owner-batch-entry autocomplete="off">
               <label>

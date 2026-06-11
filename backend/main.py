@@ -513,6 +513,7 @@ class SaleRecord(Base):
     bill_number: Mapped[str] = mapped_column(String(120))
     party_name: Mapped[str] = mapped_column(String(160))
     total_weight_kg: Mapped[str] = mapped_column(String(80))
+    rate_per_kg: Mapped[str] = mapped_column(String(80), default="")
     amount: Mapped[str] = mapped_column(String(80), default="")
     file_name: Mapped[str | None] = mapped_column(String(255), nullable=True)
     stored_name: Mapped[str | None] = mapped_column(String(255), nullable=True)
@@ -775,6 +776,7 @@ class OwnerSalePayload(BaseModel):
     bill_number: str
     party_name: str
     total_weight_kg: str
+    rate_per_kg: str = ""
     amount: str = ""
 
 
@@ -811,6 +813,7 @@ class SalePayload(BaseModel):
     bill_number: str
     party_name: str
     total_weight_kg: str
+    rate_per_kg: str = ""
     amount: str = ""
 
 
@@ -1410,11 +1413,12 @@ def make_sales_history(records: list[SaleRecord]) -> list[dict]:
     return [
         {
             "label": f"{record.entry_date} / Bill {record.bill_number}",
-            "value": record.amount or "Amount pending",
+            "value": compute_sale_amount_text(record.total_weight_kg, record.rate_per_kg, record.amount),
             "note": join_present(
                 [
                     record.party_name,
                     f"{record.total_weight_kg} kg",
+                    f"Rate {record.rate_per_kg}/kg" if record.rate_per_kg else "",
                     f"File: {record.file_name}" if record.file_name else "",
                 ]
             ),
@@ -1888,12 +1892,13 @@ def summarize_owner_sales(records: list[SaleRecord], db: Session) -> list[dict]:
         items.append(
             {
                 "label": f"{farmer.farm_name} / Bill {record.bill_number}",
-                "value": record.amount or "Amount pending",
+                "value": compute_sale_amount_text(record.total_weight_kg, record.rate_per_kg, record.amount),
                 "note": join_present(
                     [
                         record.entry_date,
                         record.party_name,
                         f"{record.total_weight_kg} kg",
+                        f"Rate {record.rate_per_kg}/kg" if record.rate_per_kg else "",
                     ]
                 ),
                 "file_url": f"/uploads/{record.stored_name}" if record.stored_name else "",
@@ -1910,6 +1915,19 @@ def parse_amount_value(raw_value: str | None) -> float:
         return float(digits)
     except ValueError:
         return 0.0
+
+
+def compute_sale_amount_text(total_weight_kg: str | None, rate_per_kg: str | None, amount: str | None) -> str:
+    saved_amount = (amount or "").strip()
+    if saved_amount:
+        return saved_amount
+    weight_value = parse_amount_value(total_weight_kg)
+    rate_value = parse_amount_value(rate_per_kg)
+    if weight_value <= 0 or rate_value <= 0:
+        return "Amount pending"
+    total_value = weight_value * rate_value
+    formatted = f"{total_value:,.2f}".rstrip("0").rstrip(".")
+    return f"Rs {formatted}"
 
 
 def normalize_operational_cost_bucket(category: str | None) -> str:
@@ -2557,6 +2575,9 @@ def init_database() -> None:
                 connection.execute(text("ALTER TABLE daily_entries ADD COLUMN mortality_photo_name VARCHAR(200)"))
             if "mortality_photo_stored" not in daily_entry_columns:
                 connection.execute(text("ALTER TABLE daily_entries ADD COLUMN mortality_photo_stored VARCHAR(240)"))
+            sale_record_columns = {row[1] for row in connection.execute(text("PRAGMA table_info(sale_records)"))}
+            if "rate_per_kg" not in sale_record_columns:
+                connection.execute(text("ALTER TABLE sale_records ADD COLUMN rate_per_kg VARCHAR(80) DEFAULT ''"))
         else:
             connection.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS current_shed VARCHAR(40)"))
             connection.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS initial_batch_strength INTEGER"))
@@ -2565,6 +2586,7 @@ def init_database() -> None:
             connection.execute(text("ALTER TABLE daily_entries ADD COLUMN IF NOT EXISTS litter_photo_stored VARCHAR(240)"))
             connection.execute(text("ALTER TABLE daily_entries ADD COLUMN IF NOT EXISTS mortality_photo_name VARCHAR(200)"))
             connection.execute(text("ALTER TABLE daily_entries ADD COLUMN IF NOT EXISTS mortality_photo_stored VARCHAR(240)"))
+            connection.execute(text("ALTER TABLE sale_records ADD COLUMN IF NOT EXISTS rate_per_kg VARCHAR(80) DEFAULT ''"))
             connection.execute(text("ALTER TABLE daily_entries ALTER COLUMN feed_used_bags TYPE DOUBLE PRECISION USING feed_used_bags::double precision"))
     purge_legacy_demo_data()
     seed_database_from_json()
@@ -3242,6 +3264,7 @@ async def add_sale_record(
     bill_number: str = Form(...),
     party_name: str = Form(...),
     total_weight_kg: str = Form(...),
+    rate_per_kg: str = Form(""),
     amount: str = Form(""),
     file: UploadFile | None = File(None),
 ):
@@ -3263,7 +3286,8 @@ async def add_sale_record(
                 bill_number=bill_number.strip(),
                 party_name=party_name.strip(),
                 total_weight_kg=total_weight_kg.strip(),
-                amount=amount.strip(),
+                rate_per_kg=rate_per_kg.strip(),
+                amount=compute_sale_amount_text(total_weight_kg, rate_per_kg, amount),
                 file_name=original_name,
                 stored_name=stored_name,
                 status="Submitted to owner finance",
@@ -3776,6 +3800,7 @@ async def owner_add_sale_record(
     bill_number: str = Form(...),
     party_name: str = Form(...),
     total_weight_kg: str = Form(...),
+    rate_per_kg: str = Form(""),
     amount: str = Form(""),
     file: UploadFile | None = File(None),
 ):
@@ -3801,7 +3826,8 @@ async def owner_add_sale_record(
                 bill_number=bill_number.strip(),
                 party_name=party_name.strip(),
                 total_weight_kg=total_weight_kg.strip(),
-                amount=amount.strip(),
+                rate_per_kg=rate_per_kg.strip(),
+                amount=compute_sale_amount_text(total_weight_kg, rate_per_kg, amount),
                 file_name=original_name,
                 stored_name=stored_name,
                 status="Submitted by owner finance",

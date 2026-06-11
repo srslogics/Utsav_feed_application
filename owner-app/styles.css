@@ -3254,6 +3254,10 @@
   background: rgba(111, 81, 61, 0.12);
 }
 
+.owner-form-panel[hidden] {
+  display: none !important;
+}
+
 .owner-body[data-owner-page="farms"] .fa-detail-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(240px, 280px));
