@@ -3244,6 +3244,23 @@
   padding: 0.9rem;
 }
 
+.owner-farm-browser {
+  display: grid;
+  gap: 1rem;
+}
+
+.owner-farm-browser-divider {
+  height: 1px;
+  background: rgba(111, 81, 61, 0.12);
+}
+
+.owner-body[data-owner-page="farms"] .fa-detail-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 280px));
+  gap: 0.9rem;
+  align-items: start;
+}
+
 .owner-farm-card {
   cursor: pointer;
   transition: transform 160ms ease, border-color 160ms ease, box-shadow 160ms ease;
@@ -3254,6 +3271,10 @@
   transform: translateY(-1px);
   border-color: rgba(111, 81, 61, 0.22);
   box-shadow: 0 12px 24px rgba(67, 43, 28, 0.08);
+}
+
+.owner-farm-card .owner-edit-card-actions {
+  margin-top: auto;
 }
 
 .owner-farm-workspace {
@@ -3307,7 +3328,8 @@
   .owner-summary-panel .fa-kpi-grid-six,
   .owner-body[data-owner-page="dashboard"] .fa-kpi-grid-six,
   .owner-subsection-grid,
-  .owner-grid-two {
+  .owner-grid-two,
+  .owner-body[data-owner-page="farms"] .fa-detail-grid {
     grid-template-columns: 1fr;
   }
 
