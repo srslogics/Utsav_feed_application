@@ -22,6 +22,7 @@ const ownerPageMeta = {
 
 const ownerFarmWorkspaceState = {
   selectedFarmCode: "",
+  selectedSection: "",
   farms: null,
   operations: null,
   finance: null,
@@ -591,6 +592,143 @@ function renderOwnerFarmWorkspace() {
   const saleRule = (ownerFarmWorkspaceState.parties?.sale_rules || []).find((item) => item.farmer_code === farmCode) || null;
   const readyQueue = (ownerFarmWorkspaceState.parties?.sale_ready_queue || []).find((item) => item.farmer_code === farmCode) || null;
   const kpis = buildFarmWorkspaceKpis(farmItem, reportItem, dailyFarm);
+  const selectedSection = ownerFarmWorkspaceState.selectedSection || "";
+
+  const sectionCards = [
+    { key: "daily", eyebrow: "Daily", title: "Entry history", note: dailyFarm?.daily_groups?.length ? `${dailyFarm.daily_groups.length} dates` : "No entry yet" },
+    { key: "account", eyebrow: "Account", title: "Farmer and support", note: officerItem ? "Farmer and officer" : "Farmer details" },
+    { key: "business", eyebrow: "Business", title: "Costs and sales", note: `${farmExpenses.length} costs • ${farmSales.length} sales` },
+    { key: "files", eyebrow: "Files", title: "Documents and photos", note: `${fileFarm?.documents?.length || 0} docs • ${fileFarm?.photos?.length || 0} photos` },
+    { key: "performance", eyebrow: "Performance", title: "Batch summary", note: reportItem?.performance_kpis?.length ? "Metrics available" : "No metrics yet" },
+    { key: "alerts", eyebrow: "Alerts", title: "Requests and trigger", note: `${farmRequests.length} requests` },
+  ];
+
+  const renderSectionDetail = () => {
+    if (!selectedSection) {
+      return `
+        <div class="owner-farm-section-grid">
+          ${sectionCards
+            .map(
+              (section) => `
+                <button type="button" class="owner-dashboard-shortcut owner-farm-section-card" data-owner-open-farm-section="${section.key}">
+                  <span>${section.eyebrow}</span>
+                  <strong>${section.title}</strong>
+                  <p>${section.note}</p>
+                </button>
+              `
+            )
+            .join("")}
+        </div>
+      `;
+    }
+
+    const backBar = `
+      <div class="owner-daily-pathbar">
+        <div class="owner-daily-breadcrumbs">
+          <button type="button" class="owner-daily-crumb" data-owner-back-farm-sections="true">${farmItem?.farm_name || accountItem?.farm_name || "Farm"}</button>
+          <span>/</span>
+          <span class="owner-daily-crumb is-active">${sectionCards.find((item) => item.key === selectedSection)?.title || "-"}</span>
+        </div>
+        <div class="owner-daily-path-actions">
+          <button type="button" class="fa-secondary-btn" data-owner-back-farm-sections="true">Back</button>
+        </div>
+      </div>
+    `;
+
+    if (selectedSection === "daily") {
+      return `
+        ${backBar}
+        <section class="fa-section owner-subsection">
+          <div class="fa-section-head"><div><p class="fa-eyebrow">Daily</p><h3>Entry history</h3></div></div>
+          <div class="fa-list-card">${renderFarmDailySummary(dailyFarm)}</div>
+        </section>
+      `;
+    }
+
+    if (selectedSection === "account") {
+      return `
+        ${backBar}
+        <section class="fa-section owner-subsection">
+          <div class="fa-section-head"><div><p class="fa-eyebrow">Account</p><h3>Farmer and support</h3></div></div>
+          <div class="fa-list-card">
+            <div class="fa-list-row">
+              <div>
+                <span>${accountItem?.label || accountItem?.farm_name || "Farmer"}</span>
+                <p>${accountItem?.note || "-"}</p>
+              </div>
+              <strong>${accountItem?.value || "-"}</strong>
+            </div>
+            ${
+              officerItem
+                ? `<div class="fa-list-row"><div><span>${officerItem.label || "Officer"}</span><p>${officerItem.note || ""}</p></div><strong>${officerItem.value || "-"}</strong></div>`
+                : `<div class="fa-empty-state">Officer detail available nahi hai.</div>`
+            }
+          </div>
+        </section>
+      `;
+    }
+
+    if (selectedSection === "business") {
+      return `
+        ${backBar}
+        <section class="fa-section owner-subsection">
+          <div class="fa-section-head"><div><p class="fa-eyebrow">Business</p><h3>Costs and sales</h3></div></div>
+          <div class="owner-grid-two owner-grid-two-tight">
+            <div class="fa-list-card">${renderOwnerInlineSimpleList(farmExpenses, "No cost record")}</div>
+            <div class="fa-list-card">${renderOwnerInlineSimpleList(farmSales, "No sale record")}</div>
+          </div>
+        </section>
+      `;
+    }
+
+    if (selectedSection === "files") {
+      return `
+        ${backBar}
+        <section class="fa-section owner-subsection">
+          <div class="fa-section-head"><div><p class="fa-eyebrow">Files</p><h3>Documents and photos</h3></div></div>
+          ${renderFarmFileSummary(fileFarm)}
+        </section>
+      `;
+    }
+
+    if (selectedSection === "performance") {
+      return `
+        ${backBar}
+        <section class="fa-section owner-subsection">
+          <div class="fa-section-head"><div><p class="fa-eyebrow">Performance</p><h3>Batch summary</h3></div></div>
+          <div class="fa-kpi-grid">
+            ${
+              reportItem?.performance_kpis?.length
+                ? reportItem.performance_kpis.slice(0, 6).map((metric) => `
+                    <article class="fa-kpi-card">
+                      <span>${metric.label}</span>
+                      <strong>${metric.value}</strong>
+                      <p>${metric.note || ""}</p>
+                    </article>
+                  `).join("")
+                : `<div class="fa-empty-state">Abhi performance data available nahi hai.</div>`
+            }
+          </div>
+        </section>
+      `;
+    }
+
+    if (selectedSection === "alerts") {
+      return `
+        ${backBar}
+        <section class="fa-section owner-subsection">
+          <div class="fa-section-head"><div><p class="fa-eyebrow">Alerts</p><h3>Requests and sale trigger</h3></div></div>
+          <div class="fa-list-card">
+            ${saleRule ? `<div class="fa-list-row"><div><span>Sale trigger</span><p>${saleRule.note || ""}</p></div><strong>${saleRule.value || `${saleRule.ready_weight_g} g`}</strong></div>` : ""}
+            ${readyQueue ? `<div class="fa-list-row"><div><span>Ready status</span><p>${readyQueue.note || readyQueue.message_preview || ""}</p></div><strong>${readyQueue.value || "-"}</strong></div>` : ""}
+            ${renderOwnerInlineSimpleList(farmRequests, "No pending request")}
+          </div>
+        </section>
+      `;
+    }
+
+    return "";
+  };
 
   container.innerHTML = `
     <div class="fa-section-head">
@@ -621,98 +759,7 @@ function renderOwnerFarmWorkspace() {
         )
         .join("")}
     </div>
-    <div class="owner-grid-two owner-grid-two-tight">
-      <section class="fa-section owner-subsection">
-        <div class="fa-section-head">
-          <div>
-            <p class="fa-eyebrow">Daily</p>
-            <h3>Entry history</h3>
-          </div>
-        </div>
-        <div class="fa-list-card">${renderFarmDailySummary(dailyFarm)}</div>
-      </section>
-      <section class="fa-section owner-subsection">
-        <div class="fa-section-head">
-          <div>
-            <p class="fa-eyebrow">Account</p>
-            <h3>Farmer and support</h3>
-          </div>
-        </div>
-        <div class="fa-list-card">
-          <div class="fa-list-row">
-            <div>
-              <span>${accountItem?.label || accountItem?.farm_name || "Farmer"}</span>
-              <p>${accountItem?.note || "-"}</p>
-            </div>
-            <strong>${accountItem?.value || "-"}</strong>
-          </div>
-          ${
-            officerItem
-              ? `<div class="fa-list-row"><div><span>${officerItem.label || "Officer"}</span><p>${officerItem.note || ""}</p></div><strong>${officerItem.value || "-"}</strong></div>`
-              : ""
-          }
-        </div>
-      </section>
-    </div>
-    <div class="owner-grid-two owner-grid-two-tight">
-      <section class="fa-section owner-subsection">
-        <div class="fa-section-head">
-          <div>
-            <p class="fa-eyebrow">Business</p>
-            <h3>Costs and sales</h3>
-          </div>
-        </div>
-        <div class="owner-grid-two owner-grid-two-tight">
-          <div class="fa-list-card">${renderOwnerInlineSimpleList(farmExpenses, "No cost record")}</div>
-          <div class="fa-list-card">${renderOwnerInlineSimpleList(farmSales, "No sale record")}</div>
-        </div>
-      </section>
-      <section class="fa-section owner-subsection">
-        <div class="fa-section-head">
-          <div>
-            <p class="fa-eyebrow">Files</p>
-            <h3>Documents and photos</h3>
-          </div>
-        </div>
-        ${renderFarmFileSummary(fileFarm)}
-      </section>
-    </div>
-    <div class="owner-grid-two owner-grid-two-tight">
-      <section class="fa-section owner-subsection">
-        <div class="fa-section-head">
-          <div>
-            <p class="fa-eyebrow">Performance</p>
-            <h3>Batch summary</h3>
-          </div>
-        </div>
-        <div class="fa-kpi-grid">
-          ${
-            reportItem?.performance_kpis?.length
-              ? reportItem.performance_kpis.slice(0, 4).map((metric) => `
-                  <article class="fa-kpi-card">
-                    <span>${metric.label}</span>
-                    <strong>${metric.value}</strong>
-                    <p>${metric.note || ""}</p>
-                  </article>
-                `).join("")
-              : `<div class="fa-empty-state">Abhi performance data available nahi hai.</div>`
-          }
-        </div>
-      </section>
-      <section class="fa-section owner-subsection">
-        <div class="fa-section-head">
-          <div>
-            <p class="fa-eyebrow">Alerts</p>
-            <h3>Requests and sale trigger</h3>
-          </div>
-        </div>
-        <div class="fa-list-card">
-          ${saleRule ? `<div class="fa-list-row"><div><span>Sale trigger</span><p>${saleRule.note || ""}</p></div><strong>${saleRule.value || `${saleRule.ready_weight_g} g`}</strong></div>` : ""}
-          ${readyQueue ? `<div class="fa-list-row"><div><span>Ready status</span><p>${readyQueue.note || readyQueue.message_preview || ""}</p></div><strong>${readyQueue.value || "-"}</strong></div>` : ""}
-          ${renderOwnerInlineSimpleList(farmRequests, "No pending request")}
-        </div>
-      </section>
-    </div>
+    ${renderSectionDetail()}
   `;
 }
 
@@ -2184,8 +2231,21 @@ if (enrollFarmerForm) {
     const openFarmTrigger = event.target.closest("[data-owner-open-farm]");
     if (openFarmTrigger && !event.target.closest("[data-owner-edit-farm-card], [data-owner-edit-batch-card]")) {
       ownerFarmWorkspaceState.selectedFarmCode = openFarmTrigger.getAttribute("data-owner-open-farm") || "";
+      ownerFarmWorkspaceState.selectedSection = "";
       renderOwnerFarmWorkspace();
       document.querySelector("#owner-selected-farm-workspace")?.scrollIntoView({ behavior: "smooth", block: "start" });
+      return;
+    }
+    const openFarmSectionTrigger = event.target.closest("[data-owner-open-farm-section]");
+    if (openFarmSectionTrigger) {
+      ownerFarmWorkspaceState.selectedSection = openFarmSectionTrigger.getAttribute("data-owner-open-farm-section") || "";
+      renderOwnerFarmWorkspace();
+      return;
+    }
+    const backFarmSectionsTrigger = event.target.closest("[data-owner-back-farm-sections]");
+    if (backFarmSectionsTrigger) {
+      ownerFarmWorkspaceState.selectedSection = "";
+      renderOwnerFarmWorkspace();
       return;
     }
     const farmerTrigger = event.target.closest("[data-owner-edit-farmer], [data-owner-edit-farm-card]");

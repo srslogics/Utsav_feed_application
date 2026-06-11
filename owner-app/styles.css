@@ -3282,6 +3282,24 @@
   gap: 0.8rem;
 }
 
+.owner-farm-section-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 0.9rem;
+}
+
+.owner-farm-section-card {
+  text-align: left;
+  min-height: 130px;
+}
+
+.owner-farm-section-card p {
+  margin: 0.32rem 0 0;
+  color: var(--fa-muted);
+  font-size: 0.92rem;
+  line-height: 1.35;
+}
+
 .owner-farm-workspace > .owner-grid-two,
 .owner-farm-workspace > .fa-kpi-grid {
   margin: 0;
@@ -3327,6 +3345,7 @@
   .owner-dashboard-shortcuts-three,
   .owner-summary-panel .fa-kpi-grid-six,
   .owner-body[data-owner-page="dashboard"] .fa-kpi-grid-six,
+  .owner-farm-section-grid,
   .owner-subsection-grid,
   .owner-grid-two,
   .owner-body[data-owner-page="farms"] .fa-detail-grid {
