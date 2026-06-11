@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Utsav Owner Dashboard</title>
     <link rel="stylesheet" href="/farmer-app/styles.css?v=20260549" />
-    <link rel="stylesheet" href="/owner-app/styles.css?v=20260607" />
+    <link rel="stylesheet" href="/owner-app/styles.css?v=20260611" />
   </head>
   <body class="fa-body owner-body" data-owner-page="dashboard">
     <div class="fa-app-shell">
@@ -37,8 +37,8 @@
       <main class="fa-content">
         <header class="fa-page-head">
           <div>
-            <p class="fa-eyebrow">Owner App</p>
-            <h2>Home</h2>
+            <p class="fa-eyebrow">Owner Home</p>
+            <h2>Farm tools</h2>
           </div>
           <div class="fa-page-actions">
             <a class="fa-secondary-btn" href="./profile.html">Profile</a>
@@ -46,30 +46,51 @@
           </div>
         </header>
 
-        <section class="owner-dashboard-shortcuts">
-          <a class="owner-dashboard-shortcut" href="./farms.html">
-            <span>Open</span>
-            <strong>Farms</strong>
-          </a>
-          <a class="owner-dashboard-shortcut" href="./operations-daily.html">
-            <span>Open</span>
-            <strong>Operations</strong>
-          </a>
-          <a class="owner-dashboard-shortcut" href="./finance.html">
-            <span>Open</span>
-            <strong>Finance</strong>
-          </a>
-          <a class="owner-dashboard-shortcut" href="./reports.html">
-            <span>Open</span>
-            <strong>Reports</strong>
-          </a>
+        <section class="fa-section owner-home-panel">
+          <div class="fa-section-head">
+            <div>
+              <p class="fa-eyebrow">Start</p>
+              <h3>Jo kaam karna hai, us section ko kholein</h3>
+            </div>
+          </div>
+          <div class="owner-home-context">
+            <span data-owner-name></span>
+            <strong data-owner-title></strong>
+            <small data-owner-cluster></small>
+          </div>
+          <div class="owner-dashboard-shortcuts owner-dashboard-shortcuts-simple">
+            <a class="owner-dashboard-shortcut" href="./farms.html">
+              <span>Farm setup</span>
+              <strong>Farms</strong>
+            </a>
+            <a class="owner-dashboard-shortcut" href="./operations-daily.html">
+              <span>Daily follow-up</span>
+              <strong>Operations</strong>
+            </a>
+            <a class="owner-dashboard-shortcut" href="./finance.html">
+              <span>Cost and sales</span>
+              <strong>Finance</strong>
+            </a>
+            <a class="owner-dashboard-shortcut" href="./reports.html">
+              <span>Farm summary</span>
+              <strong>Reports</strong>
+            </a>
+            <a class="owner-dashboard-shortcut" href="./files.html">
+              <span>Bills and photos</span>
+              <strong>Files</strong>
+            </a>
+            <a class="owner-dashboard-shortcut" href="./parties.html">
+              <span>Buyer contacts</span>
+              <strong>Parties</strong>
+            </a>
+          </div>
         </section>
 
-        <section class="fa-section">
+        <section class="fa-section owner-summary-panel">
           <div class="fa-section-head">
             <div>
               <p class="fa-eyebrow">Snapshot</p>
-              <h3>Numbers</h3>
+              <h3>Today</h3>
             </div>
           </div>
           <div class="fa-kpi-grid fa-kpi-grid-six" id="owner-kpis"></div>
@@ -80,7 +101,7 @@
             <div class="fa-section-head">
               <div>
                 <p class="fa-eyebrow">Alerts</p>
-                <h3>Attention</h3>
+                <h3>Needs action</h3>
               </div>
             </div>
             <div class="fa-list-card" id="owner-priority"></div>
@@ -90,7 +111,7 @@
             <div class="fa-section-head">
               <div>
                 <p class="fa-eyebrow">Latest</p>
-                <h3>Entries</h3>
+                <h3>Recent entries</h3>
               </div>
             </div>
             <div class="fa-list-card" id="owner-latest-reporting"></div>
@@ -99,12 +120,12 @@
 
         <section class="fa-section">
           <div class="fa-section-head">
-            <div>
-              <p class="fa-eyebrow">Farms</p>
-              <h3>Farm list</h3>
+              <div>
+                <p class="fa-eyebrow">Farms</p>
+                <h3>Running farms</h3>
+              </div>
             </div>
-          </div>
-          <div class="fa-list-card" id="owner-farms"></div>
+            <div class="fa-list-card" id="owner-farms"></div>
         </section>
       </main>
     </div>
@@ -116,6 +137,6 @@
       <a href="./operations-daily.html">Ops</a>
       <a href="./finance.html">Finance</a>
     </nav>
-    <script src="/owner-app/app.js?v=20260603"></script>
+    <script src="/owner-app/app.js?v=20260611"></script>
   </body>
 </html>
