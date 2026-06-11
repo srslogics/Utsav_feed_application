@@ -3244,6 +3244,28 @@
   padding: 0.9rem;
 }
 
+.owner-farm-card {
+  cursor: pointer;
+  transition: transform 160ms ease, border-color 160ms ease, box-shadow 160ms ease;
+}
+
+.owner-farm-card:hover,
+.owner-farm-card:focus-within {
+  transform: translateY(-1px);
+  border-color: rgba(111, 81, 61, 0.22);
+  box-shadow: 0 12px 24px rgba(67, 43, 28, 0.08);
+}
+
+.owner-farm-workspace {
+  display: grid;
+  gap: 0.8rem;
+}
+
+.owner-farm-workspace > .owner-grid-two,
+.owner-farm-workspace > .fa-kpi-grid {
+  margin: 0;
+}
+
 .owner-operations-daily-controls {
   margin-bottom: 0.75rem;
 }

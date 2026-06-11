@@ -20,6 +20,16 @@ const ownerPageMeta = {
   "finance-sales": { eyebrow: "Finance", title: "Sales" },
 };
 
+const ownerFarmWorkspaceState = {
+  selectedFarmCode: "",
+  farms: null,
+  operations: null,
+  finance: null,
+  files: null,
+  reports: null,
+  parties: null,
+};
+
 function normaliseOwnerHref(href) {
   return `${href || ""}`.replace(/^\.\//, "").trim();
 }
@@ -36,9 +46,7 @@ function buildOwnerSidebar() {
   const financeSubnav = subnavs.find((node) => node.getAttribute("aria-label")?.includes("Finance"))?.cloneNode(true);
 
   const groups = [
-    { label: "Workspace", links: ["dashboard.html", "farms.html", "reports.html", "files.html"] },
-    { label: "Operations", links: ["operations-daily.html"], subnav: opsSubnav },
-    { label: "Business", links: ["finance.html", "parties.html"], subnav: financeSubnav },
+    { label: "Workspace", links: ["farms.html"] },
     { label: "Account", links: ["profile.html"] },
   ];
 
@@ -447,7 +455,7 @@ function renderOwnerFarmDirectory(container, items) {
   container.innerHTML = items
     .map(
       (item) => `
-        <article class="fa-detail-card owner-edit-card">
+        <article class="fa-detail-card owner-edit-card owner-farm-card" data-owner-open-farm="${item.farmer_code || ""}">
           <span>${item.label}</span>
           <strong>${item.value}</strong>
           <p>${item.note || ""}</p>
@@ -460,6 +468,251 @@ function renderOwnerFarmDirectory(container, items) {
       `
     )
     .join("");
+}
+
+function itemLooksLikeFarm(item, farm) {
+  if (!item || !farm) return false;
+  const hay = `${item.label || ""} ${item.value || ""} ${item.note || ""}`.toLowerCase();
+  return [farm.farm_name, farm.farmer_name, farm.farmer_code].filter(Boolean).some((token) => hay.includes(`${token}`.toLowerCase()));
+}
+
+function buildFarmWorkspaceKpis(farmItem, reportItem, dailyFarm) {
+  if (reportItem?.report_kpis?.length) return reportItem.report_kpis.slice(0, 4);
+  const latestGroup = dailyFarm?.daily_groups?.[0];
+  const latestRow = latestGroup?.rows?.find((row) => row.has_entry) || latestGroup?.rows?.[0];
+  return [
+    { label: "Batch", value: farmItem?.active_batch || farmItem?.value || "-", note: "Current batch" },
+    { label: "Feed stock", value: `${farmItem?.feed_stock_bags ?? 0} bags`, note: "Farm stock" },
+    { label: "Live birds", value: latestRow?.live_birds_today ?? farmItem?.initial_batch_strength ?? "-", note: "Latest live count" },
+    { label: "Last entry", value: latestGroup?.entry_date || reportItem?.latest_entry_date || "-", note: "Recent report" },
+  ];
+}
+
+function renderOwnerInlineSimpleList(items, emptyText) {
+  if (!items?.length) return `<div class="fa-empty-state">${emptyText}</div>`;
+  return items
+    .slice(0, 5)
+    .map(
+      (item) => `
+        <div class="fa-list-row">
+          <div>
+            <span>${item.label || "-"}</span>
+            ${item.note ? `<p>${item.note}</p>` : ""}
+          </div>
+          <strong>${item.value || "-"}</strong>
+        </div>
+      `
+    )
+    .join("");
+}
+
+function renderFarmDailySummary(dailyFarm) {
+  const groups = dailyFarm?.daily_groups || [];
+  if (!groups.length) return `<div class="fa-empty-state">Abhi daily entry available nahi hai.</div>`;
+  return groups
+    .slice(0, 5)
+    .map((group) => {
+      const rows = group.rows || [];
+      const shedCount = group.shed_count || rows.filter((row) => row.has_entry).length;
+      const mortality = rows.reduce((sum, row) => sum + Number(row.mortality || 0), 0);
+      const culls = rows.reduce((sum, row) => sum + Number(row.culls || 0), 0);
+      const feed = rows.reduce((sum, row) => sum + Number(row.feed_used_bags || 0), 0);
+      return `
+        <div class="fa-list-row">
+          <div>
+            <span>${group.entry_date || "-"}</span>
+            <p>${shedCount} sheds • Mortality ${mortality} • Culls ${culls}</p>
+          </div>
+          <strong>${formatBagCount(feed)} bags</strong>
+        </div>
+      `;
+    })
+    .join("");
+}
+
+function renderFarmFileSummary(fileFarm) {
+  if (!fileFarm) return `<div class="fa-empty-state">Abhi files available nahi hain.</div>`;
+  const docs = fileFarm.documents || [];
+  const photos = fileFarm.photos || [];
+  return `
+    <div class="owner-grid-two owner-grid-two-tight">
+      <div class="fa-list-card">
+        <div class="fa-list-row">
+          <div>
+            <span>Documents</span>
+            <p>Recent bills and records</p>
+          </div>
+          <strong>${docs.length}</strong>
+        </div>
+        ${renderOwnerInlineSimpleList(docs, "No documents")}
+      </div>
+      <div class="fa-list-card">
+        <div class="fa-list-row">
+          <div>
+            <span>Images</span>
+            <p>Recent farm photos</p>
+          </div>
+          <strong>${photos.length}</strong>
+        </div>
+        ${renderOwnerInlineSimpleList(photos, "No images")}
+      </div>
+    </div>
+  `;
+}
+
+function renderOwnerFarmWorkspace() {
+  const container = document.querySelector("#owner-selected-farm-workspace");
+  if (!container) return;
+  const farmCode = ownerFarmWorkspaceState.selectedFarmCode;
+  const farmsData = ownerFarmWorkspaceState.farms;
+  if (!farmCode || !farmsData?.farms?.length) {
+    container.innerHTML = `
+      <div class="fa-section-head">
+        <div>
+          <p class="fa-eyebrow">Selected Farm</p>
+          <h3>Farm workspace</h3>
+        </div>
+      </div>
+      <div class="fa-empty-state">Farm block kholne par uska poora detail yahin dikhega.</div>
+    `;
+    return;
+  }
+
+  const farmItem = farmsData.farms.find((item) => item.farmer_code === farmCode) || null;
+  const accountItem = (farmsData.farmer_accounts || []).find((item) => item.farmer_code === farmCode) || farmItem;
+  const officerItem = (farmsData.field_officers || []).find((item) => item.farmer_code === farmCode || itemLooksLikeFarm(item, farmItem));
+  const dailyFarm = (ownerFarmWorkspaceState.operations?.daily_entry_hierarchy || []).find((item) => item.farmer_code === farmCode) || null;
+  const reportItem = (ownerFarmWorkspaceState.reports?.reports || []).find((item) => item.farmer_code === farmCode) || null;
+  const fileFarm = (ownerFarmWorkspaceState.files?.farms || []).find((item) => item.farmer_code === farmCode) || null;
+  const farmExpenses = (reportItem?.recent_expenses || ownerFarmWorkspaceState.finance?.operational_costs || []).filter((item) => !reportItem ? itemLooksLikeFarm(item, farmItem) : true);
+  const farmSales = (reportItem?.recent_sales || ownerFarmWorkspaceState.finance?.sales || []).filter((item) => !reportItem ? itemLooksLikeFarm(item, farmItem) : true);
+  const farmRequests = (ownerFarmWorkspaceState.operations?.requests || []).filter((item) => itemLooksLikeFarm(item, farmItem));
+  const saleRule = (ownerFarmWorkspaceState.parties?.sale_rules || []).find((item) => item.farmer_code === farmCode) || null;
+  const readyQueue = (ownerFarmWorkspaceState.parties?.sale_ready_queue || []).find((item) => item.farmer_code === farmCode) || null;
+  const kpis = buildFarmWorkspaceKpis(farmItem, reportItem, dailyFarm);
+
+  container.innerHTML = `
+    <div class="fa-section-head">
+      <div>
+        <p class="fa-eyebrow">Selected Farm</p>
+        <h3>${farmItem?.farm_name || accountItem?.farm_name || "-"}</h3>
+      </div>
+      <div class="owner-edit-card-actions">
+        <button class="fa-secondary-btn" type="button" data-owner-edit-farm-card="${encodeURIComponent(JSON.stringify(farmItem || accountItem || {}))}">Edit Farm</button>
+        <button class="fa-secondary-btn" type="button" data-owner-edit-batch-card="${encodeURIComponent(JSON.stringify(accountItem || farmItem || {}))}">Edit Batch</button>
+      </div>
+    </div>
+    <div class="owner-home-context">
+      <span>${accountItem?.farmer_name || farmItem?.farmer_name || "-"}</span>
+      <strong>${accountItem?.farmer_code || farmCode}</strong>
+      <small>${[accountItem?.cluster || farmItem?.cluster, accountItem?.current_batch ? `Batch ${accountItem.current_batch}` : "", accountItem?.current_shed || ""].filter(Boolean).join(" • ")}</small>
+    </div>
+    <div class="fa-kpi-grid fa-kpi-grid-four">
+      ${kpis
+        .map(
+          (metric) => `
+            <article class="fa-kpi-card">
+              <span>${metric.label}</span>
+              <strong>${metric.value}</strong>
+              <p>${metric.note || ""}</p>
+            </article>
+          `
+        )
+        .join("")}
+    </div>
+    <div class="owner-grid-two owner-grid-two-tight">
+      <section class="fa-section owner-subsection">
+        <div class="fa-section-head">
+          <div>
+            <p class="fa-eyebrow">Daily</p>
+            <h3>Entry history</h3>
+          </div>
+        </div>
+        <div class="fa-list-card">${renderFarmDailySummary(dailyFarm)}</div>
+      </section>
+      <section class="fa-section owner-subsection">
+        <div class="fa-section-head">
+          <div>
+            <p class="fa-eyebrow">Account</p>
+            <h3>Farmer and support</h3>
+          </div>
+        </div>
+        <div class="fa-list-card">
+          <div class="fa-list-row">
+            <div>
+              <span>${accountItem?.label || accountItem?.farm_name || "Farmer"}</span>
+              <p>${accountItem?.note || "-"}</p>
+            </div>
+            <strong>${accountItem?.value || "-"}</strong>
+          </div>
+          ${
+            officerItem
+              ? `<div class="fa-list-row"><div><span>${officerItem.label || "Officer"}</span><p>${officerItem.note || ""}</p></div><strong>${officerItem.value || "-"}</strong></div>`
+              : ""
+          }
+        </div>
+      </section>
+    </div>
+    <div class="owner-grid-two owner-grid-two-tight">
+      <section class="fa-section owner-subsection">
+        <div class="fa-section-head">
+          <div>
+            <p class="fa-eyebrow">Business</p>
+            <h3>Costs and sales</h3>
+          </div>
+        </div>
+        <div class="owner-grid-two owner-grid-two-tight">
+          <div class="fa-list-card">${renderOwnerInlineSimpleList(farmExpenses, "No cost record")}</div>
+          <div class="fa-list-card">${renderOwnerInlineSimpleList(farmSales, "No sale record")}</div>
+        </div>
+      </section>
+      <section class="fa-section owner-subsection">
+        <div class="fa-section-head">
+          <div>
+            <p class="fa-eyebrow">Files</p>
+            <h3>Documents and photos</h3>
+          </div>
+        </div>
+        ${renderFarmFileSummary(fileFarm)}
+      </section>
+    </div>
+    <div class="owner-grid-two owner-grid-two-tight">
+      <section class="fa-section owner-subsection">
+        <div class="fa-section-head">
+          <div>
+            <p class="fa-eyebrow">Performance</p>
+            <h3>Batch summary</h3>
+          </div>
+        </div>
+        <div class="fa-kpi-grid">
+          ${
+            reportItem?.performance_kpis?.length
+              ? reportItem.performance_kpis.slice(0, 4).map((metric) => `
+                  <article class="fa-kpi-card">
+                    <span>${metric.label}</span>
+                    <strong>${metric.value}</strong>
+                    <p>${metric.note || ""}</p>
+                  </article>
+                `).join("")
+              : `<div class="fa-empty-state">Abhi performance data available nahi hai.</div>`
+          }
+        </div>
+      </section>
+      <section class="fa-section owner-subsection">
+        <div class="fa-section-head">
+          <div>
+            <p class="fa-eyebrow">Alerts</p>
+            <h3>Requests and sale trigger</h3>
+          </div>
+        </div>
+        <div class="fa-list-card">
+          ${saleRule ? `<div class="fa-list-row"><div><span>Sale trigger</span><p>${saleRule.note || ""}</p></div><strong>${saleRule.value || `${saleRule.ready_weight_g} g`}</strong></div>` : ""}
+          ${readyQueue ? `<div class="fa-list-row"><div><span>Ready status</span><p>${readyQueue.note || readyQueue.message_preview || ""}</p></div><strong>${readyQueue.value || "-"}</strong></div>` : ""}
+          ${renderOwnerInlineSimpleList(farmRequests, "No pending request")}
+        </div>
+      </section>
+    </div>
+  `;
 }
 
 function renderOwnerLatestEntries(container, items) {
@@ -979,6 +1232,7 @@ function renderDashboardData(data) {
 
 function renderFarmsData(data) {
   if (!data) return;
+  ownerFarmWorkspaceState.farms = data;
   populateProfile(data.profile);
   renderOwnerFarmDirectory(document.querySelector("#owner-farms-directory"), data.farms);
   renderOwnerLatestEntries(document.querySelector("#owner-farms-latest-entries"), data.latest_entries);
@@ -986,20 +1240,24 @@ function renderFarmsData(data) {
   renderList(document.querySelector("#owner-field-officers"), data.field_officers || []);
   populateFarmerSelect(data.farmer_accounts || []);
   syncSelectedFarmerMeta();
+  renderOwnerFarmWorkspace();
 }
 
 function renderOperationsData(data) {
   if (!data) return;
+  ownerFarmWorkspaceState.operations = data;
   populateProfile(data.profile);
   renderList(document.querySelector("#owner-operations-requests"), data.requests);
   renderList(document.querySelector("#owner-operations-photos"), data.photos);
   renderList(document.querySelector("#owner-operations-visits"), data.visits);
   renderList(document.querySelector("#owner-operations-daily-entries"), data.daily_entries);
   renderDailyEntryHierarchy(document.querySelector("#owner-operations-daily-hierarchy"), data.daily_entry_hierarchy);
+  renderOwnerFarmWorkspace();
 }
 
 function renderFinanceData(data) {
   if (!data) return;
+  ownerFarmWorkspaceState.finance = data;
   populateProfile(data.profile);
   renderKpis(document.querySelector("#owner-finance-kpis"), data.kpis);
   renderKpis(document.querySelector("#owner-finance-category-breakdown"), data.category_breakdown || []);
@@ -1012,6 +1270,7 @@ function renderFinanceData(data) {
   populateOwnerSalePartySelect(data.party_options || []);
   setOwnerFinanceDefaultDate();
   setOwnerSaleDefaultDate();
+  renderOwnerFarmWorkspace();
 }
 
 function renderOwnerProfileData(data) {
@@ -1038,9 +1297,11 @@ function renderOwnerProfileData(data) {
 
 function renderOwnerReportsData(data) {
   if (!data) return;
+  ownerFarmWorkspaceState.reports = data;
   populateProfile(data.profile);
   renderKpis(document.querySelector("#owner-reports-kpis"), data.summary_kpis || []);
   renderOwnerReportsBrowser(document.querySelector("#owner-reports-browser-content"), data.reports || []);
+  renderOwnerFarmWorkspace();
 }
 
 function renderOwnerReportsBrowser(container, reports) {
@@ -1364,6 +1625,7 @@ function setOwnerSaleDefaultDate() {
 
 function renderOwnerFilesData(data) {
   if (!data) return;
+  ownerFarmWorkspaceState.files = data;
   populateProfile(data.profile);
   renderKpis(document.querySelector("#owner-files-kpis"), data.kpis || []);
 
@@ -1498,6 +1760,7 @@ function renderOwnerFilesData(data) {
   };
 
   render();
+  renderOwnerFarmWorkspace();
 
   container.onclick = (event) => {
     const farmButton = event.target.closest("[data-owner-file-farm]");
@@ -1642,6 +1905,7 @@ function startOwnerSaleRuleEdit(item) {
 
 function renderPartiesData(data) {
   if (!data) return;
+  ownerFarmWorkspaceState.parties = data;
   populateProfile(data.profile);
   renderOwnerPartyDirectory(document.querySelector("#owner-party-directory"), data.parties || []);
   renderOwnerSaleRules(document.querySelector("#owner-sale-rule-list"), data.sale_rules || []);
@@ -1649,6 +1913,7 @@ function renderPartiesData(data) {
   populateSaleRuleSelect(data.farmer_options || []);
   const note = document.querySelector("#owner-whatsapp-note");
   if (note) note.textContent = data.meta?.whatsapp_note || "";
+  renderOwnerFarmWorkspace();
 }
 
 function populateFarmerSelect(items) {
@@ -1778,7 +2043,7 @@ async function ensureOwnerPage() {
 }
 
 function goToOwnerDashboard() {
-  navigate("/owner-app/dashboard.html");
+  navigate("/owner-app/farms.html");
 }
 
 function goToOwnerLogin() {
@@ -1797,7 +2062,7 @@ function showAlreadyLoggedInAction() {
   quickButton.type = "button";
   quickButton.className = "fa-secondary-btn";
   quickButton.setAttribute("data-owner-open-dashboard", "true");
-  quickButton.textContent = "Open Dashboard";
+  quickButton.textContent = "Open Farms";
   quickButton.addEventListener("click", goToOwnerDashboard);
   loginForm.appendChild(quickButton);
 }
@@ -1899,7 +2164,7 @@ if (loginForm) {
           role: "owner",
         }),
       });
-      navigate(result.redirect || "/owner-app/dashboard.html");
+      navigate("/owner-app/farms.html");
     } catch {
       setStatus(".fa-form-note", "Login nahi ho paaya. Owner credentials dobara check karein.", true);
     }
@@ -1915,6 +2180,13 @@ if (enrollFarmerForm) {
   });
 
   document.addEventListener("click", (event) => {
+    const openFarmTrigger = event.target.closest("[data-owner-open-farm]");
+    if (openFarmTrigger && !event.target.closest("[data-owner-edit-farm-card], [data-owner-edit-batch-card]")) {
+      ownerFarmWorkspaceState.selectedFarmCode = openFarmTrigger.getAttribute("data-owner-open-farm") || "";
+      renderOwnerFarmWorkspace();
+      document.querySelector("#owner-selected-farm-workspace")?.scrollIntoView({ behavior: "smooth", block: "start" });
+      return;
+    }
     const farmerTrigger = event.target.closest("[data-owner-edit-farmer], [data-owner-edit-farm-card]");
     if (farmerTrigger) {
       try {
@@ -2249,34 +2521,31 @@ const page = document.body.dataset.ownerPage;
 initOwnerShell();
 if (page) {
   if (page === "dashboard") {
-    renderDashboardData(readCache("dashboard"));
-    loadDashboard().catch(handlePageError);
-  }
-  if (page === "farms") {
+    goToOwnerDashboard();
+  } else if (page === "farms") {
     renderFarmsData(readCache("farms"));
     loadFarms().catch(handlePageError);
-  }
-  if (page === "operations" || page.startsWith("operations-")) {
+    loadOperations().catch(handlePageError);
+    loadFinance().catch(handlePageError);
+    loadFiles().catch(handlePageError);
+    loadReports().catch(handlePageError);
+    loadParties().catch(handlePageError);
+  } else if (page === "operations" || page.startsWith("operations-")) {
     renderOperationsData(readCache("operations"));
     loadOperations().catch(handlePageError);
-  }
-  if (page === "finance" || page === "finance-costs" || page === "finance-sales") {
+  } else if (page === "finance" || page === "finance-costs" || page === "finance-sales") {
     renderFinanceData(readCache("finance"));
     loadFinance().catch(handlePageError);
-  }
-  if (page === "parties") {
+  } else if (page === "parties") {
     renderPartiesData(readCache("parties"));
     loadParties().catch(handlePageError);
-  }
-  if (page === "files") {
+  } else if (page === "files") {
     renderOwnerFilesData(readCache("files"));
     loadFiles().catch(handlePageError);
-  }
-  if (page === "reports") {
+  } else if (page === "reports") {
     renderOwnerReportsData(readCache("reports"));
     loadReports().catch(handlePageError);
-  }
-  if (page === "profile") {
+  } else if (page === "profile") {
     renderOwnerProfileData(readCache("profile"));
     loadOwnerProfile().catch(handlePageError);
   }
