@@ -23,6 +23,7 @@ const ownerPageMeta = {
 const ownerFarmWorkspaceState = {
   selectedFarmCode: "",
   selectedSection: "",
+  editingSaleId: null,
   farms: null,
   operations: null,
   finance: null,
@@ -508,6 +509,48 @@ function renderOwnerInlineSimpleList(items, emptyText) {
     .join("");
 }
 
+function renderOwnerFarmSalesList(items) {
+  if (!items?.length) return `<div class="fa-empty-state">No sale record</div>`;
+  return items
+    .slice(0, 5)
+    .map((item) => {
+      const isEditing = String(ownerFarmWorkspaceState.editingSaleId || "") === String(item.sale_id || "");
+      return `
+        <div class="fa-list-row owner-sale-row">
+          <div>
+            <span>${item.label || "-"}</span>
+            ${item.note ? `<p>${item.note}</p>` : ""}
+            <div class="fa-inline-actions">
+              <button class="fa-secondary-btn" type="button" data-owner-edit-sale-rate="${item.sale_id || ""}">
+                ${item.value === "Amount pending" ? "Add rate" : "Edit rate"}
+              </button>
+            </div>
+            ${
+              isEditing
+                ? `
+                  <form class="owner-inline-rate-form" data-owner-sale-rate-form="${item.sale_id || ""}">
+                    <input
+                      name="rate_per_kg"
+                      type="text"
+                      inputmode="decimal"
+                      placeholder="Rate per kg"
+                      value="${item.rate_per_kg || ""}"
+                      required
+                    />
+                    <button class="fa-primary-btn" type="submit">Save</button>
+                    <button class="fa-secondary-btn" type="button" data-owner-cancel-sale-rate="true">Cancel</button>
+                  </form>
+                `
+                : ""
+            }
+          </div>
+          <strong>${item.value || "-"}</strong>
+        </div>
+      `;
+    })
+    .join("");
+}
+
 function renderFarmDailySummary(dailyFarm) {
   const groups = dailyFarm?.daily_groups || [];
   if (!groups.length) return `<div class="fa-empty-state">Abhi daily entry available nahi hai.</div>`;
@@ -675,7 +718,7 @@ function renderOwnerFarmWorkspace() {
           <div class="fa-section-head"><div><p class="fa-eyebrow">Business</p><h3>Costs and sales</h3></div></div>
           <div class="owner-grid-two owner-grid-two-tight">
             <div class="fa-list-card">${renderOwnerInlineSimpleList(farmExpenses, "No cost record")}</div>
-            <div class="fa-list-card">${renderOwnerInlineSimpleList(farmSales, "No sale record")}</div>
+            <div class="fa-list-card">${renderOwnerFarmSalesList(farmSales)}</div>
           </div>
         </section>
       `;
@@ -2302,6 +2345,7 @@ if (enrollFarmerForm) {
     if (openFarmTrigger && !event.target.closest("[data-owner-edit-farm-card], [data-owner-edit-batch-card]")) {
       ownerFarmWorkspaceState.selectedFarmCode = openFarmTrigger.getAttribute("data-owner-open-farm") || "";
       ownerFarmWorkspaceState.selectedSection = "";
+      ownerFarmWorkspaceState.editingSaleId = null;
       renderOwnerFarmWorkspace();
       document.querySelector("#owner-selected-farm-workspace")?.scrollIntoView({ behavior: "smooth", block: "start" });
       return;
@@ -2309,12 +2353,26 @@ if (enrollFarmerForm) {
     const openFarmSectionTrigger = event.target.closest("[data-owner-open-farm-section]");
     if (openFarmSectionTrigger) {
       ownerFarmWorkspaceState.selectedSection = openFarmSectionTrigger.getAttribute("data-owner-open-farm-section") || "";
+      ownerFarmWorkspaceState.editingSaleId = null;
       renderOwnerFarmWorkspace();
       return;
     }
     const backFarmSectionsTrigger = event.target.closest("[data-owner-back-farm-sections]");
     if (backFarmSectionsTrigger) {
       ownerFarmWorkspaceState.selectedSection = "";
+      ownerFarmWorkspaceState.editingSaleId = null;
+      renderOwnerFarmWorkspace();
+      return;
+    }
+    const editSaleRateTrigger = event.target.closest("[data-owner-edit-sale-rate]");
+    if (editSaleRateTrigger) {
+      ownerFarmWorkspaceState.editingSaleId = editSaleRateTrigger.getAttribute("data-owner-edit-sale-rate") || null;
+      renderOwnerFarmWorkspace();
+      return;
+    }
+    const cancelSaleRateTrigger = event.target.closest("[data-owner-cancel-sale-rate]");
+    if (cancelSaleRateTrigger) {
+      ownerFarmWorkspaceState.editingSaleId = null;
       renderOwnerFarmWorkspace();
       return;
     }
@@ -2612,6 +2670,27 @@ if (ownerSaleForm) {
     }
   });
 }
+
+document.addEventListener("submit", async (event) => {
+  const form = event.target.closest("[data-owner-sale-rate-form]");
+  if (!form) return;
+  event.preventDefault();
+  const saleId = form.getAttribute("data-owner-sale-rate-form");
+  const rateInput = form.querySelector('input[name="rate_per_kg"]');
+  const rateValue = `${rateInput?.value || ""}`.trim();
+  if (!saleId || !rateValue) return;
+  try {
+    await requestJson(`${ownerApiBase}/sales/${saleId}`, {
+      method: "PUT",
+      body: JSON.stringify({ rate_per_kg: rateValue }),
+    });
+    ownerFarmWorkspaceState.editingSaleId = null;
+    loadFinance().catch(console.error);
+    loadReports().catch(console.error);
+  } catch {
+    setStatus(".owner-sale-note", "Rate save nahi ho paaya. Dobara try karein.", true);
+  }
+});
 
 const ownerProfileForm = document.querySelector("[data-owner-profile-form]");
 if (ownerProfileForm) {

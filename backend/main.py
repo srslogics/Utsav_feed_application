@@ -812,6 +812,10 @@ class OwnerSalePayload(BaseModel):
     amount: str = ""
 
 
+class OwnerSaleRateUpdatePayload(BaseModel):
+    rate_per_kg: str
+
+
 class OwnerProfileUpdatePayload(BaseModel):
     name: str
     phone: str
@@ -1444,8 +1448,11 @@ def make_operational_cost_history(records: list[OperationalCost]) -> list[dict]:
 def make_sales_history(records: list[SaleRecord]) -> list[dict]:
     return [
         {
+            "sale_id": record.id,
             "label": f"{record.entry_date} / Bill {record.bill_number}",
             "value": compute_sale_amount_text(record.total_weight_kg, record.rate_per_kg, record.amount),
+            "rate_per_kg": record.rate_per_kg or "",
+            "total_weight_kg": record.total_weight_kg or "",
             "note": join_present(
                 [
                     record.party_name,
@@ -1923,8 +1930,11 @@ def summarize_owner_sales(records: list[SaleRecord], db: Session) -> list[dict]:
             continue
         items.append(
             {
+                "sale_id": record.id,
                 "label": f"{farmer.farm_name} / Bill {record.bill_number}",
                 "value": compute_sale_amount_text(record.total_weight_kg, record.rate_per_kg, record.amount),
+                "rate_per_kg": record.rate_per_kg or "",
+                "total_weight_kg": record.total_weight_kg or "",
                 "note": join_present(
                     [
                         record.entry_date,
@@ -3869,6 +3879,33 @@ async def owner_add_sale_record(
         db.commit()
 
     return {"success": True, "message": "Sale saved successfully."}
+
+
+@app.put("/api/owner/sales/{sale_id}")
+def owner_update_sale_rate(sale_id: int, payload: OwnerSaleRateUpdatePayload, request: Request):
+    get_current_user(request, "owner")
+    with session_scope() as db:
+        sale = db.get(SaleRecord, sale_id)
+        if not sale:
+            raise HTTPException(status_code=404, detail="Sale record not found.")
+        rate_value = (payload.rate_per_kg or "").strip()
+        if not rate_value:
+            raise HTTPException(status_code=400, detail="Rate is required.")
+        sale.rate_per_kg = rate_value
+        sale.amount = compute_sale_amount_text(sale.total_weight_kg, rate_value, "")
+        db.add(sale)
+        db.commit()
+        db.refresh(sale)
+
+    return {
+        "success": True,
+        "sale": {
+            "sale_id": sale.id,
+            "rate_per_kg": sale.rate_per_kg,
+            "amount": sale.amount,
+            "total_weight_kg": sale.total_weight_kg,
+        },
+    }
 
 
 @app.get("/api/owner/operations")

@@ -3258,6 +3258,19 @@
   display: none !important;
 }
 
+.owner-inline-rate-form {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-top: 0.7rem;
+}
+
+.owner-inline-rate-form input {
+  min-width: 140px;
+  flex: 1 1 160px;
+}
+
 .owner-body[data-owner-page="farms"] .fa-detail-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(240px, 280px));
