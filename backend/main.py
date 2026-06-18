@@ -204,6 +204,38 @@ def slug_text(value: str) -> str:
     return slug or "unassigned"
 
 
+def farm_code_token(value: str, fallback: str = "") -> str:
+    cleaned = re.sub(r"[^A-Z0-9]+", "", (value or "").strip().upper())
+    return cleaned[:3] or fallback
+
+
+def build_farm_code_base(farm_name: str, area: str) -> str:
+    farm_token = farm_code_token(farm_name)
+    area_token = farm_code_token(area)
+    if not farm_token and not area_token:
+        return "FARM"
+    if not area_token:
+        return farm_token
+    if not farm_token:
+        return area_token
+    return f"{farm_token}-{area_token}"
+
+
+def build_unique_farmer_code(db: Session, farm_name: str, area: str, exclude_user_id: int | None = None) -> str:
+    base_code = build_farm_code_base(farm_name, area)
+    candidate = base_code
+    suffix = 2
+    while True:
+        query = select(User.id).where(User.role == "farmer", User.farmer_code == candidate)
+        if exclude_user_id is not None:
+            query = query.where(User.id != exclude_user_id)
+        existing_user_id = db.scalar(query)
+        if not existing_user_id:
+            return candidate
+        candidate = f"{base_code}-{suffix}"
+        suffix += 1
+
+
 def cache_get(store: dict[str, dict], key: str):
     entry = store.get(key)
     if not entry:
@@ -3611,12 +3643,10 @@ def owner_create_farmer(payload: OwnerFarmerEnrollmentPayload, request: Request)
     with session_scope() as db:
         normalized_phone = normalize_phone(payload.phone)
         normalized_officer_phone = normalize_phone(payload.field_officer_phone) if payload.field_officer_phone else ""
+        generated_farmer_code = build_unique_farmer_code(db, payload.farm_name, payload.cluster)
         existing_phone = db.scalar(select(User).where(User.phone == normalized_phone))
         if existing_phone:
             raise HTTPException(status_code=400, detail="Phone number already exists.")
-        existing_code = db.scalar(select(User).where(User.role == "farmer", User.farmer_code == payload.farmer_code))
-        if existing_code:
-            raise HTTPException(status_code=400, detail="Farmer code already exists.")
 
         officer = ensure_field_officer_by_values(
             db,
@@ -3631,7 +3661,7 @@ def owner_create_farmer(payload: OwnerFarmerEnrollmentPayload, request: Request)
             password_hash=hash_password(payload.password),
             cluster=payload.cluster,
             farm_name=payload.farm_name,
-            farmer_code=payload.farmer_code,
+            farmer_code=generated_farmer_code,
             active_batch="",
             bird_age_days=0,
             field_officer=officer.name if officer else "",
@@ -3667,14 +3697,11 @@ def owner_update_farmer_account(farmer_code: str, payload: OwnerFarmerUpdatePayl
 
         normalized_phone = normalize_phone(payload.phone)
         normalized_officer_phone = normalize_phone(payload.field_officer_phone) if payload.field_officer_phone else ""
+        generated_farmer_code = build_unique_farmer_code(db, payload.farm_name, payload.cluster, exclude_user_id=farmer.id)
 
         existing_phone = db.scalar(select(User).where(User.phone == normalized_phone, User.id != farmer.id))
         if existing_phone:
             raise HTTPException(status_code=400, detail="Phone number already exists.")
-
-        existing_code = db.scalar(select(User).where(User.role == "farmer", User.farmer_code == payload.farmer_code, User.id != farmer.id))
-        if existing_code:
-            raise HTTPException(status_code=400, detail="Farmer code already exists.")
 
         officer = ensure_field_officer_by_values(
             db,
@@ -3689,7 +3716,7 @@ def owner_update_farmer_account(farmer_code: str, payload: OwnerFarmerUpdatePayl
             farmer.password_hash = hash_password(payload.password)
         farmer.cluster = payload.cluster
         farmer.farm_name = payload.farm_name
-        farmer.farmer_code = payload.farmer_code
+        farmer.farmer_code = generated_farmer_code
         farmer.field_officer = officer.name if officer else ""
         farmer.farm_capacity = payload.farm_capacity
         farmer.active_sheds = payload.active_sheds

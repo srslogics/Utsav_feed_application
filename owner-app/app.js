@@ -970,7 +970,7 @@ function renderDailyEntryHierarchy(container, farms) {
             <input
               type="search"
               value="${state.search}"
-              placeholder="Search by farm, farmer, code, cluster"
+              placeholder="Search by farm, farmer, code, area"
               data-owner-daily-search
             />
           </label>
@@ -2016,6 +2016,30 @@ function closeAllOwnerFormPanels() {
   setOwnerFormPanelVisibility("batch", false);
 }
 
+function ownerFarmCodeToken(value, fallback = "") {
+  const cleaned = `${value || ""}`.toUpperCase().replace(/[^A-Z0-9]+/g, "");
+  return cleaned.slice(0, 3) || fallback;
+}
+
+function buildOwnerFarmCodePreview(farmName, area) {
+  const farmToken = ownerFarmCodeToken(farmName, "");
+  const areaToken = ownerFarmCodeToken(area, "");
+  if (!farmToken && !areaToken) return "";
+  if (!areaToken) return farmToken;
+  if (!farmToken) return areaToken;
+  return `${farmToken}-${areaToken}`;
+}
+
+function syncOwnerFarmerCodePreview() {
+  const form = document.querySelector("[data-owner-enroll-farmer]");
+  if (!form) return;
+  const farmNameInput = form.querySelector('input[name="farm_name"]');
+  const areaInput = form.querySelector('input[name="cluster"]');
+  const codeInput = form.querySelector('input[name="farmer_code"]');
+  if (!farmNameInput || !areaInput || !codeInput) return;
+  codeInput.value = buildOwnerFarmCodePreview(farmNameInput.value, areaInput.value);
+}
+
 function resetOwnerEnrollmentForm() {
   const form = document.querySelector("[data-owner-enroll-farmer]");
   if (!form) return;
@@ -2035,6 +2059,7 @@ function resetOwnerEnrollmentForm() {
   if (passwordNote) {
     passwordNote.textContent = "New farmer ke liye password zaroori hai.";
   }
+  syncOwnerFarmerCodePreview();
 }
 
 function startOwnerFarmerEdit(item) {
@@ -2065,6 +2090,7 @@ function startOwnerFarmerEdit(item) {
   if (passwordNote) {
     passwordNote.textContent = "Blank chhodne par purana password waise ka waise rahega.";
   }
+  syncOwnerFarmerCodePreview();
   setStatus(".owner-create-note", `Editing ${item.farmer_name || item.farm_name || "farmer"}.`);
   form.scrollIntoView({ behavior: "smooth", block: "start" });
 }
@@ -2242,6 +2268,8 @@ if (loginForm) {
 const enrollFarmerForm = document.querySelector("[data-owner-enroll-farmer]");
 if (enrollFarmerForm) {
   const cancelEditButton = enrollFarmerForm.querySelector("[data-owner-enroll-cancel]");
+  enrollFarmerForm.querySelector('input[name="farm_name"]')?.addEventListener("input", syncOwnerFarmerCodePreview);
+  enrollFarmerForm.querySelector('input[name="cluster"]')?.addEventListener("input", syncOwnerFarmerCodePreview);
   cancelEditButton?.addEventListener("click", () => {
     resetOwnerEnrollmentForm();
     setStatus(".owner-create-note", "");
@@ -2316,6 +2344,7 @@ if (enrollFarmerForm) {
 
   enrollFarmerForm.addEventListener("submit", async (event) => {
     event.preventDefault();
+    syncOwnerFarmerCodePreview();
     const formData = new FormData(enrollFarmerForm);
     const editingFarmerCode = formData.get("editing_farmer_code");
     const payload = {
