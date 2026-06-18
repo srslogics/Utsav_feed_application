@@ -1586,7 +1586,7 @@ def build_owner_farm_reports(
         farmer_inward = inward_by_farmer.get(farmer.id, [])
 
         total_operational_cost = sum(parse_amount_value(item.amount) for item in farmer_costs)
-        total_sale_amount = sum(parse_amount_value(item.amount) for item in farmer_sales)
+        total_sale_amount = sum(compute_sale_amount_value(item.total_weight_kg, item.rate_per_kg, item.amount) for item in farmer_sales)
         total_sale_weight = sum(parse_amount_value(item.total_weight_kg) for item in farmer_sales)
         total_bill_amount = sum(parse_amount_value(item.amount) for item in farmer_documents)
         total_feed_inward_bags = sum(float(item.bags or 0) for item in farmer_inward)
@@ -1949,15 +1949,21 @@ def parse_amount_value(raw_value: str | None) -> float:
         return 0.0
 
 
-def compute_sale_amount_text(total_weight_kg: str | None, rate_per_kg: str | None, amount: str | None) -> str:
+def compute_sale_amount_value(total_weight_kg: str | None, rate_per_kg: str | None, amount: str | None) -> float:
     saved_amount = (amount or "").strip()
-    if saved_amount:
-        return saved_amount
+    if saved_amount and saved_amount.lower() != "amount pending":
+        return parse_amount_value(saved_amount)
     weight_value = parse_amount_value(total_weight_kg)
     rate_value = parse_amount_value(rate_per_kg)
     if weight_value <= 0 or rate_value <= 0:
+        return 0.0
+    return weight_value * rate_value
+
+
+def compute_sale_amount_text(total_weight_kg: str | None, rate_per_kg: str | None, amount: str | None) -> str:
+    total_value = compute_sale_amount_value(total_weight_kg, rate_per_kg, amount)
+    if total_value <= 0:
         return "Amount pending"
-    total_value = weight_value * rate_value
     formatted = f"{total_value:,.2f}".rstrip("0").rstrip(".")
     return f"Rs {formatted}"
 
@@ -3917,7 +3923,7 @@ def owner_finance(request: Request):
         ]
     total_doc_amount = sum(parse_amount_value(doc.amount) for doc in documents)
     total_operational_cost = sum(parse_amount_value(item.amount) for item in operational_costs)
-    total_sale_amount = sum(parse_amount_value(item.amount) for item in sales)
+    total_sale_amount = sum(compute_sale_amount_value(item.total_weight_kg, item.rate_per_kg, item.amount) for item in sales)
     total_sale_weight_kg = sum(parse_amount_value(item.total_weight_kg) for item in sales)
     return {
         "profile": serialize_profile(user),
@@ -3974,7 +3980,7 @@ def owner_reports(request: Request):
         reports = build_owner_farm_reports(farmers, daily_entries, operational_costs, sales, documents, feed_inward)
 
     total_operational_cost = sum(parse_amount_value(item.amount) for item in operational_costs)
-    total_sales_amount = sum(parse_amount_value(item.amount) for item in sales)
+    total_sales_amount = sum(compute_sale_amount_value(item.total_weight_kg, item.rate_per_kg, item.amount) for item in sales)
     total_sale_weight_kg = sum(parse_amount_value(item.total_weight_kg) for item in sales)
     return {
         "profile": serialize_profile(user),
